@@ -14,6 +14,10 @@ policy. GitHub remains the authoritative merge location; no protection change is
 derives its OS, independent/dependent waves and timeout from the current catalogs. YAML has no
 unit/suite list or path-based coverage selection. All requested profile units remain required.
 The current graph has one dependency wave: parity consumes the four conformance source shards.
+Before catalog construction, the planning job explicitly bootstraps a fresh pinned runtime-only
+Python environment: catalog validators import the framework's YAML implementation. This setup
+has a 150-second deadline inside the five-minute planning job and is separately measured; it is
+not a global pip install or an assumption about packages preinstalled in the agent image.
 Deeper dependencies fail admission until orchestration is reviewed; they are not silently skipped.
 Collection requires every approved shard exactly once, even after ordinary worker failures.
 Missing downloads cannot fall back to accidentally executing the whole profile again.
@@ -99,6 +103,16 @@ path admission for `.tmp/ci-shadow`. The scoped correction uses the existing con
 authority, retaining link/escape checks. A real `-I -S` bare-interpreter CLI regression covers the
 host's pre-bootstrap context step and verifies bounded outputs without installed packages. The failed
 run remains historical evidence; production coverage is not credited for its skipped workers.
+
+The [next run 37574903443](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37574903443)
+passes context admission but fails catalog construction because the bare interpreter lacks PyYAML.
+The scoped correction adds explicit runtime bootstrap before catalog planning and uses its verified
+interpreter. A clean private-checkout planning CLI regression exercises actual scope resolution,
+owning validators and the complete eight-independent/one-dependent matrix, without launching tests.
+Neither failed attempt satisfies execution coverage; both remain preserved.
+Workers likewise invoke execution/collection through the verified development interpreter returned
+by bootstrap, rather than the host's base Python. Catalog validation and aggregate execution share
+their declared prerequisites; prepared environments are explicit paths, not implicit activation.
 
 Final scope/bootstrap/report regression passes 133 cases on Windows and Linux. The earlier broader
 execution/report/native-result/compatibility cohort passes 219 cases; its report additions are

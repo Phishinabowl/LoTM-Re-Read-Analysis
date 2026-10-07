@@ -53,11 +53,17 @@ jobs:
           ref: ${{ steps.context.outputs.checkout }}
           fetch-depth: 0
           persist-credentials: false
+      - name: Prepare pinned runtime for catalog validation
+        id: planning-bootstrap
+        env:
+          SHADOW_CONTEXT: ${{ steps.context.outputs.context }}
+        run: python Tools/CI/github_shadow.py plan-bootstrap
       - name: Resolve full scope and approved shard matrices
         id: plan
         env:
           SHADOW_CONTEXT: ${{ steps.context.outputs.context }}
-        run: python Tools/CI/github_shadow.py plan
+          PLAN_PYTHON: ${{ steps.planning-bootstrap.outputs.python }}
+        run: '"$PLAN_PYTHON" Tools/CI/github_shadow.py plan'
       - name: Retain planning diagnostics
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

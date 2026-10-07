@@ -77,12 +77,13 @@ jobs:
         shell: pwsh
         env:
           SHADOW_SHARD: ${{ inputs.shard }}
+          EXECUTION_PYTHON: ${{ steps.bootstrap.outputs.python }}
         run: |
           if ($env:SHADOW_SHARD) {
-              python Tools/CI/github_shadow.py execute --shard $env:SHADOW_SHARD
+              & $env:EXECUTION_PYTHON Tools/CI/github_shadow.py execute --shard $env:SHADOW_SHARD
           }
           else {
-              python Tools/CI/github_shadow.py collect
+              & $env:EXECUTION_PYTHON Tools/CI/github_shadow.py collect
           }
           exit $LASTEXITCODE
       - name: Retain exact admitted evidence and setup diagnostics

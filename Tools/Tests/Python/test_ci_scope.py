@@ -206,6 +206,45 @@ def test_github_context_cli_works_without_site_packages_and_uses_ignored_report_
 
 
 @pytest.mark.integration
+def test_github_full_planning_cli_in_clean_private_checkout(tmp_path):
+    root = tmp_path / "private-project"
+    # Captured CI sources have a private index without HEAD; copy index-approved working bytes.
+    inventory = scope.parse_inventory(scope.Git(ROOT).index(), index=True)
+    for name, row in inventory.items():
+        destination = root / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes((ROOT / name).read_bytes())
+        destination.chmod(0o755 if row["mode"] == "100755" else 0o644)
+    git(root, "init", "--initial-branch=main")
+    git(root, "config", "user.name", "CI planning fixture")
+    git(root, "config", "user.email", "ci-fixture@example.invalid")
+    git(root, "config", "commit.gpgsign", "false")
+    git(root, "config", "core.autocrlf", "false")
+    head = commit(root, "private planning source")
+    output = tmp_path / "plan-outputs.txt"
+    context = github_shadow.event_context(
+        {"inputs": {"profile": "pr-integration"}}, shadow_environment(head, "workflow_dispatch")
+    )
+    environment = {**os.environ, "SHADOW_CONTEXT": json.dumps(context), "GITHUB_OUTPUT": str(output)}
+    child = subprocess.run(
+        [sys.executable, "-I", str(root / "Tools/CI/github_shadow.py"), "plan"],
+        cwd=root,
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert child.returncode == 0, child.stdout + child.stderr
+    values = dict(line.split("=", 1) for line in output.read_text().splitlines())
+    assert len(json.loads(values["independent"])["include"]) == 8
+    assert len(json.loads(values["dependent"])["include"]) == 1
+    plan = json.loads((root / ".tmp/ci-shadow/plan.json").read_text())
+    assert plan["scope"]["provenance"]["executed_commit"] == head
+    assert plan["scope"]["policy_scope"]["mode"] == "full"
+    assert git(root, "status", "--porcelain") == ""
+
+
+@pytest.mark.integration
 def test_multicommit_mergebase_unicode_spaces_and_deletion(repo):
     base = git(repo, "rev-parse", "HEAD")
     git(repo, "checkout", "-b", "feature")

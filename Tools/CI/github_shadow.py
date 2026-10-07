@@ -254,7 +254,9 @@ def execute(context, shard, inputs):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("operation", choices=("context", "plan", "prepare", "bootstrap", "execute", "collect"))
+    parser.add_argument(
+        "operation", choices=("context", "plan-bootstrap", "plan", "prepare", "bootstrap", "execute", "collect")
+    )
     parser.add_argument("--shard")
     parser.add_argument("--inputs", default=".tmp/ci-shadow/downloads")
     args = parser.parse_args()
@@ -282,6 +284,31 @@ def main():
         output(context=context, checkout=context["executed"])
         return 0
     context = json.loads(os.environ["SHADOW_CONTEXT"])
+    if args.operation == "plan-bootstrap":
+        validate_context(ROOT, context)
+        deadline = time.monotonic() + 150
+        environment = {**os.environ, "LOTM_CI_UNIT_DEADLINE": str(deadline)}
+        report_path = out / "planning-bootstrap.json"
+        command = [
+            sys.executable,
+            str(ROOT / "Tools/CI/bootstrap.py"),
+            "--python-profile",
+            "runtime",
+            "--environment-id",
+            "github-shadow-plan",
+            "--source-revision",
+            context["executed"],
+            "--report",
+            str(report_path),
+        ]
+        child = subprocess.run(command, cwd=ROOT, env=environment, timeout=150, check=False)
+        if child.returncode:
+            return child.returncode
+        setup = bootstrap.read_json(report_path)
+        if setup["status"] != "passed":
+            raise ValueError("Planning runtime bootstrap did not pass")
+        output(python=setup["python"]["executable"])
+        return 0
     if args.operation == "plan":
         scope = validate_context(ROOT, context)
         plan, independent, dependent = matrices(ROOT, context)
@@ -323,6 +350,8 @@ def main():
         if child.returncode:
             return child.returncode
         (out / "tools.json").write_text(json.dumps({"actionlint": tool, "setup_deadline_seconds": 600}, indent=2))
+        setup = bootstrap.read_json(ROOT / ".tmp/ci-cache-pilot/bootstrap.json")
+        output(python=setup["python"]["executable"])
         return 0
     return execute(context, args.shard if args.operation == "execute" else None, ROOT / args.inputs)
 
