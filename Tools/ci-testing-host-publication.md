@@ -14,7 +14,9 @@ expands and renders correctly. Normal PR run 54 passes all 76 units and 676 serv
 exact-byte nine-section combined report. The published combined implementation is fully qualified.
 The human-readability and sequential-title refinement is confirmed and dual-published as `68c66a1`.
 Azure bounded run 56 passes with exact server/report verification, and the maintainer accepts its
-report and job title. A GitHub retry-artifact reference correction is prepared locally and uncommitted.
+report and job title. The GitHub retry-artifact correction is confirmed and dual-published as
+`72093f4`; bounded run 37635934097 and its aggregate-only retry both pass with exact artifact-reference
+verification. The maintainer confirms the final evidence record and closes Phase 6.4 on 2026-10-07.
 First-source Azure run 48 passes all 76 units and publishes 652 verified server cases. Entry is
 confirmed 6.3 at `cc93c8d`; the [modernization plan](ci-testing-modernization-plan.md#phase-64-markdown-tests-tab-and-detailed-publication)
 owns acceptance. No required check, branch policy, event or timing goal is changed.
@@ -467,6 +469,30 @@ without rewriting retained Plan provenance, original report JSON or XML. Invalid
 closed. **101 report cases pass per OS** (Windows 12.11s; Linux 9.91s), including stale-Plan/current-attempt
 and invalid-metadata fixtures; Ruff passes. The new four-file correction is uncommitted pending
 confirmation, then a bounded GitHub publication check. Azure's accepted presentation is unaffected.
+
+## Current-Attempt Correction Qualification
+
+The maintainer confirms the four-file correction, published as
+`72093f4eb69e8149199a93f9f8be8df38073de0d`. Local HEAD, upstream, GitHub and Azure tracking references
+agree after publication, with a clean worktree before this evidence update. Both PRs remain paused.
+
+[GitHub bounded run 37635934097](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37635934097)
+passes five infrastructure checks and **454 pytest cases**, with no failures, errors or skipped native
+cases. Its 2042-byte hosted report names the actual `ci-shadow-aggregate-all-1` artifact. Original
+manifest validation verifies all 67 recorded files, complete execution, source protection and cleanup.
+
+An aggregate-only retry passes on attempt 2 without rerunning planning or test execution. Downloaded
+context retains Plan attempt **1**, while the hosted summary correctly names the actual
+`ci-shadow-aggregate-all-2` artifact. GitHub's artifact API confirms both aggregate attempts and the
+original attempt-1 shard/Plan artifacts remain available. The retry preserves all 454 passing cases,
+complete original evidence and verified protection/cleanup. This directly exercises the observed
+stale-Plan/current-attempt boundary on the corrected published source; no additional full portfolio
+or Azure run is required for this GitHub-only reference fix.
+
+Together with accepted Azure run 56 and the retained ordinary-failure, timeout, missing-result,
+publication-loss and recovery evidence above, the maintainer confirms Phase 6.4's implementation,
+qualification and final evidence record on 2026-10-07. These functional results do not accept existing hosted
+timing costs, enable selective coverage or change policies. Phase 6.5 remains unstarted.
 
 **Rollback:** Restore preceding worker templates and remove the new publication invocation. Preserve
 original bundles, failed receipts and optional policies; no catalog or execution contract rollback

@@ -92,7 +92,10 @@ The presentation edits are subsequently confirmed and published as `68c66a1`. Az
 passes five units and 449 exact server cases with one exact-byte 4197-byte report; the maintainer
 accepts the readable report and job title. GitHub's unchanged-source retry passes execution but exposes
 a stale-attempt artifact label; its locally verified correction awaits confirmation/publication and
-bounded GitHub proof. Phase 6.4 is not yet closed, and 6.5 remains unstarted.
+bounded GitHub proof. The correction is subsequently confirmed and published as `72093f4`; bounded
+run 37635934097 and an aggregate-only retry pass five checks and 454 cases, with exact current-attempt
+artifact references and retained Plan provenance. The maintainer confirms the final evidence update
+and Phase 6.4 closeout on 2026-10-07. Phase 6.5 remains unstarted.
 The accepted 5.7 results and timing disposition remain intact; local WSL evidence will not substitute
 for actual hosted measurements.
 
@@ -2299,18 +2302,18 @@ shadow 37610038443 and Azure policy run 49 both pass 76/76 units and 663 unique 
 server summary attachments, exact aggregate Markdown bytes and all 663 server case identities/outcomes
 are independently verified against admitted evidence. First-source Azure run 48 passes all 76
 units and publishes exactly 652 server case identities. Local proof is not hosted acceptance;
-checklist closure now awaits final maintainer confirmation and publication of the closeout record.
+The final closeout record below confirms checklist closure after the presentation follow-up.
 Run 49 costs 56m53s queue-to-finish and 49m37s summed job execution, with manual experiments sharing
 the single slot; these are not an uncontended baseline or accepted steady-state costs. Aggregate report
 duration measures collection, not whole-pipeline time. No timing or policy-adoption gate is relaxed.
 
-- [ ] Publish Markdown in both hosts and native pytest/Pester/custom XML with `PublishTestResults@2`
+- [x] Publish Markdown in both hosts and native pytest/Pester/custom XML with `PublishTestResults@2`
   in ADO after ordinary test failures; retain run-specific JSON and diagnostic artifacts.
-- [ ] Verify stable names distinguish runtime variants, honest counts, skipped/unexecuted coverage,
+- [x] Verify stable names distinguish runtime variants, honest counts, skipped/unexecuted coverage,
   durations, failed cases, stack traces, and custom-suite details.
-- [ ] Demonstrate passing, assertion-failed, timed-out, missing-result, and publication-failed runs;
+- [x] Demonstrate passing, assertion-failed, timed-out, missing-result, and publication-failed runs;
   prove successful report upload cannot erase an execution failure.
-- [ ] Walk through ADO logs, Tests tab, Markdown, diagnostics, and artifacts with the maintainer;
+- [x] Walk through ADO logs, Tests tab, Markdown, diagnostics, and artifacts with the maintainer;
   explain automated results versus manual Test Plans and note actual cancellation limitations.
 
 **Checkpoint:** The maintainer can diagnose an intentional failure from each host without rerunning blindly.
@@ -2364,6 +2367,15 @@ setup (exit 3221226505), before tests; one unchanged-source retry passes but reu
 the report's artifact reference while uploading attempt 2. The prepared current-attempt label fix
 passes 101 report cases per OS, with retained Plan/JSON/XML evidence unchanged. Correction confirmation
 and bounded GitHub publication proof remain open; no additional full manual portfolio is required.
+
+**Final bounded proof:** The current-attempt artifact reference correction is confirmed and
+dual-published as `72093f4`. GitHub manual run 37635934097 passes five checks and 454 pytest cases,
+with complete manifest admission, source protection and verified cleanup. An aggregate-only retry
+reuses Plan attempt 1 and completed tests but correctly names its actual attempt-2 artifact; both
+attempts' original artifacts remain available. Azure run 56's report/job-title UI acceptance remains
+valid. The maintainer confirms all four completed 6.4 implementation/qualification items and this
+final evidence update on 2026-10-07, closing the phase. No extra full portfolio run is needed. Hosted timing
+exceptions and conservative full execution remain unchanged, and Phase 6.5 has not started.
 
 ### Phase 6.5 Host Equivalence And Policy Adoption Review
 
