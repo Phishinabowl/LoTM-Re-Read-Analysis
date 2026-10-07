@@ -341,7 +341,12 @@ function Invoke-ConformanceSuite {
         if ($env:LOTM_CI_MODULE_ROOT) {
             $payload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(
                     (@($SuiteDefinition.powershell_path, '-Root', $RepoRoot, '-Json') | ConvertTo-Json -Compress)))
-            $wrapper = Join-Path $toolsRoot 'Commands/Environment/Invoke-OwnedPowerShell.ps1'
+            $wrapper = if ($env:LOTM_CI_POWERSHELL_LAUNCHER) {
+                $env:LOTM_CI_POWERSHELL_LAUNCHER
+            }
+            else {
+                Join-Path $toolsRoot 'Commands/Environment/Invoke-OwnedPowerShell.ps1'
+            }
             $arguments = @('-NoProfile', '-File', $wrapper, '-Payload', $payload)
         }
         $startInfo = [System.Diagnostics.ProcessStartInfo]::new($executable)

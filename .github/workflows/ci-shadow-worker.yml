@@ -31,6 +31,10 @@ jobs:
       PYTHONUTF8: "1"
       SHADOW_CONTEXT: ${{ inputs.context }}
       CACHE_HIT: "false"
+      # Keep unspecified text (including LICENSE) aligned with captured Git blobs for wheel builds.
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: "false"
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:

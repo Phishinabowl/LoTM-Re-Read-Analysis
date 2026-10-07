@@ -147,7 +147,7 @@ Describe 'Conformance child deadlines with synthetic scripts' -Tag Integration {
         $timer = [Diagnostics.Stopwatch]::StartNew()
         $result = Invoke-ConformanceSuite $TestDrive @{ id = 'hung'
             powershell_path = $hung
-        } 1
+        } 2
         $result.status | Should -Be 'failed'
         $result.error | Should -Match 'Suite deadline exceeded'
         $result.error | Should -Match 'before timeout'

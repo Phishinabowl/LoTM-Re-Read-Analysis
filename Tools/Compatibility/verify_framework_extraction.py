@@ -24,6 +24,9 @@ if str(RUNTIME_ROOT) not in sys.path:
 
 from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Commands/Environment"))
+from powershell_process import isolated_command  # noqa: E402
+
 
 # VERIFY (OWNER): Revisit this allowlist whenever a new portable framework surface is introduced.
 COPY_DIRECTORIES = (
@@ -99,7 +102,7 @@ def run_json(command: list[str], cwd: Path) -> dict[str, Any]:
         timeout = min(timeout, deadline - time.monotonic() - 2)
     try:
         completed = subprocess.run(
-            command,
+            isolated_command(command, os.environ) if Path(command[0]).name.lower() in {"pwsh", "pwsh.exe"} else command,
             cwd=cwd,
             check=False,
             capture_output=True,

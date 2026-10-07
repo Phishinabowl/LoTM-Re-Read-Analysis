@@ -244,6 +244,32 @@ def test_github_full_planning_cli_in_clean_private_checkout(tmp_path):
     assert git(root, "status", "--porcelain") == ""
 
 
+def test_host_checkout_override_preserves_license_blob_bytes_under_crlf_machine_default(repo):
+    license_file = repo / "LICENSE"
+    license_file.write_bytes(b"license text\n")
+    commit(repo, "synthetic LF license")
+    git(repo, "config", "core.autocrlf", "true")
+    license_file.unlink()
+    git(repo, "checkout", "HEAD", "--", "LICENSE")
+    assert license_file.read_bytes() == b"license text\r\n"
+    license_file.unlink()
+    environment = {
+        **scope.Git(repo).environment,
+        "GIT_CONFIG_COUNT": "1",
+        "GIT_CONFIG_KEY_0": "core.autocrlf",
+        "GIT_CONFIG_VALUE_0": "false",
+    }
+    subprocess.run(
+        ["git", "checkout", "HEAD", "--", "LICENSE"],
+        cwd=repo,
+        env=environment,
+        capture_output=True,
+        check=True,
+        timeout=15,
+    )
+    assert license_file.read_bytes() == scope.Git(repo).read("show", "HEAD:LICENSE") == b"license text\n"
+
+
 @pytest.mark.integration
 def test_multicommit_mergebase_unicode_spaces_and_deletion(repo):
     base = git(repo, "rev-parse", "HEAD")

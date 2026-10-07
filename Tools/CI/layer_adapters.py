@@ -173,6 +173,9 @@ class AdapterSession:
         if module_root:
             self.env["PSModulePath"] = str(Path(module_root).resolve())
             self.env["LOTM_CI_MODULE_ROOT"] = str(Path(module_root).resolve())
+            self.env["LOTM_CI_POWERSHELL_LAUNCHER"] = str(
+                self.root / "Tools/Commands/Environment/Invoke-OwnedPowerShell.ps1"
+            )
         prefixes = [str(Path(value).parent) for value in self.executables.values()]
         self.env["PATH"] = os.pathsep.join(prefixes + [self.env.get("PATH", "")])
         self.inventory = {}

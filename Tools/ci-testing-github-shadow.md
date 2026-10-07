@@ -114,6 +114,35 @@ Workers likewise invoke execution/collection through the verified development in
 by bootstrap, rather than the host's base Python. Catalog validation and aggregate execution share
 their declared prerequisites; prepared environments are explicit paths, not implicit activation.
 
+At `84c7de7`, [run 37575809880](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37575809880)
+completes all nine shards and collection: 72/76 units pass, four fail, none are skipped/blocked,
+and the aggregate remains red with verified source guards/cleanup. All four conformance source
+shards and parity pass; media and infrastructure pass. Original reference CI also passes all four
+retained check identities in [run 37575809655](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37575809655).
+This is observed continuation and failure preservation, not passing shadow acceptance.
+
+Two native failures identify Windows LICENSE checkout CRLF versus captured Git-blob LF and an
+absent launcher location in extracted synthetic conformance functions. Two compatibility failures
+identify the same missing launcher in reporting/extraction fixtures. The scoped correction sets
+`core.autocrlf=false` through per-job Git environment configuration before checkout, retaining
+explicit `.gitattributes` rules and exact wheel-content comparison. No repository/user Git setting,
+canonical file or wheel verifier is changed. A real Git regression proves CRLF defaults produce
+different bytes, then the job override produces exact license blob bytes.
+
+The supervisor passes the confined source launcher explicitly; wrapped children propagate it into
+their descendants. Both script and existing inline PowerShell commands use the selected module owner,
+including extraction verification. Neutral/extracted frameworks do not acquire CI directories or
+another portability dependency. Synthetic child timeout coverage retains the five-second wall bound
+and twenty-second sleeper but uses a two-second deadline, allowing cold PS startup to emit its
+required diagnostic. Production deadlines and coverage identities are unchanged.
+
+Corrected local scope regression passes 62 cases on both OSs. The real native adapter passes all
+eight conformance-runner cases on Windows/Linux; five dependency cases verify script/inline owned
+imports and exact exits. Windows execution/compatibility/package regressions pass 164 cases.
+Real conformance-reporting and framework-extraction checks pass with explicit owned modules,
+unchanged canonical outputs and verified fixture cleanup. Actual hosted retry/source replay remains
+necessary; these local corrections do not turn the retained red run into a pass.
+
 Final scope/bootstrap/report regression passes 133 cases on Windows and Linux. The earlier broader
 execution/report/native-result/compatibility cohort passes 219 cases; its report additions are
 covered by the final focused cohort. Five Pester dependency cases pass on both OSs, including real

@@ -34,6 +34,12 @@ Describe 'Exact module dependency declarations' -Tag 'Unit' {
             $document = $result | ConvertFrom-Json
             $document.path | Should -BeLike "$owned*"
             $document.value | Should -Be $literal
+            $expression = '(Import-Module FixtureChild -RequiredVersion 1.0.0 -PassThru).ModuleBase'
+            $inlinePayload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(
+                    (@('-Command', $expression) | ConvertTo-Json -Compress)))
+            $inline = & (Get-Process -Id $PID).Path -NoProfile -File $wrapper -Payload $inlinePayload
+            $LASTEXITCODE | Should -Be 0
+            $inline | Should -BeLike "$owned*"
             Set-Content -LiteralPath $scriptPath -Value @(
                 '$hostExecutable = (Get-Process -Id $PID).Path',
                 '& $hostExecutable -NoProfile -Command ''exit 9''',
