@@ -2494,6 +2494,22 @@ native-report equality, full timings and fresh event/policy adoption remain open
 paused, normal placement unchanged and no full portfolio run queued. See the host-equivalence
 record for exact source, artifacts and remaining boundaries.
 
+The maintainer confirms the failure/recovery evidence, published as `2af597d` on 2026-10-07 with
+dual-remote parity. The next existing-profile comparison uses complete `ci-infrastructure` coverage
+(five Python checks, one original shard, three allocated jobs) through ordinary and cohort modes
+at the same source. Both Azure previews retain aggregate-only fatal-on-missing native publication.
+Ordinary reference run 68 passes 537/537 cases, verified against original XML identities and staged
+bytes, and stores one exact-byte combined report. Queue-to-finish is 8m11.786s; native Python
+acquisition totals about 134s across three jobs. Cohort counterpart run 69 also passes: the original
+worker and both aggregates retain the same five ordered outcomes and 537 native identities/outcomes;
+each preserves its original XML bytes through collection. Azure publishes precisely 537 passing cases
+from Aggregate alone and stores one exact-byte combined report with the correct cohort artifact route.
+Queue-to-finish is 6m54.198s; worker/collector Python acquisition is near-instant in this sample.
+This is transport/report equality, not demonstrated job-consolidation savings: both modes have
+three jobs and host acquisition varies. The bounded complete infrastructure gate is proved, while
+full portfolio, mixed native/custom publication, nonempty dependency waves, acquisition optimization
+and fresh event/policy adoption remain open. Both PRs stay paused and default placement unchanged.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during

@@ -586,6 +586,70 @@ bounded run establishes full-profile coverage or closes the remaining 6.5 timing
 native-report equality, interpreter acquisition or fresh event/policy adoption gates. No full run
 is queued, ordinary shard placement remains active, and both PRs remain paused.
 
+### Same-Source Infrastructure Aggregate Comparison At 2af597d
+
+The maintainer confirms the failure/recovery evidence, dual-published as
+`2af597dae315bb8505ad4ecdde6d0b155eb6fd13` on 2026-10-07, with HEAD/upstream/GitHub/Azure
+parity and clean status verified. GitHub annotation run `37702182378` passes. Continue 6.5 with
+the existing complete `ci-infrastructure` profile to qualify real cohort collection and native
+publication at bounded cost. Its five Python implementation checks occupy one original logical
+shard, `infrastructure-0`, and three allocated jobs in either mode. Empty dependent execution is
+condition-skipped. This is not a complete LoTM portfolio or a job-consolidation timing benchmark.
+
+Read-only Azure previews compile ordinary and cohort graphs at the same exact source. Both retain
+aggregate-only native upload tasks with fatal missing/publication failures, the appropriate original
+shard/cohort download patterns and fault controls disabled. No runtime, policy, check or default
+placement changes accompany the experiment; GitHub PR 3 stays closed and Azure PR 19 abandoned.
+
+[Azure ordinary reference run 68](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=68)
+passes all five checks and publishes exactly 537 passed cases in one pytest test run (server run 44).
+Independent audit reconciles every published identity/outcome with original admitted native XML;
+staged XML bytes match the finalized aggregate sources. The aggregate manifest has 67 files;
+source protection and verified cleanup remain intact. Azure stores one exact-byte 4,201-byte combined
+report with the original shard in order and the correct ordinary artifact reference.
+
+Core preparation is an actual warm payload hit at 11.773s. Collection uses only Python runtime
+dependencies (pip/PyYAML), with an actual cold collection payload and setup at 7.981s; original
+collection takes 1.908s. No PowerShell, wheel build, Node or renderer is provisioned in Aggregate.
+Plan takes 80.017s, worker 248.153s, Aggregate 106.853s; pipeline duration is 484.913s and
+queue-to-finish 491.786s (8m11.786s). Three native Python acquisition tasks cost 45.693s, 44.163s
+and 44.283s, confirming that the near-instant sample from run 67 is not a dependable acquisition
+baseline. Keep that warning/authentication/acquisition optimization gate open.
+
+[Azure matching cohort run 69](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=69)
+passes at the same source with fault controls disabled. Independent cohort admission verifies the
+complete original logical shard, its owned process exit zero, verified cleanup and preserved budget.
+The original worker and both collected aggregates have the same five ordered unit outcomes and
+537 native case identities/outcomes. Each transport preserves its own original native XML
+byte-for-byte into collection; cross-run duration fields are not required to match. Azure publishes
+exactly those 537 passed cases in one pytest test run (server run 46), with no shard-level duplicate
+upload. The 67-file aggregate manifest verifies, as do source protection and cleanup. One stored
+4,187-byte combined report matches admitted bytes, retains original shard order and correctly
+references `ci-shadow-cohort-0` rather than the ordinary shard artifact.
+
+Core preparation is an actual warm hit at 12.339s; the isolated original execution takes about
+151.60s and its cohort wrapper about 156.14s. Collection is an actual warm hit with setup at
+7.422s and original collection at 1.754s. Both aggregates retain the collection-only Python
+environment and no PowerShell/build/Node/render preparation.
+
+| Same-source mode | Plan seconds | Worker seconds | Aggregate seconds | Pipeline seconds | Queue-to-finish seconds |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Ordinary shards, run 68 | 80.017 | 248.153 | 106.853 | 484.913 | 491.786 |
+| Cohorts, run 69 | 80.580 | 215.903 | 69.103 | 409.049 | 414.198 |
+
+Run 69's three native Python acquisition steps take 43.253s, 0.290s and 0.330s. Its faster wall
+time (6m54.198s) is not credited to job consolidation: this profile uses three jobs in both modes,
+and host acquisition variability contributes substantially. Native execution is about 149.97s in
+the ordinary reference versus 151.60s in the cohort child. No timing goal or setup ceiling is waived.
+
+The bounded complete infrastructure profile now proves actual cohort collection, aggregate-only
+pytest publication, original XML preservation and correct ordered report routing. Original previews,
+worker/aggregate artifacts, timelines and comparison helpers remain under ignored `.tmp/ci-phase65`,
+with exact server cases/attachments under `.tmp/ci-phase64/ado68-server` and `ado69-server`.
+Full multi-cohort/multi-runtime coverage, nonempty dependency waves, portfolio timings, pinned
+interpreter acquisition and fresh event/policy adoption remain separate open gates. Both PRs stay
+paused and ordinary placement remains the active default; no full portfolio run is queued.
+
 The patch and aggregate-preparation checkpoints are confirmed on 2026-10-07. Continue with deliberate
 manual optimization runs while PRs remain paused; branch qualification is not fresh PR merge proof.
 The adopted exact Python baseline is now 3.14.8, with retained 3.14.5 rollback evidence. Setup failure
