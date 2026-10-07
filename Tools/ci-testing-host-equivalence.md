@@ -538,6 +538,54 @@ A local readability preview generated from run 65's original reports preserves b
 under closed details sections in original shard order. Changes remain uncommitted; no hosted probe
 or runtime/policy adoption is claimed from this local proof.
 
+### Hosted Failure/Recovery Publication At 21eacc0
+
+The maintainer confirms the nine-file increment and bounded hosted qualification on 2026-10-07.
+It is dual-published as `21eacc0ef1226735bfc88517a70ea1987d2a706c`; HEAD/upstream/GitHub/Azure
+parity and clean status verify. GitHub annotation run `37698920575` passes. Azure read-only previews
+compile both exact-source smoke modes with Plan and execution waves, no full Aggregate/native uploads,
+and the intended fault/default context. GitHub PR 3 remains closed and Azure PR 19 abandoned.
+
+[Azure deliberate failure run 66](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=66)
+finishes failed as required. Independent artifact audit verifies the first child exits with code 2,
+retains its deliberate-fault output and verified cleanup, and produces no finalized shard bundle.
+Complete admission rejects the missing evidence. The second original shard nevertheless passes all
+three PowerShell conformance checks in 52.260s, with its original 28-file manifest, report, source
+protection and verified cleanup intact. Cohort execution takes 56.545s; shared core preparation runs
+once in 30.448s with an actual cache miss. No native case is invented or uploaded.
+
+Azure stores one 8,531-byte partial report, identical to the admitted summary. It exposes first-child
+exit/missing-coverage diagnostics and actual later results, with one closed 74-check coverage section.
+The maintainer confirms in the tenant UI that coverage starts collapsed, expands correctly, and the
+deliberate failure diagnostic remains visible. Plan takes 78.633s and the worker 126.383s;
+pipeline duration is 222.546s, queue-to-finish 229.637s (3m49.637s). The two native Python acquisition
+tasks measure 48.907s and 0.300s; these samples do not establish a guaranteed acquisition cost.
+
+[Azure matching recovery run 67](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=67)
+passes at the same commit with the fault absent. Independent audit admits both original shard
+receipts and manifests: four infrastructure checks with 502/502 pytest cases in 138.721s (62 files),
+plus three PowerShell conformance checks in 43.793s (28 files). Both owned processes exit zero;
+source protection, containment and cleanup verify. Cohort execution is 188.813s and shared core
+preparation executes once in 24.924s with another actual cache miss. Native server inventory remains
+empty, as required for smoke qualification. Azure stores one 15,922-byte report, identical to the
+admitted summary, with both coverage lists in closed expandable sections and original shard order.
+The tenant interaction is confirmed through run 66; run 67's bytes and structure are API-verified.
+
+Plan takes 35.337s and the worker 255.080s; pipeline duration is 312.363s, queue-to-finish 317.867s
+(5m17.867s). The two Python acquisition tasks take 0.307s and 0.310s. Preserve these measured
+differences from earlier runs without attributing them to a new acquisition implementation or
+guaranteeing future warm behavior. Run 66's cache post-job log records no save activity, and run 67
+reports another miss for the same payload key. Recovery is passing cold-payload evidence, not a
+claimed warm-payload acceptance.
+
+The bounded failure/continuation, same-source recovery and collapsible-report gates are now proved.
+Original previews, timelines and cohort artifacts remain under ignored `.tmp/ci-phase65`, with
+exact server attachments under `.tmp/ci-phase64/ado66-server` and `ado67-server`; the independent
+failure/recovery and timing audit helpers retain the compared source and inventories. Neither
+bounded run establishes full-profile coverage or closes the remaining 6.5 timing, full-collector,
+native-report equality, interpreter acquisition or fresh event/policy adoption gates. No full run
+is queued, ordinary shard placement remains active, and both PRs remain paused.
+
 The patch and aggregate-preparation checkpoints are confirmed on 2026-10-07. Continue with deliberate
 manual optimization runs while PRs remain paused; branch qualification is not fresh PR merge proof.
 The adopted exact Python baseline is now 3.14.8, with retained 3.14.5 rollback evidence. Setup failure

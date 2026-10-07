@@ -2477,6 +2477,23 @@ The nine-file combined readability/fault increment passes 275 focused cases per 
 Linux 163.62s), plus Ruff checks/formatting and diff checks. It remains uncommitted pending explicit
 publication confirmation; live failure/recovery and the tenant report observation are still open.
 
+The maintainer confirms this combined increment, published as `21eacc0` on 2026-10-07 with dual-remote
+parity. Both exact-source Azure smoke previews compile without full aggregation/native uploads.
+Intentional failure run 66 verifies first-child exit 2, retained capture/cleanup and absent results,
+while all three later PowerShell checks pass. One exact-byte partial report (8,531 bytes) and zero
+server native cases verify. The maintainer confirms collapsible coverage and visible diagnostics
+in Azure's UI. Queue-to-finish is 3m49.637s, a bounded probe rather than full-suite timing evidence.
+Matching fault-disabled recovery run 67 passes at the same source: all four infrastructure checks
+(502/502 pytest cases) and three PowerShell conformance checks retain their admitted original
+manifests, source protection and verified cleanup. One exact-byte partial report (15,922 bytes)
+contains both closed coverage sections; server native inventory remains empty by design.
+Queue-to-finish is 5m17.867s, with cold shared core preparation at 24.924s and near-instant native
+Python acquisition in this sample. The acquisition gate is not waived or attributed to new logic.
+Bounded failure/continuation, recovery and report readability are proved; full cohort collection,
+native-report equality, full timings and fresh event/policy adoption remain open. Both PRs remain
+paused, normal placement unchanged and no full portfolio run queued. See the host-equivalence
+record for exact source, artifacts and remaining boundaries.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during
