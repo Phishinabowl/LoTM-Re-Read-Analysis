@@ -64,11 +64,13 @@ def record(owner, status="passed", native=False):
     return report
 
 
-def hosted_bundle(root, status="passed", runtime=None, shard="", host="github"):
+def hosted_bundle(root, status="passed", runtime=None, shard="", host="github", shard_sources=None):
     owner = root / ".tmp/ci-shadow/bundle/run-hosted-fixture"
     owner.mkdir(parents=True)
     report = record(owner, status, native=runtime is not None)
     report["provenance"]["executed_commit"] = "a" * 40
+    if shard_sources is not None:
+        report["selection"]["shard_sources"] = shard_sources
     if shard:
         # Admission uses the existing finalized shard provenance contract.
         report["provenance"]["shard_source"] = {"shard": shard}
@@ -212,6 +214,107 @@ def test_azure_summary_names_are_distinct_for_multiple_probes_and_reject_command
     output = capsys.readouterr().out
     assert len(set(names)) == 2 and all(name.startswith("ci-publication-failure-") for name in names)
     assert "task.complete" not in output and output.count("task.addattachment") == 2
+
+
+def ordered_fixture(root):
+    owner, context = hosted_bundle(
+        root, host="ado", shard_sources={"z-first": "run-z-first", "a-second": "run-a-second"}
+    )
+    destination, receipt = publisher.admit(root, context)
+    plan = {"id": "fixture-plan", "shards": [{"id": "z-first", "order": 0}, {"id": "a-second", "order": 1}]}
+    for identity in ("a-second", "z-first"):
+        shard = root / ".tmp/ci-shadow/downloads" / identity / ("run-" + identity)
+        shard.mkdir(parents=True)
+        report = record(shard, "failed" if identity == "a-second" else "passed")
+        report["provenance"].update(
+            executed_commit=context["executed"],
+            shard_source={"shard": identity, "shard_plan": plan["id"], "profile": context["profile"]},
+        )
+        reports.finalize(shard, report)
+    # This fixture isolates composition; aggregate execution's manifest checks are tested separately.
+    receipt["status"] = "failed"
+    return owner, context, destination, receipt, plan
+
+
+def test_ordered_azure_report_uses_catalog_order_and_preserves_original_xml(tmp_path):
+    owner, context, destination, receipt, plan = ordered_fixture(tmp_path)
+    original = (owner / "custom.xml").read_bytes()
+    receipt["status"] = "admitted"
+    publisher.ordered_azure_summary(tmp_path, context, destination, receipt, plan)
+    text = (destination / "summary.md").read_text(encoding="utf-8")
+    assert text.index("# CI execution") < text.index("01. z-first") < text.index("02. a-second")
+    assert text.count("<details>") == text.count("</details>") == 2
+    assert "CI execution: failed" in text and "ci-shadow-shard-a-second" in text
+    assert receipt["ordered_shards"] == ["z-first", "a-second"]
+    assert (owner / "custom.xml").read_bytes() == original
+
+
+def test_ordered_azure_report_records_missing_shard_without_invented_coverage(tmp_path):
+    _, context, destination, receipt, plan = ordered_fixture(tmp_path)
+    plan["shards"].append({"id": "missing", "order": 2})
+    publisher.ordered_azure_summary(tmp_path, context, destination, receipt, plan)
+    text = (destination / "summary.md").read_text(encoding="utf-8")
+    assert "03. missing" in text and "no execution or passing coverage is inferred" in text
+    assert receipt["status"] == "failed"
+
+
+@pytest.mark.parametrize("fault", ["missing", "foreign", "duplicate", "corrupt", "oversized", "wrong-owner"])
+def test_ordered_azure_report_rejects_untrusted_or_incomplete_passing_evidence(tmp_path, fault):
+    _, context, destination, receipt, plan = ordered_fixture(tmp_path)
+    if fault == "missing":
+        receipt["status"] = "admitted"
+        plan["shards"].append({"id": "missing", "order": 2})
+    elif fault == "foreign":
+        context["executed"] = "b" * 40
+    elif fault == "duplicate":
+        import shutil
+
+        downloads = tmp_path / ".tmp/ci-shadow/downloads"
+        shutil.copytree(downloads / "a-second", downloads / "duplicate")
+    elif fault == "corrupt":
+        next((tmp_path / ".tmp/ci-shadow/downloads").rglob("custom.xml")).write_text("corrupt")
+    elif fault == "wrong-owner":
+        receipt["status"] = "admitted"
+        plan["shards"][0]["id"] = "another"
+    else:
+        (destination / "summary.md").write_text("x" * publisher.SUMMARY_LIMIT)
+    with pytest.raises(ValueError):
+        publisher.ordered_azure_summary(tmp_path, context, destination, receipt, plan)
+
+
+@pytest.mark.parametrize("host", ["ado", "github"])
+def test_normal_shard_submission_is_retained_only_for_azure(tmp_path, monkeypatch, capsys, host):
+    _, context = hosted_bundle(tmp_path, shard="fixture", host=host)
+    monkeypatch.setattr(sys, "argv", ["publish_hosted", "--root", str(tmp_path), "--shard", "fixture"])
+    monkeypatch.setenv("SHADOW_CONTEXT", json.dumps(context))
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(tmp_path / "host-summary"))
+    import catalog
+
+    monkeypatch.setattr(
+        catalog, "Catalog", lambda _: type("Fixture", (), {"shard_plans": {"plan": {"profile": "synthetic"}}})()
+    )
+    assert publisher.main() == 0
+    receipt = json.loads((tmp_path / ".tmp/ci-shadow/publication/receipt.json").read_text())
+    assert receipt["markdown_submission"] == (
+        "retained-in-shard-artifact" if host == "ado" else "written-to-host-summary-file"
+    )
+    assert "task.addattachment" not in capsys.readouterr().out
+
+
+def test_azure_composition_failure_still_submits_diagnostics_and_fails(tmp_path, monkeypatch, capsys):
+    _, context = hosted_bundle(tmp_path, host="ado")
+    monkeypatch.setattr(sys, "argv", ["publish_hosted", "--root", str(tmp_path)])
+    monkeypatch.setenv("SHADOW_CONTEXT", json.dumps(context))
+    import catalog
+
+    monkeypatch.setattr(catalog, "Catalog", lambda _: type("Fixture", (), {"shard_plans": {}})())
+    assert publisher.main() == 1
+    output = capsys.readouterr().out
+    assert "task.addattachment" in output and "report-failure" in output
+    assert "python_enabled;isOutput=true]false" in output
+    assert "CI report composition failed" in (tmp_path / ".tmp/ci-shadow/publication/summary.md").read_text(
+        encoding="utf-8"
+    )
 
 
 def test_azure_failed_bundle_export_retains_publication_diagnostics(tmp_path, monkeypatch):

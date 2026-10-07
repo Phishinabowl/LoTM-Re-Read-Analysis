@@ -178,6 +178,60 @@ def submit(destination, receipt, environment):
         receipt["markdown_submission"] = "logging-command-emitted"
 
 
+def ordered_azure_summary(root, context, destination, receipt, plan):
+    """Compose verified evidence in catalog order; Azure attachment order is not controllable."""
+    downloads = confined(root, ".tmp/ci-shadow/downloads")
+    paths = list(downloads.rglob("shard-result.json")) if downloads.exists() else []
+    owners = {}
+    for path in paths:
+        owner = confined(downloads, path.parent.relative_to(downloads).as_posix())
+        manifest = verify_publication(owner)
+        envelope = decode_json(confined(owner, "shard-result.json").read_text(encoding="utf-8"))
+        report = decode_json(confined(owner, "report.json").read_text(encoding="utf-8"))
+        source = envelope["source"]
+        identity = source["shard"]
+        if (
+            identity in owners
+            or source["shard_plan"] != plan["id"]
+            or source["profile"] != context["profile"]
+            or report["profile"] != context["profile"]
+            or report["provenance"]["executed_commit"] != context["executed"]
+            or envelope["report"] != report
+        ):
+            raise ValueError("Ordered summary received duplicate or foreign shard evidence")
+        owners[identity] = (owner, manifest, report)
+    shards = sorted(plan["shards"], key=lambda row: row["order"])
+    expected = {row["id"] for row in shards}
+    if set(owners) - expected or (receipt["status"] == "admitted" and set(owners) != expected):
+        raise ValueError("Ordered summary shard inventory differs from admitted aggregate")
+    if receipt["status"] == "admitted":
+        bundle = next(confined(root, ".tmp/ci-shadow/bundle").iterdir())
+        aggregate = decode_json(confined(bundle, "report.json").read_text(encoding="utf-8"))
+        if aggregate["selection"]["shard_sources"] != {key: value[2]["run_id"] for key, value in owners.items()}:
+            raise ValueError("Ordered summary differs from collected shard owners")
+    text = confined(destination, "summary.md").read_text(encoding="utf-8")
+    text += "\n\n# Shard reports in catalog order\n\n"
+    text += "Aggregate above; expand a shard below. Numbers describe reading order, not completion order.\n"
+    for index, shard in enumerate(shards, 1):
+        identity = shard["id"]
+        text += f"\n<details>\n<summary>{index:02d}. {html.escape(identity)}</summary>\n\n"
+        if identity in owners:
+            owner, manifest, _ = owners[identity]
+            content = confined(owner, "summary.md").read_text(encoding="utf-8").split("\n## Artifacts\n", 1)[0]
+            content += native_failures(owner, manifest)
+            text += hosted_markdown(content, context["run_url"], "ci-shadow-shard-" + identity).decode("utf-8")
+        else:
+            text += "Shard evidence unavailable; no execution or passing coverage is inferred.\n"
+        text += "\n</details>\n"
+    data = text.encode("utf-8")
+    if len(data) > SUMMARY_LIMIT:
+        # Never cut a details element or silently omit a failed shard's bounded diagnostics.
+        raise ValueError("Combined Azure summary exceeds the hosted display allowance; inspect retained artifacts")
+    atomic_bytes(destination, "summary.md", data, replace=True)
+    receipt["summary_label"] = "report"
+    receipt["ordered_shards"] = [row["id"] for row in shards]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default=str(ROOT))
@@ -186,9 +240,35 @@ def main():
     context = decode_json(os.environ["SHADOW_CONTEXT"])
     destination, receipt = admit(Path(args.root).absolute(), context, args.shard)
     try:
-        submit(destination, receipt, os.environ)
-    except (OSError, KeyError) as error:
+        if context["host"] == "ado":
+            from catalog import Catalog
+
+            plans = [
+                row
+                for row in Catalog(Path(args.root).absolute()).shard_plans.values()
+                if row["profile"] == context["profile"]
+            ]
+            if len(plans) != 1:
+                raise ValueError("Exactly one approved Azure report plan required")
+            if args.shard:
+                receipt["markdown_submission"] = "retained-in-shard-artifact"
+            else:
+                ordered_azure_summary(Path(args.root).absolute(), context, destination, receipt, plans[0])
+                submit(destination, receipt, os.environ)
+        else:
+            submit(destination, receipt, os.environ)
+    except (OSError, KeyError, ValueError, TypeError) as error:
         receipt.update(status="failed", error="Markdown submission failed: " + str(error))
+        if context["host"] == "ado" and not args.shard:
+            try:
+                # Retain a visible failure diagnostic even if composition rejects downloaded evidence.
+                original = confined(destination, "summary.md").read_bytes()
+                diagnostic = ("# CI report composition failed\n\n" + markdown_text(str(error)) + "\n\n").encode()
+                atomic_bytes(destination, "summary.md", diagnostic + original, replace=True)
+                receipt["summary_label"] = "report-failure"
+                submit(destination, receipt, os.environ)
+            except (OSError, KeyError, ValueError) as submission_error:
+                receipt["error"] += "; diagnostic submission failed: " + str(submission_error)
     if receipt["host"] == "ado":
         from ado_shadow import output
 

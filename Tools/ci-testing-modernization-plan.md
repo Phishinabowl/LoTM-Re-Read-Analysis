@@ -79,9 +79,13 @@ controls and recovery are verified, with the final evidence/checkpoint confirmed
 Phase 6.2 implementation and complete hosted source/merge proof are verified, with final evidence
 and the checkpoint confirmed on 2026-10-07. Phase 6.3 implementation and hosted source/merge proof are
 verified and confirmed on 2026-10-07. Phase 6.4's first publication increment is confirmed and published
-as `117a457`; hosted qualification is underway. Scoped readiness correction/manual probes remain
-uncommitted for review. The accepted 5.7 results and timing
-disposition remain intact; local WSL evidence will not substitute for actual hosted measurements.
+as `117a457`, with follow-up `849b8a6` confirmed and published. Complete 6.4 hosted success/failure
+qualification and the Azure UI walkthrough are verified; final documentation/checklist closure awaits
+maintainer confirmation. Phase 6.5 remains unstarted.
+The requested combined Azure report refinement is locally verified and uncommitted; its hosted
+single-attachment and expandable-section presentation still requires qualification before acceptance.
+The accepted 5.7 results and timing disposition remain intact; local WSL evidence will not substitute
+for actual hosted measurements.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -319,11 +323,34 @@ do not assume corporate settings or EVR permissions apply here.
 
 | Event | Repository-owned coverage |
 | --- | --- |
-| Feature push | Annotations, static policy, affected implementation tests, fast conformance; conservative profile fallback. |
-| PR | Full implementation/meta-regression, Python/PS7 baseline and full parity, PR compatibility including distribution-boundary. |
-| `main` | Full integration plus separately budgeted blocking release/render verification. |
+| Feature push | Classify the change: content-only validation for qualified canonical edits; applicable static policy, affected implementation tests and fast conformance for framework/tooling edits; conservative profile fallback. |
+| PR | Qualified content-only PRs use a bounded content-validation profile. Framework/tooling PRs retain full implementation/meta-regression, Python/PS7 baseline and parity, and PR compatibility including distribution-boundary. Mixed or indeterminate impact requires broader coverage. |
+| `main` | Qualified content-only changes retain content validation; framework/tooling changes require full integration plus separately budgeted blocking release/render verification. Content changes with demonstrated build/render impact require the applicable consumer checks. |
 | Manual | Explicit named profile, default full; documented reproduction/scope options. |
 | Weekly schedule | Full unfiltered verification, release/render, retained executable scale coverage. |
+
+**Content-work acceptance requirement (maintainer direction, 2026-10-07):** Routine canonical LoTM
+page creation and editing must have a small, measured CI footprint. Do not invoke the framework
+implementation, CI infrastructure regression, cross-runtime fixture portfolio, extraction or unrelated
+media tests merely because a canonical page changed. Establish a repository-owned content-validation
+profile and explicit classification before enabling this behavior in Phase 7. This direction revises
+the earlier unconditional full-PR/main target; current catalogs and hosted shadow execution remain
+unchanged until the classification, coverage and required-check migration gates are qualified.
+
+Content validation checks the actual changed knowledge and affected relationships using applicable
+contracts. Pure prose, structured fields/references, deletions/renames, and mixed content/configuration
+changes need distinct impact evidence. Some relationship/uniqueness/visibility checks may require
+reading wider project state; reading that state does not automatically require running framework
+implementation tests. Schema, template, taxonomy, configuration, validator and shared tooling changes
+remain broader-impact work. Unknown paths, unsafe history or unproven transitive impact cannot silently
+receive the content-only exemption. Use current paths/contracts; no future storage layout is assumed.
+
+Future web/app editors should reuse the framework's validation contracts and implementations to
+provide immediate field/reference feedback and validate before canonical save/promotion. This is a
+platform handoff requirement, not editor implementation in the CI tangent. Editor validation cannot
+guarantee every repository edit is valid: direct edits/imports, stale state and cross-page relationships
+still need independent content checks at the integration boundary. CI may be lighter through proven
+shared validation and change scope, not merely because an editor claims to prevent errors.
 
 Preserve current events during shadow adoption. Measure feature-push costs and duplicate PR/push
 runs before enabling expanded triggers. Prefer cancel-in-progress for superseded feature/PR runs;
@@ -2255,10 +2282,18 @@ preserves all 76 units and stays failed after successful summary/artifact public
 cold-launch assumption in an existing forced-termination test. The readiness
 correction, explicit named Azure summary attachment transport, native failure excerpts and bounded
 manual pytest/Pester assertion, child-timeout, missing-result, publication-loss and recovery probes
-are prepared locally, awaiting confirmation before publication. Azure run 48 passes all 76 units and
-publishes exactly 652 server case identities; summary attachment acceptance remains open. Local proof is
-not hosted acceptance. All checklist items remain open until complete hosted evidence and the
-maintainer walkthrough are accepted; no timing or policy-adoption gate is relaxed.
+are confirmed and dual-published as `849b8a6`. Bounded failure/recovery controls are qualified on both hosts;
+Azure failure run 50 stores four exact-byte Markdown attachments and three exact failed server cases.
+The maintainer confirms Tests and Markdown are visible in the actual Azure UI. Azure green recovery
+51 publishes one exact-byte summary and two passing native cases. Normal current-source GitHub PR
+shadow 37610038443 and Azure policy run 49 both pass 76/76 units and 663 unique cases. Azure's ten
+server summary attachments, exact aggregate Markdown bytes and all 663 server case identities/outcomes
+are independently verified against admitted evidence. First-source Azure run 48 passes all 76
+units and publishes exactly 652 server case identities. Local proof is not hosted acceptance;
+checklist closure now awaits final maintainer confirmation and publication of the closeout record.
+Run 49 costs 56m53s queue-to-finish and 49m37s summed job execution, with manual experiments sharing
+the single slot; these are not an uncontended baseline or accepted steady-state costs. Aggregate report
+duration measures collection, not whole-pipeline time. No timing or policy-adoption gate is relaxed.
 
 - [ ] Publish Markdown in both hosts and native pytest/Pester/custom XML with `PublishTestResults@2`
   in ADO after ordinary test failures; retain run-specific JSON and diagnostic artifacts.
@@ -2271,14 +2306,35 @@ maintainer walkthrough are accepted; no timing or policy-adoption gate is relaxe
 
 **Checkpoint:** The maintainer can diagnose an intentional failure from each host without rerunning blindly.
 
+**Presentation follow-up:** The maintainer selects a single ordered Azure report rather than relying
+on undocumented Extensions attachment sorting. The prepared publisher retains individual reports in
+artifacts, displays aggregate first and verified shard sections in catalog order, and preserves honest
+failure diagnostics and aggregate-only native cases. Local report regressions pass 89/89 on Windows
+and Linux; replay of actual run 49 bundles preserves 19 XML files and yields a 104914-byte combined
+report. Confirmation/publication and bounded hosted rendering proof remain required for this new diff;
+run 49's accepted preceding evidence is not a claim that the unpublished presentation already works.
+
 ### Phase 6.5 Host Equivalence And Policy Adoption Review
 
+- [ ] After closing 6.4 on Python 3.14.5, perform a focused Python patch-upgrade checkpoint before
+  final timing and host-equivalence qualification. Review the current stable 3.14 patch release and
+  release notes, select an explicit candidate, and verify dependency/package compatibility on
+  Windows and Linux plus both hosted platforms. On acceptance, update authoritative pins and their
+  consumers together, rebuild project environments and refresh version-specific caches, then use
+  the adopted version for final measurements. Preserve the 3.14.5 baseline and rollback path;
+  if qualification fails, retain that pin and document the blocker and upgrade disposition.
 - [ ] Prioritize ADO feedback-time optimization before steady-state adoption. The 6.3 ADO PR samples
   (51m40s/50m49s) are unacceptable as the final operating baseline. Compare serial versus parallel
   placement and summed job time; qualify conservative job consolidation, role-specific preparation,
   pinned interpreter acquisition and narrower dependency barriers without weakening coverage,
   isolation or failure semantics. Remeasure both hosts and review remaining gaps against unchanged
   feedback goals before policy adoption; functional 6.3 confirmation does not waive this gate.
+- [ ] Address both observed `UsePythonVersion@0` warnings explicitly: preserve the adopted exact
+  Python pin (3.14.5 until an upgrade is accepted) while qualifying acquisition when hosted images
+  replace preinstalled patch versions; review GitHub registry authentication and anonymous download
+  limits. Measure repeated
+  acquisition/cache costs, use host-managed secret storage if download credentials are adopted,
+  and verify setup failures remain visible without silently floating the runtime version.
 - [ ] Compare run/profile/suite identities, scenario outcomes, executed commits, dependency versions,
   normalization, and report contents between both hosts and local reference runs.
 - [ ] Record observed timings, cache behavior, artifact retention, permissions, cancellation, and agent limits.
@@ -2307,23 +2363,49 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 - [ ] Compare reasons and selected coverage against the ledger; inspect missed-impact opportunities
   even when the unchanged full suite happens to pass.
 - [ ] Verify no-impact rules, missing-history fallback, deterministic order, and selection provenance.
+- [ ] Define and review the repository-owned content-validation profile and change classifications
+  against implemented canonical contracts and current paths. Separate prose-only, structured page,
+  deletion/rename, schema/template/configuration, framework/tooling and mixed/unknown changes; map
+  applicable content policies and transitive project checks without treating content as no-impact.
+- [ ] Compare content selection against broad validation references, including valid page additions,
+  malformed fields, broken references, cross-page consistency, visibility and content mixed with
+  shared infrastructure. Identify actual supported checks and explicit contract gaps; do not invent
+  page-schema enforcement before the platform contracts exist.
+- [ ] Review profile-scoped mandatory infrastructure membership and required-check semantics for
+  content-only runs. Qualify classifier failure and full fallback without requiring the complete
+  selector/supervisor regression portfolio on every ordinary page edit. Reconcile earlier contracts,
+  ledgers and host/event guidance with the accepted content exemption before activation.
 
 **Checkpoint:** Reviewed selection scenarios demonstrate conservative dependency mapping, not merely green runs.
 
-### Phase 7.2 Local And Feature-Branch Selection Enablement
+### Phase 7.2 Local, Feature-Branch And Content-Only PR Selection Enablement
 
 - [ ] Enable affected implementation tests and fast conformance for local/feature profiles with
   complete applicable-profile fallback and an explicit full-run override.
 - [ ] Measure feature-push cost and open-PR duplicate runs; apply reviewed event deduplication without
   suppressing required checks or changing the source snapshot tested.
 - [ ] Verify documentation-only/approved no-impact reports complete visibly with honest coverage status.
-- [ ] Retain full PR implementation/meta-regression, conformance/parity, and project compatibility.
+- [ ] Retain full framework/tooling PR implementation/meta-regression, conformance/parity and project
+  compatibility. Enable the qualified content-only profile for local, feature and content-only PR
+  execution on both hosts, with the same locally reproducible content-validation semantics.
+- [ ] Prove a representative canonical page addition/edit avoids unrelated framework, CI infrastructure,
+  cross-runtime fixture, extraction, rendering and media execution unless its mapped impact requires
+  a consumer check. Keep required check identities completed with honest applicable/not-applicable
+  reporting, or review an explicit protection migration; do not leave checks pending through YAML filters.
+- [ ] Set and review a small content-only feedback budget before rollout; measure cold/warm preparation,
+  actual validation, publication and queue delay separately on both hosts. Thirty-minute framework
+  runs for an ordinary page addition are not an accepted outcome. Consolidate minimal preparation
+  and avoid duplicate push/PR work without removing actual content-integrity checks.
 
-**Checkpoint:** Selection saves work only where its evidence permits; required integration coverage stays full.
+**Checkpoint:** Framework/tooling integration retains full required coverage; qualified canonical work
+has measured small feedback cost and passes its applicable content-integrity gate with honest reports.
 
 ### Phase 7.3 Main, Manual, And Scheduled Profiles
 
-- [ ] Enable full integration and separately budgeted blocking release/render verification for `main`.
+- [ ] Enable full integration and separately budgeted blocking release/render verification for
+  framework/tooling changes on `main`; qualify bounded content validation for content-only changes
+  and mapped consumer/build checks where affected. Preserve weekly full unfiltered coverage and
+  explicit manual full overrides rather than triggering the full portfolio for every canonical edit.
 - [ ] Enable named manual profiles with default full execution and documented reproduction options.
 - [ ] Demonstrate weekly full unfiltered release/render and retained executable scale coverage on both
   hosts, then apply agreed schedule ownership/time/retention to avoid accidental duplicate expense.
@@ -2338,12 +2420,16 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
   selector failure under the enabled event model.
 - [ ] Confirm full fallback, blocked required coverage, and aggregate failure remain visible.
 - [ ] Review costs/budgets and update actual event behavior in the methodology/tooling documentation.
-- [ ] Accept event rollout without authorizing any future reduction of full PR/lifecycle gates.
+- [ ] Accept only the qualified content-only PR/main exemption and affected feature execution;
+  retain full framework/tooling PR and lifecycle gates. Further reductions require separate coverage review.
 
 ### Phase 7 Exit Gate
 
 - [ ] Explainable selection, full fallback, complete required checks, and event cost/retention ownership
   are demonstrated in both host adapters.
+- [ ] Representative canonical page work demonstrably uses the bounded content profile on both hosts;
+  malformed or inconsistent content still fails, and mixed/unknown/shared changes receive safe broader
+  coverage. Record measured costs and remaining contract gaps before handing back to platform work.
 
 **Rollback:** Force full profiles and disable only new optional triggers/schedules; retain mandatory gates.
 
@@ -2386,6 +2472,9 @@ do not demonstrate lower complete native/sequential costs.
   profile commands, registration procedure, troubleshooting, and rollback instructions.
 - [ ] Document how to add a test/check, choose its owning layer, declare impact, validate registration,
   reproduce a hosted failure, and inspect all result surfaces.
+- [ ] Document canonical-content versus framework/tooling commands and event behavior, the content
+  feedback budget, broader-impact exceptions and full override. Carry shared editor/save validation
+  into the platform handoff with independent repository checks; editor construction remains future work.
 - [ ] Preserve dated historical measurements; record current costs, host settings, limitations,
   accepted deferrals, and authoritative evidence links without publishing secrets.
 - [ ] Review the complete ledger against final implementation and resolve stale planning references.
@@ -2437,7 +2526,7 @@ path. Do not rewrite shared history, force synchronization, or reset canonical c
 
 The agreed direction includes dual hosts, GitHub merge authority initially, Pester 6.2.0, pytest,
 retired 5.1 support with retained Python/PS7 parity, shared conformance, Markdown plus native results,
-full PR gates, distribution-boundary
+full framework/tooling PR gates, a qualified bounded canonical-content profile, distribution-boundary
 integration coverage, and a separate modernization branch/PR into the framework branch.
 
 Phase 1.1 inspected ADO access/capacity and prepared synchronized remotes; Phases 1.2/1.3 are confirmed.

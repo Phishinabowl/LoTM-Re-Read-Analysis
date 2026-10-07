@@ -1,11 +1,15 @@
 # CI 6.4 Hosted Markdown And Test Publication
 
-**Status:** First implementation increment is confirmed and dual-published as `117a457`. GitHub's
-first full run publishes complete failure evidence; Azure run 48 passes all 76 units and publishes
-652 verified server cases. Azure summary attachment acceptance remains open. Scoped readiness
-correction, explicit named Azure summary attachments, native-case diagnostic display and manual
-qualification transport are prepared locally, uncommitted for review.
-Hosted Markdown/Tests acceptance and deliberate hosted failure experiments remain open. Entry is
+**Status:** Implementation increments are confirmed and dual-published as `117a457` and `849b8a6`.
+Bounded failure and recovery controls are qualified on both hosts. Azure failure run 50 stores four
+exact-byte Markdown attachments and three independently verified failed cases; recovery 51 stores
+one exact-byte summary and two passing native cases. Current-source GitHub and Azure PR qualification
+both pass 76/76 units and 663 unique cases. Azure run 49 stores ten Markdown attachments and exact
+aggregate-only native results. The maintainer confirms Tests and Markdown are both visible in the
+actual tenant UI for failure run 50. The published 6.4 implementation has complete qualification
+evidence. A subsequently requested combined Azure report is prepared locally and remains uncommitted;
+its actual hosted presentation must be qualified before claiming the refinement accepted.
+First-source Azure run 48 passes all 76 units and publishes 652 verified server cases. Entry is
 confirmed 6.3 at `cc93c8d`; the [modernization plan](ci-testing-modernization-plan.md#phase-64-markdown-tests-tab-and-detailed-publication)
 owns acceptance. No required check, branch policy, event or timing goal is changed.
 
@@ -27,8 +31,8 @@ upload errors also fail the job; no `continueOnError` or outcome-reset step is a
 
 ## Markdown And Artifacts
 
-Every worker publishes its execution summary after ordinary test failures. GitHub uses
-`GITHUB_STEP_SUMMARY`; the prepared Azure transport uses explicitly named `task.addattachment`
+At the qualified `849b8a6` checkpoint, every worker publishes its summary after ordinary test failures. GitHub uses
+`GITHUB_STEP_SUMMARY`; the Azure transport uses explicitly named `task.addattachment`
 commands with type `Distributedtask.Core.Summary`. Publication steps have a two-minute timeout.
 Provenance, selection/fallback, unit/native counts, durations, guard/cleanup, retained review/skipped
 coverage and bounded failures remain visible. Passing display omits the long artifact inventory;
@@ -191,6 +195,81 @@ is distinct from hosted acceptance. Permanent helper meta-regressions stay in th
 Publish this prepared increment only after confirmation, preserve the current Azure run's evidence,
 then qualify both manual modes on both hosts and requalify successful current-source PR publication.
 
+## Confirmed Follow-Up And Bounded Hosted Evidence
+
+Maintainer confirmation publishes the ten-file follow-up as
+`849b8a6f05ee53881fca2df89f5b9ba3e58179cf`. GitHub and Azure branch references agree with HEAD;
+the push uses only the established dual-destination `origin` workflow. No additional policy,
+required check, catalog member or canonical content changes.
+
+[GitHub failure qualification 37610082285](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37610082285)
+executes all four probes. Assertion and timeout execution exits are 1; missing exported evidence
+fails admission; the actual upload action rejects the deliberately missing publication input.
+The job remains failed after successful diagnostic artifact upload. All four summaries are written
+to the host summary file, including the missing-result diagnostic; exact original manifests, source
+guards and process cleanup are independently verified. Native failure display includes real pytest
+and Pester assertion details. No missing or deliberately withheld publication case is credited.
+
+[GitHub recovery 37610361502](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37610361502)
+passes its real pytest and Pester controls. Both manual runs skip normal plan/shard/aggregate jobs;
+these controls are qualification evidence, not substitutes for PR coverage.
+
+[Azure failure qualification 50](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=50)
+finishes intentionally failed in 3m05s queue-to-finish, with 2m26s execution. Exact server test runs
+8, 10 and 12 contain one failed pytest assertion, one failed Pester assertion and one failed timeout
+case. Their compound storage/name identities and outcomes exactly match original admitted XML;
+all have error messages, and native assertion stack traces remain available. Native result tasks
+fail on those cases, the separate task fails on its exact missing publication input, and the final
+diagnostic artifact upload still succeeds. Missing results create no fabricated test case.
+
+Both Build and Distributed Task attachment APIs report **four** Azure summary attachments with
+distinct names. Downloaded server bytes match all four admitted summaries exactly: assertion,
+timeout, missing-result diagnostic and passing execution preceding deliberate publication loss.
+This establishes actual server acceptance of the explicit named transport. It does not claim the
+old alias's missing attachments have been retrospectively recovered or establish rendered UI
+appearance by itself. In the walkthrough, the maintainer explicitly confirms both Tests and
+Markdown are visible in the actual Azure UI. Tests supplies individual cases, durations and failure
+details; Markdown supplies scope and overall results; task logs and the artifact preserve complete
+JSON/XML and child diagnostics. Automated build results remain separate from manual Test Plans.
+Ordinary child timeout is publishable, while host cancellation or agent loss may interrupt upload.
+
+[Azure recovery 51](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=51)
+passes its real pytest and Pester controls. Server test runs 14 and 16 contain exactly two passing
+cases matching original XML identities; no custom successful case duplicates them. The server's
+single Markdown attachment exactly matches the admitted summary bytes. Original manifests, tracked
+source guard and process cleanup are independently verified. Execution takes 2m08s, with 4m52s
+queued beforehand (7m00s queue-to-finish); queue delay is distinct from test/setup cost.
+
+[Current-source GitHub PR shadow 37610038443](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37610038443)
+passes all nine execution shards and its aggregate at merge `f463edf9103445914e3f9bb9327b88d3bd4907fe`,
+source `849b8a6`, unchanged framework target. Independent manifest/XML verification proves **76/76
+units and 545 pytest + 60 Pester + 58 custom = 663 unique passing cases**, with no failure, error,
+skip or duplicated case. Complete publication, exact source provenance, canonical/source guard and
+process cleanup pass. All ten worker summary steps succeed, and the admitted aggregate preserves
+execution exit 0. The corrected infrastructure shard passes all four groups (392 pytest cases,
+including 45 process cases). Existing required GitHub CI 37610037777 and annotation policy
+37610031973 pass.
+
+[Azure policy run 49](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=49)
+completes successfully at merge `5f5fdcd2c6f14abc54787794594d4678efb8194e`, same source and target.
+All eleven jobs succeed, including nine execution shards and aggregate. Independent complete-manifest
+and original XML verification proves **76/76 units and 663 unique passing cases**, with canonical/source
+guard and cleanup verified. Actual server test runs **18, 20 and 22** contain exactly **545 pytest,
+60 Pester and 58 custom cases**; every compound storage/name identity and outcome matches original XML.
+Selected unit identities and framework target agree with the successful GitHub reference; each host's
+distinct merge commit is retained rather than pretending the commits are identical.
+
+All ten summary tasks and three aggregate-only native result tasks succeed. Both attachment APIs
+report ten named summaries, whose actual stored Markdown is downloaded; the aggregate's 6402 bytes
+match the admitted summary exactly. Together with bounded failure/recovery and the maintainer's UI
+walkthrough, this completes the 6.4 qualification evidence. Checklist closure awaits final confirmation.
+
+Queue-to-finish is **56m53s**; summed job execution is **49m37s**, including provisioning and publication.
+Azure's single hosted slot interleaves manual runs 50/51 with run 49, so its elapsed time is not an
+uncontended performance baseline. Preserve job/queue costs separately for the unchanged 6.5 timing
+gate; this long runtime is not accepted as steady-state operation. The aggregate summary's 3.267-second
+duration is the collection operation, not the full pipeline duration or summed testcase execution.
+
 Final follow-up verification passes **210 focused cases per OS** (Windows 40.53s; Linux 25.24s),
 including both readiness-based termination fixtures. Eleven additional cases versus the first
 publication increment cover manual qualification, native failure display and safe distinct attachment
@@ -198,7 +277,41 @@ names within existing registered groups. Real local pytest/Pester controls pass/
 with stable published Pester identities and verified source/process guards. Ruff, actionlint,
 annotation policy (22/22 fixtures; eight annotations in 493 files), relative document links and
 diff hygiene pass. No complete local portfolio rerun or additional full source replay is substituted
-for the pending hosted qualification.
+for the completed hosted qualification. The closeout adds documentation only; no new runtime suite
+execution is needed for these evidence edits. Phase 6.5 and selective event activation remain unstarted.
+
+## Ordered Azure Report Refinement
+
+The maintainer requests predictable Extensions ordering and selects one combined report after review
+of Azure's documented attachment command, which exposes name/type but no display-order property.
+Do not claim numbered separate attachment titles establish sorting. This local refinement composes
+the aggregate first, followed by expandable `<details>` sections in the repository catalog's explicit
+shard order. Display numbers indicate reading order, not execution/completion order. Actual Azure
+rendering of these sections remains a hosted acceptance check; deterministic content order does not
+by itself prove the tenant supports the expand/collapse presentation.
+
+Normal Azure shard workers retain their admitted summary in the individual shard artifact and emit
+no summary attachment. The aggregate publishes the single combined report. GitHub's existing worker
+summaries and manual qualification probes are unchanged. Every included shard requires verified final
+publication, matching profile/commit/plan and original report envelope. Duplicate, corrupt, foreign or
+unknown evidence is rejected; an admitted aggregate requires the exact collected shard-owner inventory.
+Failed aggregate collection can display available verified reports and explicitly unavailable shards;
+composition rejection still attempts a visible diagnostic attachment and returns failure. No missing
+coverage is invented, no native XML is regenerated and test publication remains aggregate-only.
+
+The combined display must fit the existing 900 KiB allowance; oversized composition fails visibly
+rather than cutting an expandable section or silently hiding failure diagnostics. Original evidence
+and individual reports remain in artifacts. A hard cancellation/agent loss can still interrupt final
+publication; artifact/log retention does not imply that the aggregate ran successfully.
+
+Local report regressions pass **89 cases per OS** (Windows 13.84s; Linux 10.12s), including ordering,
+failure/missing evidence, duplicate/foreign/corrupt rejection, display bounds, Azure-only shard retention
+and visible composition-failure diagnostics. Read-only replay of run 49's nine actual shard bundles
+produces **104914 bytes**, with all nine sections in catalog order and all 19 admitted XML files
+preserved. Ruff and diff hygiene pass. No fresh hosted acceptance or additional full portfolio run is
+claimed for this unpublished refinement. After confirmation, use a bounded Azure profile to qualify
+the single attachment and rendering, and observe the next ordinary PR aggregate for the complete
+nine-section presentation; preserve run 49 as the accepted preceding publication evidence.
 
 **Rollback:** Restore preceding worker templates and remove the new publication invocation. Preserve
 original bundles, failed receipts and optional policies; no catalog or execution contract rollback
