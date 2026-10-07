@@ -42,7 +42,7 @@ jobs:
         persistCredentials: false
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: '3.14.5'
+          versionSpec: '3.14.8'
           architecture: x64
       - pwsh: |
           python Tools/CI/host_cache.py prepare --host ado --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION --payload-profile $env:CACHE_PROFILE

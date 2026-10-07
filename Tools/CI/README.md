@@ -54,7 +54,9 @@ CI 4.6 registers the focused [mandatory infrastructure regression gate](regressi
 Implementation-bearing profiles retain five native/infrastructure groups; hosted activation and
 required-check policy remain Phase 6. The focused profile uses prepared Python only.
 
-Use the adopted CPython 3.14.5 x64 interpreter and PS7.6.6 development host. The controller fails
+Use the exact CPython x64 pin in `Data/runtime-versions.json` and PS7.6.6 development host. CI 6.5
+prepares 3.14.8 as a [patch candidate](../ci-testing-host-equivalence.md); hosted acceptance remains open.
+The controller fails
 with an actionable error if a selected interpreter/tool is missing or mismatched; it does not
 upgrade machine runtimes or machine-wide packages. Acquire those explicitly before bootstrap.
 
@@ -132,7 +134,7 @@ $build = Get-Content .tmp/ci/build.json -Raw | ConvertFrom-Json
 python Tools/CI/verify_installed_package.py --install-and-verify --wheel $build.package.wheel --installer-python $build.python.executable --report .tmp/ci/installed.json
 ```
 
-Verification never downloads payloads. The installer must be CPython 3.14.5 with pip 26.2;
+Verification never downloads payloads. The installer must use the authoritative CPython pin with pip 26.2;
 installation uses `--no-index --no-deps` and the already hash-verified runtime wheel. The fresh
 runtime environment contains the framework and PyYAML, without pytest, build tools or editable
 links. Child probes use `-I`, remove inherited root/path overrides, execute outside the source
@@ -200,7 +202,7 @@ dependency setup proof. Profile adoption, production child isolation and result 
 - Pyproject owns compatible runtime metadata and the exact backend declaration; bootstrap checks consistency.
 - `Data/runtime-versions.json` owns adopted interpreter/tool baselines and declaration references.
 - `Data/python-wheel-lock.json` records published wheel URLs/digests for those exact pins on CPython
-  3.14.5 Windows x64/Linux glibc x64. Platform-specific markers are evaluated explicitly.
+  the authoritative interpreter pin on Windows x64/Linux glibc x64. Platform-specific markers are evaluated explicitly.
 - Root requirements-node.txt owns the two direct rendering pins; Node/package.json and its full npm
   lock must match. npm uses the lock's integrity records and an owned download cache.
 - `Data/python-package-files.json` is the explicit initial source allowlist, not schema-pack membership.

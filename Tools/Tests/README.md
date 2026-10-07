@@ -75,7 +75,7 @@ remain distinct from the later full comparison.
 | Python/test_compatibility_retirement.py | unit/integration | 51 unit, 1 integration | Current registry/report/host/extraction implementation; inert legacy-host inputs are retained rejection cases |
 | Python/test_package_artifact.py | unit | 18 | Wheel boundary and pure synthetic-consumer helper |
 | Python/test_tooling_pilots.py | unit/integration | 9 unit, 3 integration | Annotation discovery/CLI, normalization and root API implementation |
-| Python/test_native_results.py | unit | 33 | Native XML/phase truth, publication identity, adapter scope, timeout and finalization |
+| Python/test_native_results.py | unit/integration | 33 unit, 2 integration | Native XML/phase truth, publication identity, adapter scope, timeout/finalization and authoritative interpreter acceptance/rejection |
 | Python/test_ci_catalog.py | unit | 83 | Private source/catalog trees, discovery/closure, mandatory family/OS membership, deterministic planning and shard/gate manifests |
 | Python/test_media.py | unit/integration | 2 unit, 2 integration | Synthetic EPUB CLI searches/invalid archives and exact crop pixels, dimensions, bounds and overwrite protection |
 | PowerShell/MediaEpub.Tests.ps1 | Integration | 2 | Synthetic ZIP/XML search, Unicode/literal terms, chapter selection and malformed input rejection |
@@ -192,7 +192,7 @@ contracts and equivalence/adoption review are 3.4/3.5. No existing coverage is r
 ## CI 3.4 Native Results And Failure Contracts
 
 CI 3.4 is confirmed on 2026-10-05. The single-group adapter is
-`Tools/CI/run_native_tests.py`; it invokes exact pytest 9.1.1 on CPython 3.14.5 or exact
+`Tools/CI/run_native_tests.py`; it invokes exact pytest 9.1.1 on the authoritative CPython patch pin or exact
 Pester 6.2.0 on the selected supported PS7 host. It never installs missing dependencies.
 Use the development executable and process-scoped module path recorded by bootstrap:
 

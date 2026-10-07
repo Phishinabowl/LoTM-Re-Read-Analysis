@@ -17,7 +17,7 @@ jobs:
         persistCredentials: false
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: '3.14.5'
+          versionSpec: '3.14.8'
           architecture: x64
       - pwsh: |
           python Tools/CI/publication_qualification.py prepare --host ado --mode '${{ parameters.mode }}'

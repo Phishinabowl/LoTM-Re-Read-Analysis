@@ -69,12 +69,14 @@ def execute(args):
     stdout = stderr = ""
     try:
         if args.runtime == "python":
+            version = bootstrap.read_json(bootstrap.DATA / "runtime-versions.json")["python"]
             probe = subprocess.run(
                 [
                     args.executable,
                     "-I",
                     "-c",
-                    "import sys,pytest;assert sys.version_info[:3]==(3,14,5);assert pytest.__version__=='9.1.1'",
+                    "import sys,pytest;assert sys.version.split()[0]==sys.argv[1];assert pytest.__version__=='9.1.1'",
+                    version,
                 ],
                 env=env,
                 capture_output=True,

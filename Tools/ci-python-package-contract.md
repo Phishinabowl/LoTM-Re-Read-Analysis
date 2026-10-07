@@ -4,6 +4,9 @@
 `architecture/ci-testing-modernization`. The maintainer explicitly selects independent Python
 versioning starting at 0.1.0 and Python 3.14+ eligibility, with exact 3.14.5 bootstrap/testing.
 Backend, artifact and dependency details below are the accepted implementation contract.
+CI 6.5's [patch checkpoint](ci-testing-host-equivalence.md) prepares coordinated 3.14.8 runtime
+qualification; the initial 3.14.5 evidence remains historical baseline and rollback proof. Current
+exact interpreter authority is `Tools/CI/Data/runtime-versions.json`; hosted candidate acceptance is open.
 All five 3.1.1 checklist items are confirmed. CI 3.1.2 now implements local metadata/versioning,
 dependency separation, isolated build/install and verified caches, confirmed on 2026-10-05;
 see [bootstrap tools](CI/README.md). Fresh cross-OS hosted bootstrap acceptance passes.

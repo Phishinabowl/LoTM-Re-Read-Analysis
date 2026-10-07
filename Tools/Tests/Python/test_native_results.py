@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 
 import pytest
 
@@ -21,6 +22,31 @@ finally:
 
 def evidence(**changes):
     return {"framework": "pytest", "exit_code": 0, "collected": 1, "reports": [], **changes}
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("matching", [True, False])
+def test_native_adapter_enforces_authoritative_python_patch(matching, monkeypatch):
+    if not matching:
+        monkeypatch.setattr(adapter.bootstrap, "read_json", lambda path: {"python": "0.0.0"})
+    (ROOT / ".tmp").mkdir(exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="native-version-", dir=ROOT / ".tmp") as owner:
+        args = argparse.Namespace(
+            runtime="python",
+            executable=sys.executable,
+            group="version-proof",
+            path=[str(ROOT / "Tools/Tests/Python/test_bootstrap.py")],
+            output_root=owner,
+            filter="pure_runtime_lock_has_no_development_or_media_dependencies",
+            timeout=30,
+        )
+        report = adapter.execute(args)
+        if matching:
+            assert report["status"] == "passed", report
+            assert report["native_counts"]["collected"] == 1
+        else:
+            assert report["classification"] == "prerequisite" and report["exit_code"] == 1
+            assert report["native_counts"] is None
 
 
 def counts(**changes):
