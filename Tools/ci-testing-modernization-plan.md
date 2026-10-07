@@ -2423,6 +2423,18 @@ remains a read-only proposal pending independent continuation/cancellation, per-
 aggregate proof; interpreter acquisition warnings, narrower barriers and broader worker qualification
 also remain open. Both PRs stay paused. See the linked host-equivalence record for run URLs and timings.
 
+The maintainer confirms that hosted evidence checkpoint, dual-published as `b592236` on 2026-10-07.
+The next cohort executor backend is locally prepared, without changing active YAML/matrices. It
+preserves independent owned children, continuation after failure, cancellation/cleanup, original
+per-shard finalized bundles and aggregate-only test publication. Review corrects the earlier
+nine-job proposal to **ten jobs versus eleven**: every child retains the existing 600-second
+snapshot/setup allowance in addition to its declared shard budget. Media therefore stays separate
+from the infrastructure/PowerShell-tail cohort. No timeout is shortened or grouping activated.
+Final 321 focused cases pass per OS; the real Windows infrastructure reference passes five checks/
+500 cases in 108.597s with source protection and cleanup verified. This backend checkpoint awaits
+review/publication. Manual opt-in Azure wiring, real shared-cohort execution, artifact/collector
+identity, partial-failure/recovery and readable ordered report proof remain required before adoption.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during

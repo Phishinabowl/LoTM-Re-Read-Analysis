@@ -481,7 +481,8 @@
         "linux"
       ],
       "entry": [
-        "Tools/Tests/Python/test_ci_scope.py"
+        "Tools/Tests/Python/test_ci_scope.py",
+        "Tools/Tests/Python/test_ci_cohort.py"
       ],
       "arguments": [],
       "fixtures": [

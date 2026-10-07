@@ -270,13 +270,15 @@ The extra 15 cases relative to run 60 are preparation/placement regression, not 
 conformance families. Original finalized evidence remains under ignored `.tmp/ci-phase65`.
 
 `ado_shadow.py placement <approved-profile>` provides a deterministic, read-only capacity proposal.
-It does not alter execution matrices. Full/PR profiles propose seven execution cohorts plus Plan
-and Aggregate: nine physical jobs versus eleven today, preserving all nine logical shards.
+It does not alter execution matrices. Full/PR profiles now propose eight execution cohorts plus Plan
+and Aggregate. The initial nine-job proposal is superseded by the allowance correction below:
+ten physical jobs versus eleven today, preserving all nine logical shards.
 Only shards with the same OS and prerequisite signature may share a cohort. Every original shard
-budget/reserve remains included; an additional 900 seconds preserves 600 seconds setup, 180 seconds
-transport and 120 seconds publication/wrapper allowance. Admission stays within 55 minutes.
-The proposed shared Windows core cohort contains infrastructure, the small PowerShell conformance
-tail and media. Python conformance remains on Linux. The two Linux shards cannot fit together
+budget/reserve remains included. Each child retains its 600-second snapshot/setup allowance;
+180 seconds transport and 120 seconds publication/wrapper remain allocated per cohort. Admission
+stays within 55 minutes. The proposed shared Windows core cohort contains infrastructure and the
+small PowerShell conformance tail; media remains separate. Python conformance remains on Linux.
+The two Linux shards cannot fit together
 under the retained admission ceiling. Infrastructure-only remains three physical jobs.
 
 No cohort is adopted, and no job-count reduction is credited as measured performance improvement.
@@ -339,6 +341,57 @@ under the derived build role remains part of subsequent broader worker qualifica
 required-check change, selective execution or policy adoption is activated. GitHub PR 3 remains
 closed and Azure PR 19 abandoned. Existing failure/cancellation contracts, complete-preparation
 rollback and timing goals remain intact; acquisition warnings and narrower barriers remain open.
+
+### Cohort Executor Backend Review Checkpoint
+
+The maintainer confirms the hosted preparation evidence update, dual-published as `b592236` on
+2026-10-07, with four-reference parity verified. The next backend increment is locally prepared
+and remains uncommitted pending review; no Azure YAML, policy, PR state or active matrix changes.
+
+`ado_cohort.py` recomputes approved placement and source/OS/role admission, then delegates each
+original shard to `run_ci.py` in an independently owned child. Shared preparation may cover a
+higher role but cannot downgrade the shard's requirements. Existing single-worker admission is
+factored into the same argument builder; its default execution and publication paths remain intact.
+Children receive an explicit environment without host credentials or arbitrary project injection.
+Parent cancellation uses the qualified process supervisor, stops later launches and returns 130.
+Test failure, crash, corrupt evidence, exit mismatch and owned timeout retain failure status while
+later independent children continue. A child cannot launch unless its complete original allowance
+fits; later blocked/cancelled work produces no invented passing coverage.
+
+Every admitted shard retains its original finalized manifest, JSON/XML, failure diagnostics and
+private publication receipt. Cohort transport stages exactly one original bundle per admitted
+shard plus complete bounded supervisor captures, never the captured source trees. Shard receipts
+do not upload native test cases; aggregate-only publication remains authoritative. Experimental
+receipts explicitly record `adopted: false` and reject reuse of an existing owner.
+
+Review exposed a missing term in the preliminary packing calculation: `run_ci` admits each shard
+with its declared budget **plus 600 seconds**, including snapshot/setup. The corrected proposal
+preserves 600 seconds for every child, rather than treating all setup headroom as shared. Full/PR
+placement therefore proposes eight execution cohorts plus Plan/Aggregate, or **11 → 10 jobs**.
+The shared infrastructure/PowerShell-tail cohort reserves 1,170 shard seconds, 1,200 child setup
+seconds and 300 transport/publication/wrapper seconds: 2,670 seconds, rounded up to 45 minutes.
+The media shard no longer fits that cohort within the unchanged 55-minute admission ceiling.
+This correction changes only the read-only proposal; no hosted runtime limit was shortened.
+
+Broader focused catalog, scope, reporting and cohort regression passes **321 cases per OS**:
+Windows 63.80s and WSL 105.50s. The 25 new cohort cases are registered in the existing CI scope
+group, preserving logical suite IDs and its 120-second unit deadline. Real owned-child fixtures
+prove continuation and exact failed/successful bundle admission; a readiness-based live cancellation
+fixture proves child cleanup and stops later work. Ruff and diff checks pass. The real Windows
+`ci-infrastructure` reference passes five checks and **500 cases in 108.597s**, with source protection,
+cleanup and finalized publication verified. Its evidence is retained under ignored
+`.tmp/ci-phase65/cohort-backend-reference`; this is local runner/registration proof, not an executed
+production cohort or an adopted hosted grouping. No timing goal is relaxed.
+The final admission guard rechecks the full child allowance after preflight and never clips its
+lease to remaining cohort time. All 25 cohort cases pass again after that guard: Windows 7.87s /
+WSL 45.50s, including initial/preflight budget refusal without launching a child.
+
+Next, wire a manual opt-in Azure experiment while keeping ordinary shard placement available.
+Qualify shared setup once, cohort artifact routing, exact collector/receipt inventory, partial
+failures and recovery, aggregate-only native cases, combined report links/order, and sequential
+friendly cohort job titles. Run the actual approved shared cohort and compare original shard
+identities/outcomes and timings before normal placement can change. Reopen the same PRs only for
+the later fresh event/policy gate. Retain individual workers and complete preparation for rollback.
 
 ## Remaining Qualification And Rollback
 

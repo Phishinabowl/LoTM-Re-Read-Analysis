@@ -223,9 +223,11 @@ def hosted_markdown(content, run_url, artifact):
     return data
 
 
-def admit(root, context, shard=""):
+def admit(root, context, shard="", *, worker_owner=".tmp/ci-shadow", artifact_override=None):
     """Stage exact admitted XML; never regenerate cases, scan raw XML, or alter execution outcomes."""
-    destination = confined(root, ".tmp/ci-shadow/publication")
+    if worker_owner != ".tmp/ci-shadow" and not worker_owner.startswith(".tmp/ci-shadow/cohorts/"):
+        raise ValueError("Publication worker owner must remain in shadow scratch")
+    destination = confined(root, worker_owner + "/publication")
     destination.mkdir(parents=True, exist_ok=False)
     receipt = {
         "contract": "ci-host-publication",
@@ -246,7 +248,7 @@ def admit(root, context, shard=""):
             raise ValueError("Invalid hosted publication destination")
         if shard and not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,99}", shard):
             raise ValueError("Invalid publication shard identity")
-        bundle = confined(root, ".tmp/ci-shadow/bundle")
+        bundle = confined(root, worker_owner + "/bundle")
         owners = list(bundle.iterdir()) if bundle.exists() else []
         if len(owners) != 1:
             raise ValueError("Publication requires exactly one current worker bundle; results missing or ambiguous")
@@ -274,6 +276,10 @@ def admit(root, context, shard=""):
             if not re.fullmatch(r"[1-9][0-9]{0,8}", build):
                 raise ValueError("Invalid Azure build identity")
             artifact = "ci-shadow-shard-" + shard if shard else "ci-shadow-aggregate-" + build
+        if artifact_override is not None:
+            if host != "ado" or not shard or not re.fullmatch(r"ci-shadow-cohort-[0-9]+", artifact_override):
+                raise ValueError("Invalid cohort artifact destination")
+            artifact = artifact_override
         content = readable_report(report) + native_failures(owner, manifest)
         atomic_bytes(destination, "summary.md", hosted_markdown(content, url, artifact))
         # Only the collected aggregate supplies test cases. Shard summaries never duplicate them.

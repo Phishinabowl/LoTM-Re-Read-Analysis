@@ -127,7 +127,13 @@ def cohort_plan(root, profile):
         signature = (shard["os"], tuple(shard["depends_on"]))
         total = shard["budget"]["total_seconds"]
         group = next(
-            (row for row in groups if row["signature"] == signature and row["seconds"] + total + 900 <= 3300), None
+            (
+                row
+                for row in groups
+                if row["signature"] == signature
+                and row["seconds"] + total + 600 * (len(row["shards"]) + 1) + 300 <= 3300
+            ),
+            None,
         )
         if group is None:
             if total + 900 > 3300:
@@ -153,8 +159,9 @@ def cohort_plan(root, profile):
                 else "build"
                 if "build" in selected_roles
                 else "core",
-                "timeout_minutes": (group["seconds"] + 900 + 59) // 60,
+                "timeout_minutes": (group["seconds"] + 600 * len(group["shards"]) + 300 + 59) // 60,
                 "declared_shard_seconds": group["seconds"],
+                "preserved_child_setup_seconds": 600 * len(group["shards"]),
             }
         )
     return {
@@ -167,6 +174,7 @@ def cohort_plan(root, profile):
         "original_jobs": len(plan["shards"]) + 2,
         "proposed_jobs": len(rows) + 2,
         "setup_transport_publication_reserve_seconds": 900,
+        "additional_child_setup_allowance_seconds": 600,
     }
 
 

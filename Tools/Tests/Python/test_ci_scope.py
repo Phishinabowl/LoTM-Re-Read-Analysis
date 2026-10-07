@@ -424,11 +424,13 @@ def test_ado_capacity_proposal_preserves_logical_shards_dependencies_and_every_r
         rows = [row for row in original["shards"] if row["id"] in cohort["shards"]]
         assert cohort["declared_shard_seconds"] == sum(row["budget"]["total_seconds"] for row in rows)
         assert cohort["timeout_minutes"] <= 55
+        assert cohort["preserved_child_setup_seconds"] == 600 * len(rows)
+        assert cohort["timeout_minutes"] * 60 >= cohort["declared_shard_seconds"] + 600 * len(rows) + 300
         assert all(row["os"] == cohort["os"] for row in rows)
         assert set(cohort["depends_on"]) == {owners[value] for row in rows for value in row["depends_on"]}
     assert proposal["adopted"] is False
     assert (proposal["original_jobs"], proposal["proposed_jobs"]) == (
-        (3, 3) if profile == "ci-infrastructure" else (11, 9)
+        (3, 3) if profile == "ci-infrastructure" else (11, 10)
     )
 
 
@@ -538,6 +540,9 @@ def test_host_full_planning_cli_in_clean_private_checkout(tmp_path, adapter):
     shutil.copy2(ROOT / "Tools/CI/ado_shadow.py", root / "Tools/CI/ado_shadow.py")
     # New display-only helper must participate in clean-checkout proof before publication.
     shutil.copy2(ROOT / "Tools/CI/presentation.py", root / "Tools/CI/presentation.py")
+    # Include registered cohort sources during review before they enter the tracked inventory.
+    for name in ("Tools/CI/ado_cohort.py", "Tools/Tests/Python/test_ci_cohort.py"):
+        shutil.copy2(ROOT / name, root / name)
     git(root, "init", "--initial-branch=main")
     git(root, "config", "user.name", "CI planning fixture")
     git(root, "config", "user.email", "ci-fixture@example.invalid")

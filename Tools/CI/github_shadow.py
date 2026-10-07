@@ -230,9 +230,11 @@ def export_bundle(owner, destination):
     verify_publication(destination)
 
 
-def execute(context, shard, inputs):
-    import run_ci
-
+def execution_arguments(context, shard, inputs, *, preparation=None, output_root=".tmp/ci-shadow/execution"):
+    """Shared admission for single workers and independently owned cohort children."""
+    if not output_root.startswith(".tmp/ci-shadow/"):
+        raise ValueError("Worker execution owner must remain in repository shadow scratch")
+    confined(ROOT, output_root)
     validate_context(ROOT, context)
     plan, _, _ = matrices(ROOT, context)
     available = bundles(inputs)
@@ -253,6 +255,16 @@ def execute(context, shard, inputs):
     if "preparation_roles" in context and context["preparation_roles"] != preparation_roles(ROOT, plan):
         raise ValueError("Preparation roles differ from the approved execution plan")
     payload_profile = assigned_payload(context, shard)
+    if preparation is not None:
+        ranks = {"core": 0, "build": 1, "complete": 2}
+        if (
+            not shard
+            or not isinstance(preparation, str)
+            or preparation not in ranks
+            or ranks[preparation] < ranks[payload_profile]
+        ):
+            raise ValueError("Shared preparation cannot downgrade the assigned shard role")
+        payload_profile = preparation
     if (
         setup["status"] != "passed"
         or pilot["exit_code"] != 0
@@ -274,7 +286,7 @@ def execute(context, shard, inputs):
     runtime_wheel = ROOT / ".local/ci-cache/python" / setup["python"]["key"] / payload["filename"]
     if bootstrap.digest(runtime_wheel) != payload["sha256"]:
         raise ValueError("Explicit runtime wheel differs from captured lock")
-    args = argparse.Namespace(
+    return argparse.Namespace(
         root=str(ROOT),
         profile=context["profile"],
         scope=context["scope"],
@@ -292,10 +304,16 @@ def execute(context, shard, inputs):
         shard=shard,
         source_results=list(map(str, selected)) if shard else [],
         shard_results=list(map(str, selected)) if not shard else [],
-        output_root=".tmp/ci-shadow/execution",
+        output_root=output_root,
         host_kind=context.get("host", "github"),
         run_url=context["run_url"],
     )
+
+
+def execute(context, shard, inputs):
+    import run_ci
+
+    args = execution_arguments(context, shard, inputs)
     report, path = run_ci.execute(args)
     if path is None:
         raise ValueError("Execution did not produce a report")
