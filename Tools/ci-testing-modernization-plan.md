@@ -77,7 +77,8 @@ and the complete checkpoint are confirmed on 2026-10-06. The expanded Phase 5 lo
 Phase 6.1's expanded implementation is published as `ba6047a`; complete hosted setup, negative
 controls and recovery are verified, with the final evidence/checkpoint confirmed on 2026-10-07.
 Phase 6.2 implementation and complete hosted source/merge proof are verified, with final evidence
-and the checkpoint confirmed on 2026-10-07. Phase 6.3 has not started. The accepted 5.7 results and timing
+and the checkpoint confirmed on 2026-10-07. Phase 6.3 implementation and hosted source/merge proof are
+verified and confirmed on 2026-10-07; Phase 6.4 has not started. The accepted 5.7 results and timing
 disposition remain intact; local WSL evidence will not substitute for actual hosted measurements.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
@@ -2221,21 +2222,27 @@ Observed GitHub evidence matches local profile behavior and identifies exact sou
 ### Phase 6.3 Native Azure Pipelines Adapter
 
 The [Azure shadow checkpoint](ci-testing-azure-shadow.md) implements thin metadata/variable transport
-and catalog-owned Azure job waves over the qualified 6.2 executor. Initial adapter `0284a36` is
-published; pipeline 3 and actual smoke planning/5-unit execution are observed. The smoke was cancelled
-after an unintended empty-wave allocation, and concurrent GitHub shadow evidence exposed corrupt
-formatter capture. Scoped capture/wave corrections pass 176 Python cases per OS and real formatter
-recovery, and await confirmation before publication/retry. Optional-policy/PR creation and complete
-hosted source/merge qualification remain open; no policy is active or full checkpoint is credited.
+and catalog-owned Azure job waves over the qualified 6.2 executor. Initial adapter `0284a36` and
+confirmed capture/wave recovery `1233acc` are published. Corrected smoke 44 passes 5/5 with no empty-
+wave allocation. Pipeline 3, validation-only PR 19 and optional policy 4 are observed; policy-driven
+merge run 45 admits all 76 units, 178 branch-wide changed paths and exact source/target/merge identities
+without comparison fallback. Merge 45 and source 46 both pass **76/76**, with exact 511 pytest/60
+Pester identities, all 42 detailed conformance summaries/21 pairs, catalog/runtime inventories,
+admitted artifact hashes and verified source/containment/cleanup. Same-commit GitHub shadow and original
+reference pass. All four checklist items are verified and confirmed on 2026-10-07. No required policy
+or independent merge is adopted. Observed ADO PR walls
+51m40s/50m49s and GitHub 16m25s remain measured samples, with setup/shard/interpreter optimization at 6.5.
 
-- [ ] Explain project/repository/pipeline/agent/job/task boundaries and their local equivalents before setup.
-- [ ] Configure pipeline YAML that bootstraps the same dependencies and invokes the same repository profiles.
-- [ ] Configure Azure Repos framework-target build-validation policy in a staged/nonblocking form
+- [x] Explain project/repository/pipeline/agent/job/task boundaries and their local equivalents before setup.
+- [x] Configure pipeline YAML that bootstraps the same dependencies and invokes the same repository profiles.
+- [x] Configure Azure Repos framework-target build-validation policy in a staged/nonblocking form
   first; explain why Azure Repos PR validation is policy-driven rather than YAML `pr:` driven.
-- [ ] Normalize actual ADO target/source/merge refs and prove complete branch scope; keep required
+- [x] Normalize actual ADO target/source/merge refs and prove complete branch scope; keep required
   suite decisions outside Azure YAML and branch-policy path filters.
 
-**Checkpoint:** ADO runs reproduce the same semantic profile and source provenance as GitHub/local runs.
+**Checkpoint:** ADO runs reproduce the same semantic profile and source provenance as GitHub/local runs;
+complete hosted evidence is verified and confirmed on 2026-10-07. Confirmation accepts functional
+qualification, not the observed ADO timing as steady-state performance.
 
 ### Phase 6.4 Markdown, Tests Tab, And Detailed Publication
 
@@ -2252,6 +2259,12 @@ hosted source/merge qualification remain open; no policy is active or full check
 
 ### Phase 6.5 Host Equivalence And Policy Adoption Review
 
+- [ ] Prioritize ADO feedback-time optimization before steady-state adoption. The 6.3 ADO PR samples
+  (51m40s/50m49s) are unacceptable as the final operating baseline. Compare serial versus parallel
+  placement and summed job time; qualify conservative job consolidation, role-specific preparation,
+  pinned interpreter acquisition and narrower dependency barriers without weakening coverage,
+  isolation or failure semantics. Remeasure both hosts and review remaining gaps against unchanged
+  feedback goals before policy adoption; functional 6.3 confirmation does not waive this gate.
 - [ ] Compare run/profile/suite identities, scenario outcomes, executed commits, dependency versions,
   normalization, and report contents between both hosts and local reference runs.
 - [ ] Record observed timings, cache behavior, artifact retention, permissions, cancellation, and agent limits.

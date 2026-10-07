@@ -1,5 +1,22 @@
 # CI Runtime, Dependency And Budget Design
 
+**CI 6.3 hosted overlay (source/merge verified and confirmed on 2026-10-07):**
+[Azure qualification](ci-testing-azure-shadow.md#complete-merge-qualification-and-source-replay)
+at `1233acc` passes all 76 PR units on GitHub, policy-driven ADO merge and explicit source replay, with exact
+511 pytest/60 Pester identities, semantic summaries, catalog digests and runtime/package inventories.
+GitHub wall is 985s with 2193s summed job time; ADO merge wall is 3099.935s with 2942.613s summed job
+intervals. ADO source wall is 3048.879s (50m49s), with 2901.177s summed job intervals. The single ADO
+slot serializes allocation. Merge execution tasks total 1454.310s, complete
+environment preparation 602.387s and Python acquisition 491.087s; these are distinct costs. Smaller
+role-specific preparation, measured conservative shard consolidation, dependency barriers and pinned
+interpreter acquisition belong to 6.5. No test/coverage/isolation reduction is inferred from those
+opportunities. This PR-profile sample is not full-verification admission and relaxes no feedback goal.
+All source/merge timings are single qualification samples; one rollout replay does not adopt routine
+duplicate PR execution. Functional evidence is confirmed; hosted placement/cost acceptance remains 6.5.
+The maintainer rejects the 51m40s/50m49s ADO PR walls as the final operating baseline. Phase 6.5 must
+prioritize measured optimization and review remaining timing gaps before steady-state policy adoption;
+this confirmation changes no feedback goal or coverage/isolation requirement.
+
 **CI 6.2 hosted PR shadow overlay (verified and confirmed on 2026-10-07):**
 [Complete qualification](ci-testing-github-shadow.md#final-hosted-qualification-and-review) records
 76/76 for source and merge at `9ff0827`, with exact coverage/native identities. Dispatch-to-completion

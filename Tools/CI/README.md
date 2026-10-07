@@ -170,9 +170,12 @@ hosted steady-state artifact adoption and native result publication remain later
 
 ## Dependency Authorities And Cache Boundaries
 
-CI 6.3 stages the [native Azure shadow adapter](../ci-testing-azure-shadow.md), reusing the qualified
-executor with Azure metadata/output normalization and native cache/artifact tasks. Publication and
-actual pipeline/optional-policy PR qualification remain open; Markdown/Tests publication remains 6.4.
+CI 6.3 publishes the [native Azure shadow adapter](../ci-testing-azure-shadow.md), reusing the qualified
+executor with Azure metadata/output normalization and native cache/artifact tasks. Pipeline 3, optional
+policy 4 and validation PR 19 are observed; smoke 44 passes 5/5. Merge 45 and source 46 both pass 76/76
+with exact GitHub/native/conformance equivalence and admitted artifacts. Final evidence is confirmed
+on 2026-10-07; visible Markdown/Tests publication remains 6.4 and placement/cost adoption remains 6.5.
+The observed ADO timing is unacceptable as a steady-state baseline; 6.5 must prioritize optimization.
 
 CI 6.2 qualifies the [GitHub shadow adapter](../ci-testing-github-shadow.md): catalog-owned shard waves,
 exact event/execution provenance and admitted evidence transport delegate to the existing local runner.

@@ -1,10 +1,10 @@
 # CI 6.3 Native Azure Pipelines Shadow Adapter
 
-**Status:** Initial adapter published as `0284a36`; pipeline 3 is created. The first hosted smoke
-exposed an empty-wave condition defect, and concurrent GitHub qualification exposed shared output
-capture corruption. Scoped corrections are locally verified and awaiting publication confirmation.
-Actual complete hosted qualification remains open. Entry is confirmed 6.2 at `7cd016e`; no ADO PR
-or framework-target policy has been created yet.
+**Status:** Initial adapter `0284a36` and confirmed recovery `1233acc` are published. Pipeline 3,
+validation-only PR 19 and optional policy 4 are observed; corrected smoke 44 passes completely.
+Full merge run 45 and explicit source replay 46 pass; complete hosted qualification is verified and
+confirmed by the maintainer on 2026-10-07. Entry is confirmed 6.2 at `7cd016e`;
+Phase 6.4 has not started. Confirmation accepts functional qualification, not steady-state timing.
 The [modernization plan](ci-testing-modernization-plan.md#phase-63-native-azure-pipelines-adapter)
 owns acceptance. [Host integration design](ci-testing-host-integration-design.md) owns merge/event
 boundaries; its initial inventories are historical, not a description of today's installed pipelines.
@@ -130,24 +130,102 @@ matrix variable. YAML regression also rejects duplicate keys instead of silently
 Final scoped scope/process/report tests pass **176 cases per OS** (37.24s Windows / 18.86s Linux).
 Real owned-module Windows formatter recovery passes all 74 files with strict, complete JSON capture.
 Ruff check/format and annotation policy (22/22 fixtures, 488 files, eight annotations) pass. These
-corrections are uncommitted pending confirmation; real corrected Azure expansion/skip/collection,
-complete PR scope and source/merge qualification still require hosted retry. Evidence is retained in
+corrections were confirmed and published as `1233acc`; complete PR source/merge qualification
+still requires full hosted evidence. Evidence is retained in
 ignored `.tmp/ci-phase63`; no fixture, native Pester case or required coverage is retired.
 
-After confirmed correction publication: preview and retry the existing named pipeline's
-`ci-infrastructure` smoke, proving the empty dependent wave is actually skipped before allocation.
-Record
-actual queue, task/runtime/cache/transport results. Then create a validation-only ADO PR targeting the
-framework branch and stage the optional build policy, preserving all settings and rollback IDs.
-Qualify actual merge execution with complete `pr-integration` and explicit source provenance/replay;
-audit run artifacts against exact catalog coverage and source/tree identities. Keep failed attempts
-and missed coverage visible. PR drafts do not supply automatic policy-dispatch proof; inspect actual
-dispatch rather than assuming it from successful PR creation.
+### Corrected Smoke And Policy-Driven PR Entry
 
-Do not close 6.3 from local checks, small smoke coverage or a successful artifact upload. Actual
-complete PR scope/coverage, coherent source/merge identities and host equivalence remain required.
-ADO may serialize all allocations; report summed agent minutes and queue delay separately from
-wall time. Final placement/cost adoption remains 6.5; controlled failure/publication tests remain 6.4.
+[Smoke 44](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=44)
+passes at exact `1233acc531f077bfe914dad6d5a73d515316880e`. Real independent and collected reports
+both admit **5/5** with manifest hashes, canonical/source guards and cleanup verified. The dependent
+phase is terminal `skipped`, with no worker or child job allocation. This orchestration omission is
+not a skipped test and contributes no fictitious passing coverage. Warm complete provisioning takes
+60.777s after exact cache restoration; infrastructure execution takes 103.768s and collection 1.823s.
+The observed complete smoke wall is 8m59s, including planning, two agent allocations and preparation.
+
+Optional build policy **4**, revision 1, is enabled and nonblocking for the exact repository/framework
+target only; definition ID is 3, automatic dispatch is enabled, source-update-only is false, validity
+duration is zero and no path filter exists. The prior inventory was empty. No other policy is added.
+Validation-only [Azure PR 19](https://dev.azure.com/DreamtechADO/LoTM%20Inspired%20KM%20Platform/_git/LoTM%20Inspired%20KM%20Platform/pullrequest/19)
+is active and nondraft, with auto-complete absent and no independent merge. Its complete description
+reserves merge authority for GitHub PR 3. This actual creation dispatches
+[PR merge run 45](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=45)
+on `refs/pull/19/merge`, not a manually queued substitute.
+
+Planning passes with all 76 units/nine shards, 178 branch-wide changed paths and no comparison
+fallback. Source is `1233acc531f077bfe914dad6d5a73d515316880e`, target is
+`c4b79326e8dde5420f61d318f4f541e752b6030a`, executed merge is
+`5ee38bd35551e1a63f0ebc4a0c40e73cf9e6b3e3`; verified content digest is
+`54d4fd51578145081d8da4be227a095bfc362878fccd3343a1aa84ac8edb33c3`, matching corrected source smoke.
+The completed merge run passes all 76 required units; full acceptance evidence follows.
+
+Corrected [GitHub shadow 37583938373](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37583938373)
+passes all **76/76**, with 511 pytest and 60 Pester case identities, all 42 detailed conformance
+summaries and 21 exact Python/PS7 pairs. It executes distinct GitHub merge
+`efa48cc85260ce41e7e6d09893efd8c5f1c3adf9` with the same source/target and content digest. Artifact
+hashes, complete union/order, source/containment and cleanup are verified. Original
+[reference CI 37583938096](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37583938096)
+and non-main annotation evidence remain green.
+
+### Complete Merge Qualification And Source Replay
+
+Run 45 finishes `succeeded` with all eleven jobs successful and **76/76 required units passed**.
+Independent publication audit verifies complete unit union/order, every file/XML digest, unchanged
+source/containment and verified cleanup. Exact testcase identities match GitHub: **511 pytest / 60
+Pester**. All 42 detailed conformance summaries and their 21 runtime pairs match across hosts, as do
+catalog digests and each shard's recorded runtime/package versions and executable hashes. Both runs
+execute distinct merge commits over the same exact source/target and content digest. All ten project
+compatibility owners and required synthetic media pass. This is full-profile evidence, not smoke extrapolation.
+
+| Observed single qualification sample | GitHub merge | Azure merge | Azure source |
+| --- | ---: | ---: | ---: |
+| Dispatch/queue to completion | 985s (16m25s) | 3099.935s (51m40s) | 3048.879s (50m49s) |
+| Summed allocated job intervals | 2193s (36m33s) | 2942.613s (49m03s) | 2901.177s (48m21s) |
+
+Azure's wall outside summed job intervals is 157.321s; it includes allocation/graph gaps and is not
+exclusively queue delay. The single hosted slot serializes all jobs. Repository execution tasks total
+1454.310s, fresh complete environment preparation 602.387s, Python acquisition 491.087s, cache tasks
+100.103s and checkout 88.823s. Execution-task time includes repository preflight/capture/reporting,
+not only test assertions. Setup is visible independently instead of being attributed to test count.
+Smaller role-specific preparation, fewer conservatively admitted shards and reduced dependency
+barriers remain 6.5 optimization work; preserve isolation, exact pins, coverage and failure semantics.
+These PR-profile samples neither relax targets nor constitute full-verification timing acceptance.
+
+Explicit [source replay 46](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=46)
+requests `pr-integration` with PR 19 and exact source `1233acc`, using the accepted preview/queue API.
+Real planning passes, verifies the same framework base, 178 changed paths, nine shards and digest,
+and reports `checkout_kind=source` with no fallback. Complete execution finishes `succeeded` with
+all eleven jobs successful and **76/76 passed**, no errors/timeouts/cancellations/blocked/skipped
+units and full source/containment/cleanup verification. The three-run independent audit verifies
+every admitted publication file/XML digest, global unit order and exact 571 native testcase identities.
+All 42 detailed conformance summaries/21 runtime pairs, catalog digests and recorded runtime/package
+versions/executable hashes match across GitHub merge, Azure merge and Azure source. Their different
+executed commits retain coherent identical content; no hashes or paths are rewritten to make them agree.
+This one duplicate full replay qualifies the manual source path, not a proposed routine second PR build.
+
+### Final Review And Remaining Phase Boundaries
+
+All four 6.3 checklist requirements are implemented, verified and confirmed on 2026-10-07.
+No further runtime or hosted check remains in this checkpoint.
+Original GitHub reference contexts and annotation evidence stay green; policy 4 remains optional,
+revision 1, without path filters. PR 19 remains active and unmerged, with auto-complete absent and
+source/target/merge identities unchanged. Pipeline 2/cache-pilot is preserved. Existing check names,
+canonical LoTM content, framework schema inventory and branch histories are unchanged by qualification.
+
+Controlled assertion/timeout/missing/publication-loss tests and visible Markdown/Tests publication
+remain 6.4. No cancellation-publication guarantee is inferred from the cancelled first smoke. Final
+required-policy adoption, cost/placement optimization and explicit target-synchronization permission
+proof remain 6.5; no target push or bypass is performed here. Retain the 90s native/960s local full goals
+and existing timing exceptions; the observed hosted PR timings are qualification samples, not accepted
+steady-state targets. The maintainer explicitly rejects the observed 51m40s/50m49s ADO PR walls as
+the final operating baseline; measured optimization is a priority acceptance gate in 6.5.
+Schedules and affected-selection activation remain Phase 7.
+
+Ignored `.tmp/ci-phase63` retains admitted source/merge/GitHub bundles, precise planning artifacts,
+template previews, failed/cancelled attempts, complete timelines/run metadata,
+`final-semantic-comparison.json` and `final-timing-comparison.json`. Final review verifies document
+links, annotation policy and diff hygiene; runtime tests are not repeated merely for evidence wording.
 
 Rollback disables only the newly introduced optional policy/pipeline dispatch, preserving cache pilot,
 GitHub checks, catalogs, canonical sources and mirrored Git history. The ADO PR stays unmerged; no

@@ -1,5 +1,16 @@
 # CI Testing Coverage And Consumer Dependency Ledger
 
+**CI 6.3 current hosted overlay (source/merge verified and confirmed on 2026-10-07):**
+[Native Azure qualification](ci-testing-azure-shadow.md#complete-merge-qualification-and-source-replay)
+at `1233acc` proves the same 76 PR units on GitHub, ADO merge and source replay, including exact 511 pytest/60 Pester
+identities and all 42 detailed conformance summaries/21 cross-runtime pairs. Full branch scope is
+178 paths with no fallback. All ten PR compatibility owners and required synthetic media pass.
+The 27 additional Python cases versus 6.2 belong to existing scope/process groups and cover ADO
+metadata/transport and demonstrated output-capture integrity; no new story family or duplicate
+semantic runner is added. Complete manual source replay is verified; no semantic family or fixture
+is retired. Final evidence is confirmed. Optional policy 4 does not adopt required checks or
+independent Azure merging; visible native/Markdown publication remains 6.4.
+
 **CI 6.2 current hosted overlay (verified and confirmed on 2026-10-07):**
 [GitHub source/merge qualification](ci-testing-github-shadow.md#final-hosted-qualification-and-review)
 at `9ff0827` passes all 76 PR units in each run, with exactly matching 484 pytest/60 Pester identities,
