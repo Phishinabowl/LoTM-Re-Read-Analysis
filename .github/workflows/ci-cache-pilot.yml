@@ -1,0 +1,78 @@
+name: CI Cache Pilot
+
+on:
+  push:
+    branches: [architecture/ci-testing-modernization]
+    paths:
+      - .github/workflows/ci-cache-pilot.yml
+      - Tools/CI/host_cache.py
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: "Use the same label for warm proof; a new label proves invalidation"
+        default: pilot-1
+        required: true
+      expect:
+        description: "Expected exact cache status"
+        type: choice
+        options: [auto, miss, hit]
+        default: auto
+
+permissions:
+  contents: read
+
+jobs:
+  cache-pilot:
+    name: Cache Pilot (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      PYTHONUTF8: "1"
+      SOURCE_REVISION: ${{ github.sha }}
+      CACHE_NAMESPACE: ${{ inputs.namespace || 'pilot-1' }}
+      CACHE_EXPECT: ${{ inputs.expect || 'auto' }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14.5"
+      - name: Prepare repository-owned payload key
+        id: prepare
+        shell: pwsh
+        run: |
+          python Tools/CI/host_cache.py prepare --host github --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Restore exact payload cache
+        id: payload
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .local/ci-cache
+          key: ${{ steps.prepare.outputs.key }}
+      - name: Verify payloads and create fresh environments
+        shell: pwsh
+        env:
+          CACHE_HIT: ${{ steps.payload.outputs.cache-hit == 'true' && 'true' || 'false' }}
+        run: |
+          python Tools/CI/host_cache.py bootstrap --host github --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION --cache-hit $env:CACHE_HIT --expect $env:CACHE_EXPECT
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Save verified payloads after success
+        if: ${{ success() && steps.payload.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .local/ci-cache
+          key: ${{ steps.prepare.outputs.key }}
+      - name: Retain pilot diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cache-pilot-${{ matrix.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/ci-cache-pilot
+          if-no-files-found: error
+          retention-days: 7

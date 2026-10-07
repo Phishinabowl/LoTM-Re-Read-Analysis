@@ -74,7 +74,8 @@ before hosted adoption. Phase 5.8.1 inventory and its bounded proposal are confi
 executable qualification at 5.8.2 is implemented, verified and confirmed on 2026-10-06. Phase 5.8.3
 is measured and audited; its bounded evidence, timing exceptions and provisional Windows placement
 and the complete checkpoint are confirmed on 2026-10-06. The expanded Phase 5 local gate is closed;
-Phase 6 has not started. The accepted 5.7 results and timing
+Phase 6.1 readiness inspection and the first dependency-cache pilot are confirmed for publication;
+hosted evidence and its checkpoint remain open. The accepted 5.7 results and timing
 disposition remain intact; local WSL evidence will not substitute for actual hosted measurements.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
@@ -2131,7 +2132,14 @@ group/process boundaries, retained review families and hosted-policy limits rema
 
 ### Phase 6.1 Repository Synchronization And Host Readiness
 
-- [ ] Verify that the expanded Phase 5 local gate (including 5.6/5.7/5.8) is closed before starting hosted
+Readiness refresh and the first Python/PowerShell payload-cache pilot are confirmed for publication on 2026-10-06;
+see [host readiness and remaining live evidence](ci-testing-host-readiness.md). The branch/framework/main
+tips match on both hosts; the current ADO grant remains one shared free hosted slot. The maintainer
+authorizes hosted continuation after the reviewed files are published; no PR or policy is activated here.
+This does not close 6.1: live cold/warm/invalidation/recovery, remaining build/render transport,
+partial-synchronization recovery and actual agent/permission evidence remain required.
+
+- [x] Verify that the expanded Phase 5 local gate (including 5.6/5.7/5.8) is closed before starting hosted
   shadow adoption. Use its accepted portfolio, local recipes and provisional OS matrix as the baseline;
   validate actual host performance and final placement rather than assuming WSL timing transfers directly.
 - [ ] Publish the branch only after Git confirmation; establish approved ADO resources and remotes

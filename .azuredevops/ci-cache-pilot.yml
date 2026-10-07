@@ -1,0 +1,64 @@
+# Temporary, nonrequired CI 6.1 pilot. No build-validation policy or schedule.
+trigger: none
+pr: none
+
+parameters:
+  - name: namespace
+    type: string
+    default: pilot-1
+  - name: expect
+    type: string
+    default: auto
+    values: [auto, miss, hit]
+
+jobs:
+  - job: CachePilot
+    displayName: CI Cache Pilot
+    timeoutInMinutes: 20
+    cancelTimeoutInMinutes: 2
+    strategy:
+      maxParallel: 1
+      matrix:
+        Windows:
+          image: windows-2022
+        Linux:
+          image: ubuntu-24.04
+    pool:
+      vmImage: $(image)
+    variables:
+      PYTHONUTF8: '1'
+    steps:
+      - checkout: self
+        fetchDepth: 0
+        persistCredentials: false
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.14.5'
+          architecture: x64
+      - pwsh: |
+          python Tools/CI/host_cache.py prepare --host ado --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        displayName: Prepare repository-owned payload key
+        env:
+          CACHE_NAMESPACE: ${{ parameters.namespace }}
+          SOURCE_REVISION: $(Build.SourceVersion)
+      - task: Cache@2
+        displayName: Restore exact payload cache and save after success
+        inputs:
+          key: '"$(payloadCacheKey)"'
+          path: $(Build.SourcesDirectory)/.local/ci-cache
+          cacheHitVar: PAYLOAD_CACHE_HIT
+      - pwsh: |
+          python Tools/CI/host_cache.py bootstrap --host ado --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION --cache-hit $env:PAYLOAD_CACHE_HIT --expect $env:CACHE_EXPECT
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        displayName: Verify payloads and create fresh environments
+        env:
+          CACHE_NAMESPACE: ${{ parameters.namespace }}
+          CACHE_EXPECT: ${{ parameters.expect }}
+          SOURCE_REVISION: $(Build.SourceVersion)
+      - task: PublishPipelineArtifact@1
+        condition: always()
+        displayName: Retain pilot diagnostics
+        inputs:
+          targetPath: $(Build.SourcesDirectory)/.tmp/ci-cache-pilot
+          artifact: cache-pilot-$(image)-$(Build.BuildId)

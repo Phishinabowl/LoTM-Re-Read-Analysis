@@ -22,6 +22,75 @@ finally:
 pytestmark = pytest.mark.unit
 
 
+def load_host_cache():
+    prior = sys.path[:]
+    try:
+        sys.path.insert(0, str(ROOT / "Tools/CI"))
+        spec = importlib.util.spec_from_file_location("host_cache_pilot", ROOT / "Tools/CI/host_cache.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        sys.path[:] = prior
+
+
+def test_transport_key_separates_platform_namespace_and_changed_inputs(tmp_path):
+    pilot = load_host_cache()
+    for name in pilot.INPUTS:
+        destination = tmp_path / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes((ROOT / name).read_bytes())
+    declaration = tmp_path / "requirements-python.txt"
+    declaration.write_text("PyYAML==6.0.3\n")
+    key = pilot.cache_identity(tmp_path, "one", "win32", "AMD64")["key"]
+    assert key == pilot.cache_identity(tmp_path, "one", "win32", "x86_64")["key"]
+    assert key != pilot.cache_identity(tmp_path, "one", "linux", "x86_64")["key"]
+    assert key != pilot.cache_identity(tmp_path, "two", "win32", "AMD64")["key"]
+    declaration.write_text("PyYAML==6.0.2\n")
+    assert key != pilot.cache_identity(tmp_path, "one", "win32", "AMD64")["key"]
+    declaration.unlink()
+    (tmp_path / pilot.INPUTS[0]).unlink()
+    with pytest.raises(FileNotFoundError):
+        pilot.cache_identity(tmp_path, "one", "win32", "AMD64")
+
+
+@pytest.mark.parametrize("label", ["../outside", "", "a\nkey=bad", "a" * 41])
+def test_transport_key_rejects_untrusted_labels(label):
+    with pytest.raises(ValueError, match="namespace"):
+        load_host_cache().cache_identity(ROOT, label)
+
+
+def test_cache_corruption_is_not_silently_repaired_and_explicit_recovery_verifies(tmp_path, monkeypatch):
+    monkeypatch.setattr(bootstrap, "ROOT", tmp_path)
+    owner = tmp_path / ".local/cache"
+    owner.mkdir(parents=True)
+    payload = owner / "example-1.0-py3-none-any.whl"
+    good = b"approved synthetic wheel bytes"
+    import hashlib
+
+    lock = {
+        "packages": {
+            "example": {
+                "files": [
+                    {
+                        "filename": payload.name,
+                        "sha256": hashlib.sha256(good).hexdigest(),
+                        "url": "https://files.pythonhosted.org/example",
+                    }
+                ]
+            }
+        }
+    }
+    payload.write_bytes(b"corrupt")
+    monkeypatch.setattr(bootstrap.urllib.request, "urlopen", lambda *a, **k: pytest.fail("Unexpected network"))
+    with pytest.raises(ValueError, match="Corrupt"):
+        bootstrap.acquire_wheels({"example": "1.0"}, owner, lock, offline=True, check=True)
+    assert payload.read_bytes() == b"corrupt"
+    payload.write_bytes(good)  # Explicit owner repair, outside verification.
+    rows, missing = bootstrap.acquire_wheels({"example": "1.0"}, owner, lock, offline=True, check=True)
+    assert len(rows) == 1 and missing == []
+
+
 def test_marker_aware_exact_graph_and_include_digest(tmp_path):
     (tmp_path / "base.txt").write_text("PyYAML==6.0.3\n")
     declaration = tmp_path / "dev.txt"

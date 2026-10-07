@@ -170,6 +170,11 @@ hosted steady-state artifact adoption and native result publication remain later
 
 ## Dependency Authorities And Cache Boundaries
 
+CI 6.1 stages a temporary [host cache pilot](../ci-testing-host-readiness.md) using
+`host_cache.py prepare` / `host_cache.py bootstrap` and native GitHub/Azure cache transports.
+It verifies Python/PowerShell payloads and recreates environments; it does not adopt hosted profiles.
+Live measurements and remaining build/render cache proof are still required before its checkpoint closes.
+
 - Root requirements files own exact runtime/development/build/media graphs and confined include grammar.
 - Pyproject owns compatible runtime metadata and the exact backend declaration; bootstrap checks consistency.
 - `Data/runtime-versions.json` owns adopted interpreter/tool baselines and declaration references.
