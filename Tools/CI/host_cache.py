@@ -26,6 +26,7 @@ INPUTS = (
     "Tools/CI/bootstrap.py",
     "Tools/CI/host_cache.py",
     "Tools/CI/github_shadow.py",
+    "Tools/CI/ado_shadow.py",
     "Tools/Commands/Environment/powershell_process.py",
     "Tools/Commands/Environment/Invoke-OwnedPowerShell.ps1",
     "Tools/CI/Install-PowerShellRequirements.ps1",

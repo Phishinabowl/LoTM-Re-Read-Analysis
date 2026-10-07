@@ -18,6 +18,7 @@ try:
     scope = importlib.import_module("scope")
     selection = importlib.import_module("selection")
     github_shadow = importlib.import_module("github_shadow")
+    ado_shadow = importlib.import_module("ado_shadow")
 finally:
     sys.path[:] = before
 
@@ -27,6 +28,169 @@ def git(root, *arguments):
     env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT="0", GIT_OPTIONAL_LOCKS="0")
     child = subprocess.run(["git", *arguments], cwd=root, env=env, capture_output=True, check=True)
     return child.stdout.decode("utf-8").strip()
+
+
+def azure_fixture():
+    source, base, merge = "a" * 40, "b" * 40, "c" * 40
+    env = {
+        "SYSTEM_COLLECTIONURI": ado_shadow.COLLECTION,
+        "SYSTEM_TEAMPROJECTID": ado_shadow.PROJECT,
+        "BUILD_REPOSITORY_ID": ado_shadow.REPOSITORY,
+        "BUILD_REASON": "PullRequest",
+        "BUILD_SOURCEVERSION": merge,
+        "BUILD_BUILDID": "123",
+        "SYSTEM_PULLREQUEST_PULLREQUESTID": "7",
+        "SYSTEM_PULLREQUEST_SOURCECOMMITID": source,
+        "SYSTEM_PULLREQUEST_SOURCEBRANCH": "refs/heads/feature",
+        "SYSTEM_PULLREQUEST_TARGETBRANCH": "refs/heads/" + github_shadow.TARGET,
+        "BUILD_SOURCEBRANCH": "refs/pull/7/merge",
+    }
+    pull = {
+        "pullRequestId": 7,
+        "status": "active",
+        "repository": {"id": ado_shadow.REPOSITORY, "project": {"id": ado_shadow.PROJECT}},
+        "sourceRefName": env["SYSTEM_PULLREQUEST_SOURCEBRANCH"],
+        "targetRefName": env["SYSTEM_PULLREQUEST_TARGETBRANCH"],
+        "lastMergeSourceCommit": {"commitId": source},
+        "lastMergeTargetCommit": {"commitId": base},
+        "lastMergeCommit": {"commitId": merge},
+    }
+    return env, pull
+
+
+def test_azure_policy_forces_full_pr_and_preserves_immutable_metadata():
+    env, pull = azure_fixture()
+    env["SHADOW_PROFILE"] = "ci-infrastructure"
+    result = ado_shadow.event_context(env, pull)
+    assert result["profile"] == "pr-integration" and result["checkout_kind"] == "merge"
+    assert result["base"] == "b" * 40 and result["source"] == "a" * 40
+    assert result["executed"] == "c" * 40 and result["host"] == "ado"
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("SYSTEM_COLLECTIONURI", "https://example.invalid/"),
+        ("SYSTEM_TEAMPROJECTID", "other"),
+        ("BUILD_REPOSITORY_ID", "other"),
+        ("BUILD_SOURCEVERSION", "d" * 40),
+        ("SYSTEM_PULLREQUEST_SOURCECOMMITID", "d" * 40),
+        ("SYSTEM_PULLREQUEST_TARGETBRANCH", "refs/heads/main"),
+        ("SYSTEM_PULLREQUEST_SOURCEBRANCH", "refs/heads/other"),
+        ("BUILD_SOURCEBRANCH", "refs/heads/feature"),
+        ("BUILD_REASON", "IndividualCI"),
+        ("SYSTEM_PULLREQUEST_PULLREQUESTID", ""),
+        ("BUILD_BUILDID", "1\ncommand"),
+    ],
+)
+def test_azure_untrusted_or_changed_execution_fails(field, value):
+    env, pull = azure_fixture()
+    env[field] = value
+    with pytest.raises(ValueError):
+        ado_shadow.event_context(env, pull)
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("status", "completed"),
+        ("pullRequestId", 8),
+        ("targetRefName", "refs/heads/main"),
+        ("lastMergeCommit", {"commitId": "d" * 40}),
+        ("forkSource", {"repository": "other"}),
+    ],
+)
+def test_azure_api_corroboration_rejects_stale_or_foreign_pr(field, value):
+    env, pull = azure_fixture()
+    pull[field] = value
+    with pytest.raises(ValueError):
+        ado_shadow.event_context(env, pull)
+
+
+def test_azure_manual_source_replay_and_unknown_base_are_distinct():
+    env, pull = azure_fixture()
+    env.update(
+        BUILD_REASON="Manual", BUILD_SOURCEVERSION="a" * 40, SHADOW_PROFILE="pr-integration", SHADOW_PR_NUMBER="7"
+    )
+    context = ado_shadow.event_context(env, pull)
+    assert context["checkout_kind"] == "source" and context["scope"] == "hosted-pr"
+    env["SHADOW_PR_NUMBER"] = ""
+    context = ado_shadow.event_context(env)
+    assert context["scope"] == "hosted-commit" and context["base"] == "unavailable-manual-base"
+
+
+def test_azure_missing_pr_metadata_cannot_become_green_full_fallback():
+    env, _ = azure_fixture()
+    with pytest.raises(ValueError, match="metadata"):
+        ado_shadow.event_context(env)
+
+
+def test_azure_matrix_preserves_catalog_order_union_and_deadlines():
+    plan, independent, dependent = github_shadow.matrices(ROOT, {"profile": "pr-integration"})
+    rows = list(ado_shadow.matrix(independent).values()) + list(ado_shadow.matrix(dependent).values())
+    assert {row["shard"] for row in rows} == {row["id"] for row in plan["shards"]}
+    for wave, depends in ((independent, False), (dependent, True)):
+        assert [row["shard"] for row in ado_shadow.matrix(wave).values()] == [
+            row["id"] for row in plan["shards"] if bool(row["depends_on"]) == depends
+        ]
+    assert all(row["timeout"] <= 55 for row in rows)
+
+
+def test_azure_matrix_collision_fails_and_empty_wave_is_explicitly_unexecuted():
+    with pytest.raises(ValueError, match="collides"):
+        ado_shadow.matrix({"include": [{"shard": "a-b"}, {"shard": "a_b"}]})
+    assert ado_shadow.matrix({"include": []}) == {
+        "NoWork": {"shard": "__no_work__", "os": "windows-2022", "timeout": 1}
+    }
+
+
+def test_azure_output_escapes_logging_controls(capsys):
+    ado_shadow.output(context="data%\r\n##vso[task.complete result=Succeeded]fake")
+    assert capsys.readouterr().out == (
+        "##vso[task.setvariable variable=context;isOutput=true]"
+        "data%AZP25%0D%0A##vso[task.complete result=Succeeded]fake\n"
+    )
+
+
+def test_azure_yaml_transport_keeps_policy_credentials_and_membership_bounded():
+    import yaml
+
+    pipeline = yaml.safe_load((ROOT / ".azuredevops/ci.yml").read_text())
+    worker = yaml.safe_load((ROOT / ".azuredevops/ci-worker.yml").read_text())
+    assert pipeline["trigger"] == "none" and pipeline["pr"] == "none"
+    assert "schedules" not in pipeline
+    steps = pipeline["jobs"][0]["steps"]
+    context_step = next(row for row in steps if row.get("name") == "Context")
+    assert context_step["env"]["SYSTEM_ACCESSTOKEN"] == "$(System.AccessToken)"
+    assert sum("SYSTEM_ACCESSTOKEN" in row.get("env", {}) for row in steps) == 1
+    checkouts = [row for row in steps + worker["jobs"][0]["steps"] if "checkout" in row]
+    assert all(row["fetchDepth"] == 0 and row["persistCredentials"] is False for row in checkouts)
+    assert worker["jobs"][0]["condition"] == (
+        "and(not(canceled()), eq(dependencies.Plan.result, 'Succeeded'), ne(variables['shard'], '__no_work__'))"
+    )
+    assert all("continueOnError" not in row for row in steps + worker["jobs"][0]["steps"])
+
+
+@pytest.mark.integration
+def test_azure_merge_scope_uses_real_multicommit_branch(repo):
+    base = git(repo, "rev-parse", "HEAD")
+    git(repo, "checkout", "-b", "feature")
+    (repo / "first.txt").write_text("first")
+    commit(repo, "first")
+    (repo / "second.txt").write_text("second")
+    source = commit(repo, "second")
+    git(repo, "checkout", "main")
+    git(repo, "merge", "--no-ff", "feature", "-m", "Azure synthetic merge")
+    merge = git(repo, "rev-parse", "HEAD")
+    env, pull = azure_fixture()
+    env.update(BUILD_SOURCEVERSION=merge, SYSTEM_PULLREQUEST_SOURCECOMMITID=source)
+    pull.update(
+        lastMergeSourceCommit={"commitId": source},
+        lastMergeTargetCommit={"commitId": base},
+        lastMergeCommit={"commitId": merge},
+    )
+    result = github_shadow.validate_context(repo, ado_shadow.event_context(env, pull))
+    assert {row["new_path"] for row in result["changes"]} == {"first.txt", "second.txt"}
 
 
 @pytest.fixture(scope="session")
@@ -206,7 +370,8 @@ def test_github_context_cli_works_without_site_packages_and_uses_ignored_report_
 
 
 @pytest.mark.integration
-def test_github_full_planning_cli_in_clean_private_checkout(tmp_path):
+@pytest.mark.parametrize("adapter", ["github", "ado"])
+def test_host_full_planning_cli_in_clean_private_checkout(tmp_path, adapter):
     root = tmp_path / "private-project"
     # Captured CI sources have a private index without HEAD; copy index-approved working bytes.
     inventory = scope.parse_inventory(scope.Git(ROOT).index(), index=True)
@@ -215,6 +380,8 @@ def test_github_full_planning_cli_in_clean_private_checkout(tmp_path):
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes((ROOT / name).read_bytes())
         destination.chmod(0o755 if row["mode"] == "100755" else 0o644)
+    # Include the new adapter during pre-publication review before it enters the tracked inventory.
+    shutil.copy2(ROOT / "Tools/CI/ado_shadow.py", root / "Tools/CI/ado_shadow.py")
     git(root, "init", "--initial-branch=main")
     git(root, "config", "user.name", "CI planning fixture")
     git(root, "config", "user.email", "ci-fixture@example.invalid")
@@ -225,9 +392,10 @@ def test_github_full_planning_cli_in_clean_private_checkout(tmp_path):
     context = github_shadow.event_context(
         {"inputs": {"profile": "pr-integration"}}, shadow_environment(head, "workflow_dispatch")
     )
+    context["host"] = adapter
     environment = {**os.environ, "SHADOW_CONTEXT": json.dumps(context), "GITHUB_OUTPUT": str(output)}
     child = subprocess.run(
-        [sys.executable, "-I", str(root / "Tools/CI/github_shadow.py"), "plan"],
+        [sys.executable, "-I", str(root / f"Tools/CI/{adapter}_shadow.py"), "plan"],
         cwd=root,
         env=environment,
         capture_output=True,
@@ -235,9 +403,14 @@ def test_github_full_planning_cli_in_clean_private_checkout(tmp_path):
         timeout=30,
     )
     assert child.returncode == 0, child.stdout + child.stderr
-    values = dict(line.split("=", 1) for line in output.read_text().splitlines())
-    assert len(json.loads(values["independent"])["include"]) == 8
-    assert len(json.loads(values["dependent"])["include"]) == 1
+    if adapter == "github":
+        values = dict(line.split("=", 1) for line in output.read_text().splitlines())
+        assert len(json.loads(values["independent"])["include"]) == 8
+        assert len(json.loads(values["dependent"])["include"]) == 1
+    else:
+        values = dict(line.split(";isOutput=true]", 1) for line in child.stdout.splitlines())
+        assert len(json.loads(values["##vso[task.setvariable variable=independent"])) == 8
+        assert len(json.loads(values["##vso[task.setvariable variable=dependent"])) == 1
     plan = json.loads((root / ".tmp/ci-shadow/plan.json").read_text())
     assert plan["scope"]["provenance"]["executed_commit"] == head
     assert plan["scope"]["policy_scope"]["mode"] == "full"

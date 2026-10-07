@@ -2220,6 +2220,12 @@ Observed GitHub evidence matches local profile behavior and identifies exact sou
 
 ### Phase 6.3 Native Azure Pipelines Adapter
 
+The [Azure shadow checkpoint](ci-testing-azure-shadow.md) implements thin metadata/variable transport
+and catalog-owned Azure job waves over the qualified 6.2 executor. Local verification passes;
+publication, pipeline/optional-policy creation and actual hosted source/merge qualification remain
+open. No new Azure resource or branch policy is claimed from local evidence. The first hosted run
+will use the small infrastructure profile before complete PR qualification on the shared agent slot.
+
 - [ ] Explain project/repository/pipeline/agent/job/task boundaries and their local equivalents before setup.
 - [ ] Configure pipeline YAML that bootstraps the same dependencies and invokes the same repository profiles.
 - [ ] Configure Azure Repos framework-target build-validation policy in a staged/nonblocking form

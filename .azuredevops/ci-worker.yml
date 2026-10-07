@@ -1,0 +1,86 @@
+parameters:
+  - name: job
+    type: string
+  - name: dependsOn
+    type: object
+  - name: wave
+    type: string
+    values: [independent, dependent, aggregate]
+  - name: download
+    type: boolean
+
+jobs:
+  - job: ${{ parameters.job }}
+    displayName: Shadow ${{ parameters.job }}
+    dependsOn: ${{ parameters.dependsOn }}
+    condition: and(not(canceled()), eq(dependencies.Plan.result, 'Succeeded'), ne(variables['shard'], '__no_work__'))
+    # Every catalog row is separately admitted <=55; child deadlines retain tighter budgets.
+    timeoutInMinutes: 55
+    cancelTimeoutInMinutes: 2
+    variables:
+      SHADOW_CONTEXT: $[ dependencies.Plan.outputs['Context.context'] ]
+    ${{ if ne(parameters.wave, 'aggregate') }}:
+      strategy:
+        maxParallel: 1
+        matrix: $[ dependencies.Plan.outputs['Catalog.${{ parameters.wave }}'] ]
+      pool:
+        vmImage: $(os)
+    ${{ else }}:
+      pool:
+        vmImage: windows-2022
+    steps:
+      - checkout: self
+        fetchDepth: 0
+        persistCredentials: false
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.14.5'
+          architecture: x64
+      - pwsh: |
+          python Tools/CI/ado_shadow.py prepare
+          exit $LASTEXITCODE
+        name: Prepare
+        displayName: Validate checkout and payload identity
+      - task: Cache@2
+        inputs:
+          key: '"$(Prepare.key)"'
+          path: $(Build.SourcesDirectory)/.local/ci-cache
+          cacheHitVar: PAYLOAD_CACHE_HIT
+      - pwsh: |
+          python Tools/CI/ado_shadow.py bootstrap
+          exit $LASTEXITCODE
+        name: Bootstrap
+        displayName: Verify payload and provision fresh environments
+        env:
+          CACHE_HIT: $(PAYLOAD_CACHE_HIT)
+      - ${{ if parameters.download }}:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              buildType: current
+              itemPattern: 'ci-shadow-shard-*/**'
+              targetPath: $(Build.SourcesDirectory)/.tmp/ci-shadow/downloads
+      - pwsh: |
+          if ($env:SHADOW_SHARD) {
+              & $env:EXECUTION_PYTHON Tools/CI/ado_shadow.py execute --shard $env:SHADOW_SHARD
+          } else {
+              & $env:EXECUTION_PYTHON Tools/CI/ado_shadow.py collect
+          }
+          exit $LASTEXITCODE
+        displayName: Invoke authoritative repository execution
+        env:
+          EXECUTION_PYTHON: $(Bootstrap.python)
+          ${{ if ne(parameters.wave, 'aggregate') }}:
+            SHADOW_SHARD: $(shard)
+      - pwsh: |
+          python Tools/CI/ado_shadow.py evidence
+          exit $LASTEXITCODE
+        condition: always()
+        displayName: Stage bounded diagnostics and admitted evidence
+      - task: PublishPipelineArtifact@1
+        condition: always()
+        inputs:
+          targetPath: $(Build.SourcesDirectory)/.tmp/ci-shadow/transport
+          ${{ if ne(parameters.wave, 'aggregate') }}:
+            artifact: ci-shadow-shard-$(shard)
+          ${{ else }}:
+            artifact: ci-shadow-aggregate-$(Build.BuildId)

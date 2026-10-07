@@ -1,0 +1,82 @@
+# Nonrequired CI 6.3 shadow. Azure Repos PR dispatch is target-policy driven.
+trigger: none
+pr: none
+
+parameters:
+  - name: profile
+    type: string
+    default: full-verification
+    values: [full-verification, pr-integration, ci-infrastructure]
+  - name: pr_number
+    type: string
+    default: ''
+
+variables:
+  PYTHONUTF8: '1'
+  # Preserve unspecified text as Git blobs before any checkout, including wheel LICENSE.
+  GIT_CONFIG_COUNT: '1'
+  GIT_CONFIG_KEY_0: core.autocrlf
+  GIT_CONFIG_VALUE_0: 'false'
+
+jobs:
+  - job: Plan
+    displayName: Validate Azure execution and catalog plan
+    timeoutInMinutes: 5
+    cancelTimeoutInMinutes: 2
+    pool:
+      vmImage: windows-2022
+    steps:
+      - checkout: self
+        fetchDepth: 0
+        persistCredentials: false
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.14.5'
+          architecture: x64
+      - pwsh: |
+          python Tools/CI/ado_shadow.py context
+          exit $LASTEXITCODE
+        name: Context
+        displayName: Corroborate immutable source target and merge
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          SHADOW_PROFILE: ${{ parameters.profile }}
+          SHADOW_PR_NUMBER: ${{ parameters.pr_number }}
+      - pwsh: |
+          python Tools/CI/ado_shadow.py plan-bootstrap
+          exit $LASTEXITCODE
+        name: Runtime
+        displayName: Provision pinned planning runtime
+        env:
+          SHADOW_CONTEXT: $(Context.context)
+      - pwsh: |
+          & $env:PLANNING_PYTHON Tools/CI/ado_shadow.py plan
+          exit $LASTEXITCODE
+        name: Catalog
+        displayName: Emit catalog-owned shard waves
+        env:
+          SHADOW_CONTEXT: $(Context.context)
+          PLANNING_PYTHON: $(Runtime.python)
+      - task: PublishPipelineArtifact@1
+        condition: always()
+        inputs:
+          targetPath: $(Build.SourcesDirectory)/.tmp/ci-shadow
+          artifact: ci-shadow-plan-$(Build.BuildId)
+  - template: ci-worker.yml
+    parameters:
+      job: Independent
+      dependsOn: [Plan]
+      wave: independent
+      download: false
+  - template: ci-worker.yml
+    parameters:
+      job: Dependent
+      dependsOn: [Plan, Independent]
+      wave: dependent
+      download: true
+  - template: ci-worker.yml
+    parameters:
+      job: Aggregate
+      dependsOn: [Plan, Independent, Dependent]
+      wave: aggregate
+      download: true

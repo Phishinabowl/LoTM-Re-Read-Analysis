@@ -238,7 +238,7 @@ def execute(context, shard, inputs):
         source_results=list(map(str, selected)) if shard else [],
         shard_results=list(map(str, selected)) if not shard else [],
         output_root=".tmp/ci-shadow/execution",
-        host_kind="github",
+        host_kind=context.get("host", "github"),
         run_url=context["run_url"],
     )
     report, path = run_ci.execute(args)
@@ -246,7 +246,11 @@ def execute(context, shard, inputs):
         raise ValueError("Execution did not produce a report")
     owner = path.parent
     export_bundle(owner, ROOT / ".tmp/ci-shadow/bundle")
-    print(f"GitHub shadow {report['status']}: {report['counts']['selected']} selected; report {path}", flush=True)
+    print(
+        f"{context.get('host', 'github')} shadow {report['status']}: "
+        f"{report['counts']['selected']} selected; report {path}",
+        flush=True,
+    )
     for failure in report["failures"]:
         print(f"{failure['id']}: {failure['excerpt']}", flush=True)
     return report["exit_code"]
@@ -295,7 +299,7 @@ def main():
             "--python-profile",
             "runtime",
             "--environment-id",
-            "github-shadow-plan",
+            context["host"] + "-shadow-plan",
             "--source-revision",
             context["executed"],
             "--report",
@@ -317,7 +321,7 @@ def main():
         return 0
     if args.operation == "prepare":
         validate_context(ROOT, context)
-        identity = host_cache.cache_identity(ROOT, "github-shadow-1", payload_profile="complete")
+        identity = host_cache.cache_identity(ROOT, context["host"] + "-shadow-1", payload_profile="complete")
         (out / "context.json").write_text(json.dumps(context, indent=2))
         output(key=identity["key"])
         return 0
@@ -333,9 +337,9 @@ def main():
             "Tools/CI/host_cache.py",
             "bootstrap",
             "--host",
-            "github",
+            context["host"],
             "--namespace",
-            "github-shadow-1",
+            context["host"] + "-shadow-1",
             "--source-revision",
             context["executed"],
             "--cache-hit",
