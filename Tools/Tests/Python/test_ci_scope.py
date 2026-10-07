@@ -354,6 +354,84 @@ def test_github_matrix_is_complete_catalog_owned_and_admitted():
     assert all(row["timeout"] <= 55 for row in rows)
 
 
+def test_preparation_roles_preserve_every_admitted_shard_and_required_package_render_setup():
+    plan, _, _ = github_shadow.matrices(ROOT, {"profile": "pr-integration"})
+    roles = github_shadow.preparation_roles(ROOT, plan)
+    assert set(roles) == {row["id"] for row in plan["shards"]}
+    assert roles["native-policy-0"] == "build"
+    assert roles["compatibility-6"] == "complete"
+    assert all(role == "core" for shard, role in roles.items() if shard not in {"native-policy-0", "compatibility-6"})
+
+
+@pytest.mark.parametrize(
+    "adapter,expected",
+    [
+        ("installed-artifact", "build"),
+        ("compatibility", "complete"),
+        ("future-adapter", "complete"),
+        ("pytest", "core"),
+    ],
+)
+def test_preparation_derivation_keeps_unknown_dependencies_conservative(monkeypatch, adapter, expected):
+    monkeypatch.setattr(
+        github_shadow,
+        "Catalog",
+        lambda root: type(
+            "Fixture",
+            (),
+            {"plan": lambda self, profile: {"units": [{"execution_id": "fixture::python", "adapter": adapter}]}},
+        )(),
+    )
+    plan = {"profile": "fixture", "shards": [{"id": "fixture", "units": ["fixture::python"]}]}
+    assert github_shadow.preparation_roles(ROOT, plan) == {"fixture": expected}
+
+
+@pytest.mark.parametrize("roles", [[], {}, {"fixture": []}, {"fixture": True}, {"fixture": "collection"}])
+def test_assigned_execution_role_rejects_missing_or_malformed_transport(roles):
+    with pytest.raises(ValueError, match="preparation role"):
+        github_shadow.assigned_payload({"preparation_roles": roles}, "fixture")
+
+
+def test_unspecified_execution_preparation_retains_complete_fallback():
+    assert github_shadow.assigned_payload({}, "fixture") == "complete"
+    assert github_shadow.assigned_payload({}, None) == "collection"
+
+
+def test_worker_rejects_transport_role_downgrade_before_reading_build_inputs(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(ROOT / "Tools/CI"))
+    monkeypatch.setattr(github_shadow, "ROOT", tmp_path)
+    monkeypatch.setattr(github_shadow, "validate_context", lambda *a: {})
+    monkeypatch.setattr(
+        github_shadow, "matrices", lambda *a: ({"shards": [{"id": "fixture", "depends_on": []}]}, {}, {})
+    )
+    monkeypatch.setattr(github_shadow, "preparation_roles", lambda *a: {"fixture": "build"})
+    out = tmp_path / ".tmp/ci-cache-pilot"
+    out.mkdir(parents=True)
+    (out / "bootstrap.json").write_text(json.dumps({"status": "passed"}))
+    (out / "pilot.json").write_text(json.dumps({"exit_code": 0, "payload_profile": "core"}))
+    with pytest.raises(ValueError, match="approved execution plan"):
+        github_shadow.execute({"preparation_roles": {"fixture": "core"}}, "fixture", tmp_path / ".tmp/absent")
+
+
+@pytest.mark.parametrize("profile", ["pr-integration", "full-verification", "ci-infrastructure"])
+def test_ado_capacity_proposal_preserves_logical_shards_dependencies_and_every_reserve(profile):
+    original, _, _ = github_shadow.matrices(ROOT, {"profile": profile})
+    proposal = ado_shadow.cohort_plan(ROOT, profile)
+    owners = {shard: row["id"] for row in proposal["cohorts"] for shard in row["shards"]}
+    assert set(owners) == {row["id"] for row in original["shards"]}
+    assert sum(len(row["shards"]) for row in proposal["cohorts"]) == len(owners)
+    for cohort in proposal["cohorts"]:
+        rows = [row for row in original["shards"] if row["id"] in cohort["shards"]]
+        assert cohort["declared_shard_seconds"] == sum(row["budget"]["total_seconds"] for row in rows)
+        assert cohort["timeout_minutes"] <= 55
+        assert all(row["os"] == cohort["os"] for row in rows)
+        assert set(cohort["depends_on"]) == {owners[value] for row in rows for value in row["depends_on"]}
+    assert proposal["adopted"] is False
+    assert (proposal["original_jobs"], proposal["proposed_jobs"]) == (
+        (3, 3) if profile == "ci-infrastructure" else (11, 9)
+    )
+
+
 @pytest.mark.parametrize("shard,expected", [("infrastructure-0", "complete"), ("", "collection")])
 def test_host_cache_role_uses_assigned_shard_before_bootstrap(tmp_path, monkeypatch, shard, expected):
     monkeypatch.setattr(github_shadow, "ROOT", tmp_path)

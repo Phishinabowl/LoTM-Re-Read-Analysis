@@ -54,7 +54,7 @@ def cache_identity(root, namespace, system=None, architecture=None, payload_prof
     architecture = (architecture or platform.machine()).lower()
     if system not in ARCHIVES or architecture not in {"amd64", "x86_64"}:
         raise ValueError("Cache pilot supports Windows/Linux x64 only")
-    if payload_profile not in {"core", "complete", "collection"}:
+    if payload_profile not in {"core", "build", "complete", "collection"}:
         raise ValueError("Unknown payload profile")
     inputs = sorted(set(INPUTS) | {p.name for p in root.glob("requirements-*.txt")})
     hashes = {}
@@ -229,7 +229,7 @@ def main():
     parser.add_argument("--cache-hit", choices=("true", "false"), default="false")
     parser.add_argument("--expect", choices=("auto", "hit", "miss"), default="auto")
     parser.add_argument("--source-revision", required=True)
-    parser.add_argument("--payload-profile", choices=("core", "complete", "collection"), default="core")
+    parser.add_argument("--payload-profile", choices=("core", "build", "complete", "collection"), default="core")
     parser.add_argument("--fault", choices=("none", "wheel", "module-receipt"), default="none")
     parser.add_argument("--environment-id", default="host-pilot-fresh")
     parser.add_argument("--source-modified", action="store_true")
@@ -293,6 +293,8 @@ def main():
             )
         ]
     )
+    if args.payload_profile in {"build", "complete"}:
+        commands.append(("build", ["--package-mode", "wheel", "--build-only"]))
     if args.payload_profile == "complete":
         node_started = time.perf_counter()
         directory = node_runtime(hit)
@@ -300,12 +302,7 @@ def main():
         (out / "node.json").write_text(
             json.dumps({"directory": directory, "seconds": time.perf_counter() - node_started}), encoding="utf-8"
         )
-        commands.extend(
-            [
-                ("build", ["--package-mode", "wheel", "--build-only"]),
-                ("render", ["--python-profile", "none", "--render"]),
-            ]
-        )
+        commands.append(("render", ["--python-profile", "none", "--render"]))
     steps = []
     for name, arguments in commands:
         step_start = time.perf_counter()

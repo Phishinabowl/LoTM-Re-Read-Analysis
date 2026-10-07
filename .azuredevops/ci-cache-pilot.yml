@@ -13,7 +13,7 @@ parameters:
   - name: payload_profile
     type: string
     default: core
-    values: [core, complete]
+    values: [core, build, complete]
   - name: fault
     type: string
     default: none

@@ -118,6 +118,58 @@ def matrix(value):
     return result
 
 
+def cohort_plan(root, profile):
+    """Read-only capacity proposal; original logical shards, reserves and evidence stay authoritative."""
+    plan, _, _ = transport.matrices(root, {"profile": profile})
+    roles = transport.preparation_roles(root, plan)
+    groups = []
+    for shard in plan["shards"]:
+        signature = (shard["os"], tuple(shard["depends_on"]))
+        total = shard["budget"]["total_seconds"]
+        group = next(
+            (row for row in groups if row["signature"] == signature and row["seconds"] + total + 900 <= 3300), None
+        )
+        if group is None:
+            if total + 900 > 3300:
+                raise ValueError("Cohort cannot be admitted within hosted capacity")
+            group = {"id": f"cohort-{len(groups)}", "signature": signature, "seconds": 0, "shards": []}
+            groups.append(group)
+        group["seconds"] += total
+        group["shards"].append(shard["id"])
+    owners = {shard: group["id"] for group in groups for shard in group["shards"]}
+    if len(owners) != len(plan["shards"]):
+        raise ValueError("Cohort proposal changed logical shard coverage")
+    rows = []
+    for group in groups:
+        selected_roles = {roles[shard] for shard in group["shards"]}
+        rows.append(
+            {
+                "id": group["id"],
+                "os": group["signature"][0],
+                "shards": group["shards"],
+                "depends_on": sorted({owners[shard] for shard in group["signature"][1]}),
+                "preparation": "complete"
+                if "complete" in selected_roles
+                else "build"
+                if "build" in selected_roles
+                else "core",
+                "timeout_minutes": (group["seconds"] + 900 + 59) // 60,
+                "declared_shard_seconds": group["seconds"],
+            }
+        )
+    return {
+        "contract": "ci-ado-placement-proposal",
+        "contract_version": 1,
+        "adopted": False,
+        "profile": profile,
+        "shard_plan": plan["id"],
+        "cohorts": rows,
+        "original_jobs": len(plan["shards"]) + 2,
+        "proposed_jobs": len(rows) + 2,
+        "setup_transport_publication_reserve_seconds": 900,
+    }
+
+
 def output(**values):
     for name, value in values.items():
         if not re.fullmatch(r"[a-z_]+", name):
@@ -148,6 +200,11 @@ def read_pull(environment):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "placement":
+        if len(sys.argv) != 3 or sys.argv[2] not in transport.PROFILES:
+            raise ValueError("Placement requires one approved profile")
+        print(json.dumps(cohort_plan(transport.ROOT, sys.argv[2]), indent=2))
+        return 0
     if len(sys.argv) > 1 and sys.argv[1] == "evidence":
         out = transport.confined(transport.ROOT, ".tmp/ci-shadow/transport")
         out.mkdir(parents=True, exist_ok=False)

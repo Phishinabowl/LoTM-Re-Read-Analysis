@@ -2396,6 +2396,18 @@ The maintainer confirms the qualified patch and first aggregate-preparation chec
 evidence update on 2026-10-07. Wider execution roles, consolidation, barriers, acquisition and final equivalence/
 policy gates remain open. No timing goal or coverage boundary is relaxed. Both PRs stay paused.
 
+The next local increment derives core/build/complete execution preparation from approved catalog
+adapters, while retaining runtime-only collection. Workers reject role downgrades; unknown adapters
+retain complete preparation. Final focused regression passes 143 cases on each OS; fresh core and
+build recipes pass on both OSs, and the real core-prepared Windows infrastructure profile passes
+five checks/475 cases in 108.998s with source protection and cleanup verified. This increment remains
+uncommitted and awaits publication confirmation and bounded hosted qualification. A read-only Azure
+placement proposal preserves every logical shard, OS, prerequisite and timeout reserve while proposing
+nine physical full/PR jobs rather than eleven. It is not activated: shared setup, independent failure/
+cancellation, per-shard finalized artifacts and exact aggregate/report coverage require their own
+qualified increment. See [host-equivalence evidence](ci-testing-host-equivalence.md) for recipe timings,
+capacity arithmetic, retained rollback and remaining gates.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during

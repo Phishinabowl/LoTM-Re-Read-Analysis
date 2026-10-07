@@ -20,7 +20,7 @@ on:
       payload_profile:
         description: "Dependency payload coverage"
         type: choice
-        options: [core, complete]
+        options: [core, build, complete]
         default: core
       fault:
         description: "Controlled rejection; requires a hit and intentionally fails the run"

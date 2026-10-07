@@ -48,6 +48,7 @@ def test_transport_key_separates_platform_namespace_and_changed_inputs(tmp_path)
     assert key != pilot.cache_identity(tmp_path, "two", "win32", "AMD64")["key"]
     assert key != pilot.cache_identity(tmp_path, "one", "win32", "AMD64", "complete")["key"]
     assert key != pilot.cache_identity(tmp_path, "one", "win32", "AMD64", "collection")["key"]
+    assert key != pilot.cache_identity(tmp_path, "one", "win32", "AMD64", "build")["key"]
     declaration.write_text("PyYAML==6.0.2\n")
     assert key != pilot.cache_identity(tmp_path, "one", "win32", "AMD64")["key"]
     declaration.unlink()

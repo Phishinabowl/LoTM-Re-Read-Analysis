@@ -22,7 +22,7 @@ jobs:
     timeoutInMinutes: 55
     cancelTimeoutInMinutes: 2
     variables:
-      SHADOW_CONTEXT: $[ dependencies.Plan.outputs['Context.context'] ]
+      SHADOW_CONTEXT: $[ dependencies.Plan.outputs['Catalog.context'] ]
     ${{ if ne(parameters.wave, 'aggregate') }}:
       strategy:
         maxParallel: 1

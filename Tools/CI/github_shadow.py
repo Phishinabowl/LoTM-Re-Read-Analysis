@@ -149,6 +149,39 @@ def output(**values):
             stream.write(name + "=" + text + "\n")
 
 
+def preparation_roles(root, plan):
+    """Derive setup from approved adapters, never from hosted path filters or display IDs."""
+    rows = {row["execution_id"]: row for row in Catalog(root).plan(plan["profile"])["units"]}
+    core = {"pytest", "pester", "conformance", "parity", "ruff", "powershell-format", "work-annotations", "actionlint"}
+    result = {}
+    for shard in plan["shards"]:
+        adapters = {rows[identity]["adapter"] for identity in shard["units"]}
+        result[shard["id"]] = (
+            "complete"
+            if not adapters or adapters - core - {"installed-artifact"}
+            else "build"
+            if "installed-artifact" in adapters
+            else "core"
+        )
+    return result
+
+
+def assigned_payload(context, shard):
+    if not shard:
+        return "collection"
+    roles = context.get("preparation_roles")
+    if roles is None:
+        return "complete"  # Legacy/unspecified setup stays conservative.
+    if (
+        not isinstance(roles, dict)
+        or shard not in roles
+        or not isinstance(roles[shard], str)
+        or roles[shard] not in {"core", "build", "complete"}
+    ):
+        raise ValueError("Invalid assigned preparation role")
+    return roles[shard]
+
+
 def actionlint(offline):
     if bootstrap.read_json(ROOT / "Tools/CI/Data/runtime-versions.json")["actionlint"] != "1.7.12":
         raise ValueError("Review actionlint archive hashes when changing the adopted version")
@@ -217,7 +250,9 @@ def execute(context, shard, inputs):
             raise ValueError("Collection requires every approved shard exactly once; no sequential fallback")
     setup = bootstrap.read_json(ROOT / ".tmp/ci-cache-pilot/bootstrap.json")
     pilot = bootstrap.read_json(ROOT / ".tmp/ci-cache-pilot/pilot.json")
-    payload_profile = "complete" if shard else "collection"
+    if "preparation_roles" in context and context["preparation_roles"] != preparation_roles(ROOT, plan):
+        raise ValueError("Preparation roles differ from the approved execution plan")
+    payload_profile = assigned_payload(context, shard)
     if (
         setup["status"] != "passed"
         or pilot["exit_code"] != 0
@@ -225,8 +260,12 @@ def execute(context, shard, inputs):
         or pilot["source_revision"] != context["executed"]
     ):
         raise ValueError("Verified role-specific dependency setup required")
-    build = bootstrap.read_json(ROOT / ".tmp/ci-cache-pilot/build.json") if shard else None
-    if shard and (build["status"] != "passed" or "powershell" not in setup):
+    build = (
+        bootstrap.read_json(ROOT / ".tmp/ci-cache-pilot/build.json")
+        if payload_profile in {"build", "complete"}
+        else None
+    )
+    if shard and ("powershell" not in setup or (build is not None and build["status"] != "passed")):
         raise ValueError("Verified execution dependency/build setup required")
     # Paths are taken from authoritative bootstrap receipts, never from workflow guesses.
     modules = setup["powershell"]["module_path"].split(os.pathsep)[0] if shard else None
@@ -246,7 +285,7 @@ def execute(context, shard, inputs):
         pwsh=setup["powershell"]["executable"] if shard else None,
         module_root=modules,
         actionlint=bootstrap.read_json(ROOT / ".tmp/ci-shadow/tools.json")["actionlint"],
-        wheel=build["package"]["wheel"] if shard else None,
+        wheel=build["package"]["wheel"] if build is not None else None,
         runtime_wheel=str(runtime_wheel),
         render_bootstrap_report=str(ROOT / ".tmp/ci-cache-pilot/render.json"),
         shard_plan=plan["id"],
@@ -332,12 +371,18 @@ def main():
     if args.operation == "plan":
         scope = validate_context(ROOT, context)
         plan, independent, dependent = matrices(ROOT, context)
+        context["preparation_roles"] = preparation_roles(ROOT, plan)
         (out / "plan.json").write_text(json.dumps({"context": context, "scope": scope, "shard_plan": plan}, indent=2))
-        output(independent=independent, dependent=dependent, dependent_count=str(len(dependent["include"])))
+        output(
+            context=context,
+            independent=independent,
+            dependent=dependent,
+            dependent_count=str(len(dependent["include"])),
+        )
         return 0
     if args.operation == "prepare":
         validate_context(ROOT, context)
-        payload_profile = "complete" if args.shard else "collection"
+        payload_profile = assigned_payload(context, args.shard)
         identity = host_cache.cache_identity(ROOT, context["host"] + "-shadow-1", payload_profile=payload_profile)
         (out / "context.json").write_text(json.dumps(context, indent=2))
         output(key=identity["key"])
@@ -348,7 +393,7 @@ def main():
         os.environ["LOTM_CI_UNIT_DEADLINE"] = str(deadline)
         tool = actionlint(hit) if args.shard else None
         environment = {**os.environ, "LOTM_CI_UNIT_DEADLINE": str(deadline)}
-        # Collection admits retained results; it does not execute tests or build/render inputs.
+        # Setup requirements come from the admitted repository plan; unit membership is unchanged.
         command = [
             sys.executable,
             "Tools/CI/host_cache.py",
@@ -362,7 +407,7 @@ def main():
             "--cache-hit",
             "true" if hit else "false",
             "--payload-profile",
-            "complete" if args.shard else "collection",
+            assigned_payload(context, args.shard),
         ]
         remaining = deadline - time.monotonic()
         if remaining <= 0:

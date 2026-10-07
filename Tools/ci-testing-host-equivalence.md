@@ -232,6 +232,59 @@ timing review and policy adoption remain open. No check name, policy, selection 
 is relaxed by this increment. The local default/editor selection is not silently changed: use the
 verified 3.14.8 environment from its bootstrap receipt; existing 3.14.5 installations remain retained.
 
+## Execution Preparation And Read-Only Azure Placement Proposal
+
+The next increment is locally qualified and remains uncommitted pending maintainer confirmation.
+Preparation now derives from adapters in the approved repository catalog and assigned shard:
+
+| Role | Required payload | Current assignment |
+| --- | --- | --- |
+| `core` | Python development/media dependencies and PowerShell development modules | Implementation, conformance, parity and media shards |
+| `build` | Core payload plus the installed-package wheel build | Native policy/package shard |
+| `complete` | Core, wheel build, owned Node/browser/render payload and real renderer qualification | Project compatibility; unknown adapters conservatively retain this role |
+| `collection` | Runtime Python, pip and PyYAML only | Aggregate admission and publication |
+
+The plan emits the role map into host context; workers recompute it before execution and reject
+transport downgrades. Unspecified legacy execution retains complete setup. Cache identities separate
+all four roles. Both pilot parameter lists accept `build` for bounded hosted qualification.
+Test/profile membership, isolation, original shard IDs, runtime versions, OS placement, timeout
+reserves and result admission remain unchanged. Python implementation shards retain PowerShell and
+media dependencies because their implementation tests exercise those helpers.
+
+Final bootstrap/scope regression passes 143 cases per OS: Windows 32.12s and WSL 39.51s.
+Ruff and actionlint pass. Fresh production recipes in private copied-source owners prove:
+
+| Local recipe | Windows setup | WSL setup |
+| --- | ---: | ---: |
+| Core, without build/render receipts | 42.723s | 157.169s |
+| Build, package 0.1.0 wheel without render receipts | 55.206s | 290.372s |
+
+These are local acquisition/environment measurements, not hosted speedup claims. WSL owners sit
+on the Windows-mounted filesystem. The first Windows build attempt encountered sandbox network
+restrictions; the authorized network retry passes in the same inspected owner, with failed logs
+retained. Python remains exactly 3.14.8 and PowerShell 7.6.6.
+The real Windows `ci-infrastructure` profile using the core receipt's interpreter/modules passes
+all five checks and 475 cases in 108.998s, with canonical/source protection and cleanup verified.
+The extra 15 cases relative to run 60 are preparation/placement regression, not added semantic
+conformance families. Original finalized evidence remains under ignored `.tmp/ci-phase65`.
+
+`ado_shadow.py placement <approved-profile>` provides a deterministic, read-only capacity proposal.
+It does not alter execution matrices. Full/PR profiles propose seven execution cohorts plus Plan
+and Aggregate: nine physical jobs versus eleven today, preserving all nine logical shards.
+Only shards with the same OS and prerequisite signature may share a cohort. Every original shard
+budget/reserve remains included; an additional 900 seconds preserves 600 seconds setup, 180 seconds
+transport and 120 seconds publication/wrapper allowance. Admission stays within 55 minutes.
+The proposed shared Windows core cohort contains infrastructure, the small PowerShell conformance
+tail and media. Python conformance remains on Linux. The two Linux shards cannot fit together
+under the retained admission ceiling. Infrastructure-only remains three physical jobs.
+
+No cohort is adopted, and no job-count reduction is credited as measured performance improvement.
+Before activation, qualify shared preparation, independent continuation/cancellation, per-shard
+finalized bundles, partial-failure diagnostics, artifact routing, exact aggregate coverage and
+catalog-ordered report sections. Keep individual shard execution and the complete-preparation
+baseline available as rollback. Manual hosted core/build proof is the next gate; full/event/policy
+qualification remains open and both PRs remain paused.
+
 ## Remaining Qualification And Rollback
 
 The patch and aggregate-preparation checkpoints are confirmed on 2026-10-07. Continue with deliberate
