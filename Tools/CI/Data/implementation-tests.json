@@ -577,6 +577,107 @@
       "result_contract": "native-test-run-v1",
       "empty_policy": "fail",
       "allowed_skips": []
+    },
+    {
+      "id": "python-media",
+      "description": "Required synthetic python-media behavior",
+      "order": 16,
+      "adapter": "pytest",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/Python/test_media.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests",
+        "Tools/Commands/Media"
+      ],
+      "impact_paths": [
+        "Tools/Commands/Media/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/CI/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 30,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "powershell-media-epub",
+      "description": "Required synthetic powershell-media-epub behavior",
+      "order": 17,
+      "adapter": "pester",
+      "runtimes": [
+        "powershell7"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/PowerShell/MediaEpub.Tests.ps1"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests",
+        "Tools/Commands/Media"
+      ],
+      "impact_paths": [
+        "Tools/Commands/Media/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/CI/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 30,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "powershell-media-image",
+      "description": "Required synthetic powershell-media-image behavior",
+      "order": 18,
+      "adapter": "pester",
+      "runtimes": [
+        "powershell7"
+      ],
+      "os": [
+        "windows"
+      ],
+      "entry": [
+        "Tools/Tests/PowerShell/MediaImage.Tests.ps1"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests",
+        "Tools/Commands/Media"
+      ],
+      "impact_paths": [
+        "Tools/Commands/Media/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/CI/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 30,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
     }
   ],
   "discovery": [

@@ -135,6 +135,50 @@ def test_private_tree_has_equivalent_plan_ids(private_catalog):
     assert [row["execution_id"] for row in actual["units"]] == [row["execution_id"] for row in expected["units"]]
 
 
+@pytest.mark.parametrize("value", [None, [], "linux", ["windows", "windows"], ["windows", "macos"], ["linux"], [True]])
+def test_external_os_admission_rejects_invalid_or_lost_windows_coverage(private_catalog, value):
+    root, data, docs = private_catalog
+    docs["metadata"]["external_units"][0]["os"] = value
+    write_documents(data, docs)
+    with pytest.raises(catalogs.CatalogError):
+        catalogs.Catalog(root)
+
+
+@pytest.mark.parametrize("mutation", ["missing-os", "extra-field", "old-version", "future-version", "bool-version"])
+def test_external_metadata_schema_is_closed_and_versioned(private_catalog, mutation):
+    root, data, docs = private_catalog
+    row = docs["metadata"]["external_units"][0]
+    if mutation == "missing-os":
+        del row["os"]
+    elif mutation == "extra-field":
+        row["platform"] = "linux"
+    else:
+        docs["metadata"]["schema_version"] = {"old-version": 1, "future-version": 3, "bool-version": True}[mutation]
+    write_documents(data, docs)
+    with pytest.raises(catalogs.CatalogError):
+        catalogs.Catalog(root)
+
+
+def test_external_os_metadata_controls_admission_without_losing_membership(private_catalog):
+    root, data, docs = private_catalog
+    baseline = catalogs.Catalog(root).plan("full-verification", "windows")
+    row = next(row for row in docs["metadata"]["external_units"] if row["unit"] == "compatibility/qa")
+    row["os"] = ["windows"]
+    write_documents(data, docs)
+    catalog = catalogs.Catalog(root)
+    windows = catalog.plan("full-verification", "windows")
+    linux = catalog.plan("full-verification", "linux")
+    assert [r["execution_id"] for r in windows["units"]] == [r["execution_id"] for r in baseline["units"]]
+    assert [r["execution_id"] for r in linux["units"]] == [r["execution_id"] for r in windows["units"]]
+    assert (
+        next(r for r in linux["units"] if r["execution_id"] == "compatibility/qa::referee")["availability"] == "blocked"
+    )
+    assert (
+        next(r for r in windows["units"] if r["execution_id"] == "compatibility/qa::referee")["availability"]
+        == "unverified"
+    )
+
+
 def test_historical_scenario_reference_cannot_be_admitted_as_active_review(private_catalog):
     root, data, docs = private_catalog
     methodology = root / "Framework/testing_methodology.md"
@@ -315,7 +359,7 @@ def test_profile_and_shard_admission_is_not_weakened(private_catalog, mutation):
     elif mutation == "duplicate-placement":
         shard["shards"][1]["units"].append(shard["shards"][0]["units"][0])
     elif mutation == "shard-os":
-        next(row for row in shard["shards"] if row["id"].startswith("compatibility"))["os"] = "linux"
+        next(row for row in shard["shards"] if row["id"].startswith("media"))["os"] = "linux"
     elif mutation == "shard-budget":
         shard["shards"][0]["budget"]["total_seconds"] = 211
     elif mutation == "shard-cycle":

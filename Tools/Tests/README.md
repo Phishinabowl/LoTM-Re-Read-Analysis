@@ -60,6 +60,15 @@ The Testing panel is a development view, not suite membership authority or hoste
 
 ## Current Files And Categories
 
+CI 5.8.2 adds required synthetic media groups: Python search/crop on Windows/Linux, PowerShell
+EPUB search on Windows/Linux, and PowerShell System.Drawing crop on Windows only. The Windows-only
+file deliberately fails prerequisite setup if directly executed on Linux; it never turns into a
+passing skip. On Linux, invoke admitted Pester files through their catalog groups or explicit paths,
+rather than the all-files Pester example above. The complete profile still retains that Windows
+obligation. Fixtures create tiny ZIP/XHTML/PNG inputs under test-owned storage and never read real
+books/artwork. [Qualification and complete-portfolio accounting](../ci-testing-linux-qualification.md)
+remain distinct from the later full comparison.
+
 | File | Category | Current identities | Ownership |
 | --- | --- | --- | --- |
 | Python/test_bootstrap.py | unit | 15 | Dependency grammar/cache/bootstrap implementation |
@@ -67,7 +76,10 @@ The Testing panel is a development view, not suite membership authority or hoste
 | Python/test_package_artifact.py | unit | 18 | Wheel boundary and pure synthetic-consumer helper |
 | Python/test_tooling_pilots.py | unit/integration | 9 unit, 3 integration | Annotation discovery/CLI, normalization and root API implementation |
 | Python/test_native_results.py | unit | 33 | Native XML/phase truth, publication identity, adapter scope, timeout and finalization |
-| Python/test_ci_catalog.py | unit | 67 | Private source/catalog trees, discovery/closure, mandatory family/OS membership, deterministic planning and shard/gate manifests |
+| Python/test_ci_catalog.py | unit | 83 | Private source/catalog trees, discovery/closure, mandatory family/OS membership, deterministic planning and shard/gate manifests |
+| Python/test_media.py | unit/integration | 2 unit, 2 integration | Synthetic EPUB CLI searches/invalid archives and exact crop pixels, dimensions, bounds and overwrite protection |
+| PowerShell/MediaEpub.Tests.ps1 | Integration | 2 | Synthetic ZIP/XML search, Unicode/literal terms, chapter selection and malformed input rejection |
+| PowerShell/MediaImage.Tests.ps1 | Integration | 2 | Required Windows-only System.Drawing crop pixels, dimensions, bounds and overwrite protection |
 | Python/test_ci_scope.py | unit/integration | 31 unit, 15 integration | Real private Git histories, snapshots, PR/ref drift, selection reason/order/count repeatability and full fallback |
 | Python/test_ci_process.py | unit/integration | 31 unit, 11 integration | Owned trees, guardian/caller loss, deadlines, cancellation, output thresholds, diagnostics and cleanup |
 | Python/test_ci_execution.py | unit/integration | 38 unit, 1 integration | Aggregate continuation/blocking, actual source/policy scope, typed parity, runner deadlines, owned cleanup and shard evidence |
@@ -77,7 +89,7 @@ The Testing panel is a development view, not suite membership authority or hoste
 | PowerShell/Dependencies.Tests.ps1 | Unit | 3 | Exact module-declaration implementation |
 | PowerShell/Formatter.Tests.ps1 | Unit/Integration | 3 Unit, 4 Integration | Mocked Git/explicit-file discovery and real exact-version analyzer |
 | PowerShell/Host.Tests.ps1 | Integration | 6 | Supported host/module/readiness collaboration |
-| PowerShell/QaChildren.Tests.ps1 | Integration | 8 | QA launch functions with synthetic child helpers |
+| PowerShell/QaChildren.Tests.ps1 | Integration | 13 | QA launch functions with synthetic child helpers; portable relative paths/filenames, output case/link boundaries and Visualization exclusions |
 | PowerShell/RuntimeApi.Tests.ps1 | Integration | 2 | Source-module root precedence/rejection with neutral manifests |
 
 Python's collection hook adds `unit` only when no category is declared, rejects overlapping

@@ -12,7 +12,9 @@ BeforeAll {
         throw 'QA source did not parse.'
     }
     # QA is a command, so load only its existing launch functions without running canonical export.
-    foreach ($name in @('Write-TextFile', 'Get-RepoRelativePath', 'Write-RepoRefreshCheck', 'Write-BoundedGraphs', 'Invoke-DisposableCacheCleanup')) {
+    $functionNames = @('Write-TextFile', 'ConvertTo-RelativePath', 'ConvertTo-SafeFileName', 'Assert-SafeOutputPath', 'Get-RepoRelativePath',
+        'Write-RepoRefreshCheck', 'Write-BoundedGraphs', 'Invoke-DisposableCacheCleanup')
+    foreach ($name in $functionNames) {
         $definition = $ast.Find({ param($node)
                 $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq $name
             }, $true)
@@ -21,6 +23,15 @@ BeforeAll {
         }
         . ([scriptblock]::Create($definition.Extent.Text))
     }
+    $visualizationAst = [System.Management.Automation.Language.Parser]::ParseFile(
+        (Join-Path $repoRoot 'Visualization/visualize.ps1'), [ref]$tokens, [ref]$errors)
+    if ($errors.Count -gt 0) {
+        throw 'Visualization source did not parse.'
+    }
+    $linkFunction = $visualizationAst.Find({ param($node)
+            $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'Get-BrokenMarkdownLinks'
+        }, $true)
+    . ([scriptblock]::Create($linkFunction.Extent.Text))
     $fixtureHelper = @'
 param([string]$Root, [string]$Mode, [string]$SettingsPath, [switch]$SkipRender, [switch]$Delete)
 $record = [ordered]@{
@@ -83,6 +94,70 @@ Describe 'QA child launch contracts' -Tag 'Integration' {
     AfterEach {
         $env:LOTM_QA_CHILD_TEST_LOG = $priorLog
         $env:LOTM_QA_CHILD_TEST_EXIT = $priorExit
+    }
+
+    It 'serializes filesystem-relative Unicode paths without a source-root prefix or URI decoding' {
+        $name = 'unicodé %23 # space.md'
+        $path = Join-Path $fixtureRoot $name
+        Set-Content -LiteralPath $path -Value 'synthetic text'
+        ConvertTo-RelativePath $path $fixtureRoot | Should -BeExactly $name
+        ConvertTo-RelativePath $generatedDir $fixtureRoot | Should -BeExactly 'generated output'
+        Get-RepoRelativePath $fixtureRoot $path | Should -BeExactly $name
+    }
+
+    It 'rejects root and sibling output paths and preserves native case boundaries' {
+        { Assert-SafeOutputPath $fixtureRoot $fixtureRoot } | Should -Throw
+        $sibling = $fixtureRoot + '-sibling'
+        { Assert-SafeOutputPath $fixtureRoot $sibling } | Should -Throw
+        Assert-SafeOutputPath $fixtureRoot (Join-Path $generatedDir 'new output') | Should -BeExactly (Join-Path $generatedDir 'new output')
+        if (-not $IsWindows) {
+            $differentCase = Join-Path (Split-Path $fixtureRoot -Parent) (Split-Path $fixtureRoot -Leaf).ToUpperInvariant()
+            $null = New-Item -ItemType Directory -Path $differentCase -Force
+            { Assert-SafeOutputPath $fixtureRoot (Join-Path $differentCase 'output') } | Should -Throw
+        }
+    }
+
+    It 'excludes Source links and preserves native diagnostic separators' {
+        $sourceFolder = Join-Path $fixtureRoot 'Source'
+        $null = New-Item -ItemType Directory -Path $sourceFolder
+        Set-Content -LiteralPath (Join-Path $sourceFolder 'ignored.md') -Value '[ignored](missing-source.md)'
+        Set-Content -LiteralPath (Join-Path $generatedDir 'unicodé.md') -Value '[missing](missing-target.md)'
+        $broken = @(& {
+                param($repoRoot)
+                function Get-VisualizationDiscoveryConfig {
+                    return @{ content_root_paths = @{} }
+                }
+                Get-BrokenMarkdownLinks
+            } $fixtureRoot)
+        $broken.Count | Should -Be 1
+        $broken[0] | Should -BeExactly ('.\' + (Join-Path 'generated output' 'unicodé.md') + ' -> missing-target.md')
+    }
+
+    It 'rejects linked output ancestors before touching an external sentinel' {
+        $outside = Join-Path $TestDrive ('outside-' + [guid]::NewGuid().ToString('N'))
+        $null = New-Item -ItemType Directory -Path $outside
+        $sentinel = Join-Path $outside 'sentinel.txt'
+        Set-Content -LiteralPath $sentinel -Value 'preserve'
+        $link = Join-Path $fixtureRoot 'linked output'
+        $linkType = if ($IsWindows) {
+            'Junction'
+        }
+        else {
+            'SymbolicLink'
+        }
+        $null = New-Item -ItemType $linkType -Path $link -Target $outside
+        { Assert-SafeOutputPath $fixtureRoot (Join-Path $link 'new child') } | Should -Throw '*filesystem link*'
+        Get-Content -LiteralPath $sentinel | Should -BeExactly 'preserve'
+        Test-Path -LiteralPath (Join-Path $outside 'new child') | Should -BeFalse
+    }
+
+    It 'uses portable filename sanitation on every host without changing authored titles' {
+        $title = 'Volume 1: Clown'
+        ConvertTo-SafeFileName $title | Should -BeExactly 'Volume 1- Clown'
+        $title | Should -BeExactly 'Volume 1: Clown'
+        ConvertTo-SafeFileName 'a<>:"/\|?*b' | Should -BeExactly 'a---------b'
+        ConvertTo-SafeFileName "a$([char]1)b" | Should -BeExactly 'a-b'
+        ConvertTo-SafeFileName ' café  note. ' | Should -BeExactly 'café note'
     }
 
     It 'runs all three helpers in isolated approved PS7 children with unchanged cwd and arguments' {

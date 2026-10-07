@@ -40,6 +40,16 @@ recovers interrupted evidence; hosted uploads and publication receipts remain la
 
 ## Normal Development Setup
 
+Linux rendering requires native Node 24.15.0/npm 11.12.1 and the pinned Chrome from explicit render
+bootstrap. A Windows-mounted `npm` cannot substitute. Verify the official Node release archive
+against its SHA256 manifest before extracting into owned user storage and placing its `bin` on
+the process PATH. On Ubuntu 24.04, qualification required explicit `unzip`, `libnss3`,
+`libasound2t64` and `fonts-liberation` installation; these system prerequisites are separate from
+the versioned Node/Puppeteer/browser payloads. Bootstrap keeps `installDeps:false` and performs no
+implicit system installation. Inspect the actual Chrome executable with `ldd`, verify fonts and
+qualify real helper rendering after preparation. Do not broaden sandbox flags or substitute a
+different browser. [CI 5.8.2](../ci-testing-linux-qualification.md) records local evidence and limits.
+
 CI 4.6 registers the focused [mandatory infrastructure regression gate](regression-gate.md).
 Implementation-bearing profiles retain five native/infrastructure groups; hosted activation and
 required-check policy remain Phase 6. The focused profile uses prepared Python only.

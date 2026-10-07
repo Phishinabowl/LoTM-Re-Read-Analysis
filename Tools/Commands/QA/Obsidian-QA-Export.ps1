@@ -224,9 +224,9 @@ function ConvertTo-RelativePath {
         [string]$Path,
         [string]$BasePath
     )
-    $baseUri = [System.Uri]::new((Resolve-Path -LiteralPath $BasePath).Path.TrimEnd('\') + '\')
-    $pathUri = [System.Uri]::new((Resolve-Path -LiteralPath $Path).Path)
-    return [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($pathUri).ToString())
+    $baseFullPath = (Resolve-Path -LiteralPath $BasePath).ProviderPath
+    $fullPath = (Resolve-Path -LiteralPath $Path).ProviderPath
+    return [System.IO.Path]::GetRelativePath($baseFullPath, $fullPath).Replace('\', '/')
 }
 
 function ConvertTo-SlugTitle {
@@ -1205,7 +1205,8 @@ function Get-ExportFolder {
 
 function ConvertTo-SafeFileName {
     param([string]$Name)
-    $invalidChars = [System.IO.Path]::GetInvalidFileNameChars()
+    # Keep generated filenames identical across hosts and compatible with Windows consumers.
+    $invalidChars = [char[]]'<>:"/\|?*' + [char[]](0..31)
     $builder = [System.Text.StringBuilder]::new()
     foreach ($char in $Name.ToCharArray()) {
         if ($invalidChars -contains $char) {
@@ -2615,8 +2616,25 @@ function Assert-SafeOutputPath {
         $resolvedOutput = Join-Path $resolvedOutput $segment
     }
     $resolvedOutput = [System.IO.Path]::GetFullPath($resolvedOutput)
-    if ($resolvedOutput -eq $resolvedRoot -or -not $resolvedOutput.StartsWith($resolvedRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+    $comparison = if ($IsWindows) {
+        [System.StringComparison]::OrdinalIgnoreCase
+    }
+    else {
+        [System.StringComparison]::Ordinal
+    }
+    if ($resolvedOutput.Equals($resolvedRoot, $comparison) -or -not $resolvedOutput.StartsWith($resolvedRoot + [System.IO.Path]::DirectorySeparatorChar, $comparison)) {
         throw "Output directory must be a child of the repository root: $OutputPath"
+    }
+    $ancestor = $existingAncestor
+    while (-not $ancestor.Equals($resolvedRoot, $comparison)) {
+        $item = Get-Item -LiteralPath $ancestor -Force
+        if ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+            throw "Output directory must not traverse a filesystem link: $OutputPath"
+        }
+        $ancestor = Split-Path -Parent $ancestor
+        if ([string]::IsNullOrWhiteSpace($ancestor)) {
+            throw "Cannot verify output ancestors safely: $OutputPath"
+        }
     }
     return $resolvedOutput
 }
@@ -2633,7 +2651,13 @@ function Get-RepoRelativePath {
         $fullPath = [System.IO.Path]::GetFullPath((Join-Path $RepoRoot $Path))
     }
     $rootPath = [System.IO.Path]::GetFullPath($RepoRoot)
-    if ($fullPath.StartsWith($rootPath + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+    $comparison = if ($IsWindows) {
+        [System.StringComparison]::OrdinalIgnoreCase
+    }
+    else {
+        [System.StringComparison]::Ordinal
+    }
+    if ($fullPath.StartsWith($rootPath + [System.IO.Path]::DirectorySeparatorChar, $comparison)) {
         return $fullPath.Substring($rootPath.Length + 1).Replace("\", "/")
     }
     return $fullPath

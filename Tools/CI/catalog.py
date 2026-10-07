@@ -335,7 +335,6 @@ class Catalog:
                     "adapter": owner,
                     "runtimes": RUNTIMES if owner == "conformance" else ["referee"],
                     "participants": RUNTIMES if owner == "compatibility" else [],
-                    "os": ["windows", "linux"] if owner == "conformance" else ["windows"],
                     "entry": [row["python"], row["powershell"]] if owner == "conformance" else [path],
                 }
 
@@ -385,13 +384,16 @@ class Catalog:
             "metadata",
         )
         require(
-            type(document["schema_version"]) is int and document["schema_version"] == 1, "Unsupported metadata version"
+            type(document["schema_version"]) is int and document["schema_version"] == 2, "Unsupported metadata version"
         )
         require(isinstance(document["external_units"], list), "External metadata list required")
         expected = {key for key, row in self.units.items() if row["owner"] in self.owner_profiles}
         seen = set()
         for row in document["external_units"]:
-            closed(row, EXTERNAL_KEYS, "external metadata")
+            closed(row, EXTERNAL_KEYS | {"os"}, "external metadata")
+            strings(row["os"], "external OS", True)
+            require(set(row["os"]) <= {"windows", "linux"}, "Unknown external OS")
+            require("windows" in row["os"], "Required Windows coverage cannot be removed")
             require(row["unit"] in expected and row["unit"] not in seen, "Unknown/duplicate external metadata")
             require(
                 row["result_contract"]

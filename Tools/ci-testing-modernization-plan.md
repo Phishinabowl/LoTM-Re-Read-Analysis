@@ -71,7 +71,8 @@ conditional pre-hosted timing acceptance is satisfied, retaining the 90-second /
 and measured Phase 8.1 follow-up. The 5.7 checkpoint is closed.
 On 2026-10-06 the maintainer confirms the Phase 5.8 plan addition for Linux portability/full comparison
 before hosted adoption. Phase 5.8.1 inventory and its bounded proposal are confirmed on 2026-10-06;
-executable qualification at 5.8.2 has not started. The expanded local gate now also
+executable qualification at 5.8.2 is implemented, verified and confirmed on 2026-10-06. Phase 5.8.3
+has not started. The expanded local gate now also
 requires that comparison and an explicit OS-placement review. The accepted 5.7 results and timing
 disposition remain intact; local WSL evidence will not substitute for actual hosted measurements.
 
@@ -1990,9 +1991,9 @@ cases where equivalence fails. Keep accepted historical evidence and original ho
 
 ### Phase 5.8 Linux Portability, Full Comparison And OS Placement
 
-**Plan addition confirmed by the maintainer (2026-10-06), executable qualification not started:** Establish Linux feasibility and comparable local
-costs before writing hosted adapters around provisional Windows placement. Current catalog admission
-marks every compatibility check Windows-only; this is confirmed registration behavior, not evidence
+**Plan addition and 5.8.2 qualification confirmed by the maintainer (2026-10-06); 5.8.3 unstarted:** Establish Linux feasibility and comparable local
+costs before writing hosted adapters around provisional Windows placement. At the plan addition, catalog admission
+marked every compatibility check Windows-only; that was confirmed registration behavior, not evidence
 that every implementation needs Windows. Preserve the accepted 5.7 portfolio and timing disposition
 as the reference. This checkpoint does not automatically require Linux support for every check or
 authorize unrelated cross-platform product work.
@@ -2028,23 +2029,33 @@ against a knowingly blocked or incomplete inventory.
 
 #### Phase 5.8.2 Focused Linux Qualification
 
-- [ ] Prepare required pinned tools explicitly in owned Linux locations and validate the complete
+**Implementation and qualification confirmed by the maintainer (2026-10-06):** The
+[qualification record](ci-testing-linux-qualification.md) tracks schema-2 OS admission, focused
+QA/Visualization corrections, required synthetic media registration, native Linux render preparation,
+isolated consumer requalification and source provenance. Existing required Windows coverage remains;
+full now contains 77 units with one explicitly Windows-only image group. This does not close 5.8.3,
+claim a full Linux pass, change timing goals or activate hosted CI. All eleven Linux owners and
+42 baseline variants qualify; exact full parity/reference reconciliation and final affected Windows
+goldens pass. Windows native proof is 456 pytest / 58 Pester; changed Linux proof is 87 pytest /
+15 Pester. All five checkpoint items are confirmed; complete measurement/placement remains 5.8.3.
+
+- [x] Prepare required pinned tools explicitly in owned Linux locations and validate the complete
   development environment, wheel inputs and any admitted Linux Chrome/render provenance. Use the
   native Linux filesystem; separate acquisition/preparation from verified execution. Missing system
   dependencies remain actionable blockers, not implicit downloads or a different browser/runtime.
-- [ ] Implement only reviewed portability corrections and repository-owned per-check OS admission.
+- [x] Implement only reviewed portability corrections and repository-owned per-check OS admission.
   Keep suite membership, runtime parity, required Windows variants, deadlines, independent process
   continuation, source guards and report contracts intact. YAML must not become the OS-support authority.
-- [ ] Close the previously accepted D12 synthetic EPUB/image PR-coverage gap through explicit native
+- [x] Close the previously accepted D12 synthetic EPUB/image PR-coverage gap through explicit native
   registration: portable Python fixtures, PS EPUB qualification and retained Windows-only PS image
   coverage for System.Drawing. Do not port/retire image tooling as an implicit CI change. Account for
   any added unit/case counts and Windows remainder separately from the historic 74-unit core comparison;
   adding required coverage cannot justify silently omitting it from the complete portfolio.
-- [ ] Prove affected behavior on Linux and recheck affected Windows behavior. Compare semantic output,
+- [x] Prove affected behavior on Linux and recheck affected Windows behavior. Compare semantic output,
   CLI/export/error contracts, golden projections, extraction contents, containment and publication;
   explicitly normalize only permitted operational/platform fields. Add meaningful regression coverage
   for corrections, without registering permanent tests solely for this one-time comparison.
-- [ ] Prove the candidate inventory, bytes and modes against the authoritative captured source before
+- [x] Prove the candidate inventory, bytes and modes against the authoritative captured source before
   qualification, including tracked files under ignored directories. An independent synthetic Git
   baseline must not silently omit files; retain exact primary-to-copy provenance and failed evidence.
 
@@ -2059,6 +2070,8 @@ Any remaining Windows dependency or unverified obligation is explicit before agg
   obligations and run a fresh complete Windows profile when needed; do not repeat full runs for docs alone.
 - [ ] If some obligations require Windows, measure the qualified Linux portion and required Windows
   remainder with explicit coverage accounting and an accepted reason for each retained assignment.
+  Admit a repository-owned complete split plan/recipe before running it; preserve existing check
+  identities and every obligation rather than bypassing a blocked all-Linux profile with exclusions.
   Label it a split-platform portfolio, not a passing full Linux run. Blocked, skipped or failed coverage
   cannot be removed to manufacture an equivalent timing or a green required gate.
 - [ ] Measure profiles sequentially and retain capture/preflight, native/conformance/consumer execution,

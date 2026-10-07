@@ -1284,8 +1284,8 @@ function Get-BrokenMarkdownLinks {
     $broken = @()
     $markdownFiles = Get-ChildItem -Path $repoRoot -Recurse -Filter "*.md" |
         Where-Object {
-            $_.FullName -notmatch '\\.git\\' -and
-            $_.FullName -notmatch '\\Source\\' -and
+            $_.FullName -notmatch '[\\/]\.git[\\/]' -and
+            $_.FullName -notmatch '[\\/]Source[\\/]' -and
             $_.Name -ne "TEMPLATE.md"
         }
 
@@ -1323,7 +1323,7 @@ function Get-BrokenMarkdownLinks {
                 if ($plannedContentRoot) {
                     continue
                 }
-                $relativeFile = '.\' + $file.FullName.Substring($repoFullPath.Length).TrimStart('\', '/').Replace('/', '\')
+                $relativeFile = '.\' + [System.IO.Path]::GetRelativePath($repoFullPath, $file.FullName)
                 $broken += "$relativeFile -> $target"
             }
         }

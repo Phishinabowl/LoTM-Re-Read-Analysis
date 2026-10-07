@@ -36,7 +36,11 @@ plan is not a passing execution. Every current plan has `execution_ready: false`
 
 ## Registration And Source Ownership
 
-Four UTF8 JSON schema-1 catalogs live in `Data/`:
+Four UTF8 JSON catalogs live in `Data/`. Policy, implementation and execution profiles retain
+schema 1. CI 5.8.2 advances only coverage metadata to schema 2: each of its 32 external descriptors
+requires an explicit nonempty, duplicate-free `os` list containing `windows` and optionally `linux`.
+Unknown fields, OS values, types and versions fail admission; membership and semantic result
+contracts remain with the existing external owners. See the [qualification record](../ci-testing-linux-qualification.md).
 
 | Catalog | Current authority |
 | --- | --- |

@@ -632,6 +632,11 @@ retirement; D09-D11/D13 were confirmed on 2026-10-05. Implementation evidence ga
 | D23 | Confirmed 2026-10-05 through CI 4.2: capture exact regular-file bytes/modes with explicit local/index/commit/merge provenance; reject current links/gitlinks and oversized/drifting sources. Known safe snapshots permit full comparison fallback. Index/commit CLI uses an explicit captured catalog tree, worktree CLI rechecks catalog/source coherence. Selection stays advisory/full effective membership, with no production non-impact exemptions. | [Git scope](CI/change-scope.md); execution/lifecycle at 4.3-4.5 and selection adoption at 4.6/Phase 7. |
 | D24 | Confirmed by the maintainer on 2026-10-06 through 5.8.1: refine D22's initial OS defaults through explicit per-external-unit Windows/Linux eligibility in CI coverage-metadata schema 2. Require closed, typed, nonempty, duplicate-free known OS lists and truthful planning/shard admission; preserve external registry membership, ordering, result contracts, other catalog versions and required Windows variants. D12's already-required synthetic media coverage must be registered with actual OS boundaries before hosted adoption; current 74-unit evidence does not contain those helper behavior tests. No executable/schema change is implemented by this documentary checkpoint. | [5.8.1 inventory and bounded proposal](ci-testing-linux-portability-inventory.md); qualification at 5.8.2, complete comparison/placement disposition at 5.8.3. |
 
+CI 5.8.2 implements D24's metadata-schema-2 OS admission and D12's required media registration;
+the [focused qualification record](ci-testing-linux-qualification.md) is confirmed by the maintainer on 2026-10-06.
+Full coverage retains 77 units including the Windows-only image group; this is not a full Linux
+result, a timing exception or hosted adoption. D24's documentary 5.8.1 boundary remains historical.
+
 This planning update records the decision; CI 2.6 removes the checkout's hosted/live-test 5.1
 obligations in the published retirement implementation; the plan owns hosted closure evidence.
 Phase 2.4 schema-3 compatibility/extraction is confirmed on 2026-10-05. Phase 2.2

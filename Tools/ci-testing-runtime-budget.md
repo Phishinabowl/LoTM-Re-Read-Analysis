@@ -41,6 +41,16 @@ coverage is still missing from permanent registration. Its approved bounded clos
 System.Drawing image coverage and changes complete portfolio accounting; do not credit added or
 omitted work as faster execution. No new timing sample or relaxed budget follows from this inventory.
 
+**5.8.2 qualification overlay (confirmed by the maintainer on 2026-10-06):**
+[Focused qualification](ci-testing-linux-qualification.md) admits the eleven compatibility owners
+on Linux and retains one genuinely Windows-only synthetic image group. Complete full coverage is
+now 77 units (76 portable plus that required Windows obligation); feature/PR counts are 44/76.
+New media groups reserve 30 seconds each, in their own admitted shard; existing unit deadlines,
+2190-second shard execution ceilings and feedback goals remain. Profile safety envelopes add
+90 seconds for required work, independently of feedback targets. Focused preparation/retry timings
+are not new full/feature benchmarks. Phase 5.8.3 must compare identical core coverage and account
+for all added media plus the Windows remainder before proposing placement or timing disposition.
+
 ## CI 5.1 Feedback Targets And Current Gap
 
 **Plan sequencing revision (2026-10-06):** The agreed 5.6/5.7 extension now places coverage/scenario

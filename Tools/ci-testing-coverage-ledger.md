@@ -81,6 +81,16 @@ readiness do not close G03. Approved bounded 5.8.2 closure retains portable fixt
 lane, without changing canonical media or silently claiming complete Linux coverage. No fixture,
 test, support declaration or admitted OS changes in this read-only checkpoint.
 
+**5.8.2 implementation/qualification (confirmed by the maintainer on 2026-10-06):** The
+[qualification record](ci-testing-linux-qualification.md) closes D12's permanent synthetic media
+registration gap with portable Python/PS EPUB coverage and required Windows PS crop coverage.
+Full now has 77 units, PR 76 and feature 44; every historical full ID remains. All eleven Linux
+compatibility owners and 42 baseline variants qualify with exact typed parity/reference summaries,
+unchanged goldens/canonical guards, and verified supervised cleanup. Windows native passes 456 pytest /
+58 Pester; changed Linux native passes 87 pytest / 15 Pester. This is focused implementation proof,
+not a uniform-source full-profile result, timing acceptance or hosted adoption. G03 gains these media
+and path boundaries; it is not a claim that every tooling behavior has exhaustive regression coverage.
+
 CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
 The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
 ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows

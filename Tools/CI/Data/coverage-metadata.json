@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "external_units": [
     {
       "unit": "conformance/project-root",
@@ -15,7 +15,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/framework-installation",
@@ -31,7 +35,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/framework-catalog",
@@ -47,7 +55,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/capability-roadmap",
@@ -63,7 +75,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/strict-ingestion",
@@ -79,7 +95,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/lookup-key",
@@ -95,7 +115,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/schema-pack",
@@ -111,7 +135,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/distribution-boundary",
@@ -127,7 +155,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/taxonomy",
@@ -143,7 +175,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/resource",
@@ -159,7 +195,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/effective-schema",
@@ -175,7 +215,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/source",
@@ -191,7 +235,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/entity",
@@ -207,7 +255,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/provenance",
@@ -223,7 +275,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/temporal",
@@ -239,7 +295,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/chronology",
@@ -255,7 +315,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/reconciliation",
@@ -271,7 +335,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/occurrence",
@@ -287,7 +355,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/hosting",
@@ -303,7 +375,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/interpretation",
@@ -319,7 +395,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "conformance/project-composition",
@@ -335,7 +415,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "conformance-detailed-v1"
+      "result_contract": "conformance-detailed-v1",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/compatibility-reporting",
@@ -352,7 +436,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/conformance-reporting",
@@ -369,7 +457,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/framework-catalog",
@@ -386,7 +478,11 @@
       ],
       "deadline_seconds": 330,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/effective-schema",
@@ -403,7 +499,11 @@
       ],
       "deadline_seconds": 240,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/visualization",
@@ -433,7 +533,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/qa",
@@ -463,7 +567,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/root-discovery",
@@ -480,7 +588,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/artifact-lifecycle",
@@ -509,7 +621,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/framework-extraction",
@@ -526,7 +642,11 @@
       ],
       "deadline_seconds": 390,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/distribution-boundary",
@@ -543,7 +663,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     },
     {
       "unit": "compatibility/render",
@@ -573,7 +697,11 @@
       ],
       "deadline_seconds": 120,
       "depends_on": [],
-      "result_contract": "compatibility-detailed-v3"
+      "result_contract": "compatibility-detailed-v3",
+      "os": [
+        "windows",
+        "linux"
+      ]
     }
   ],
   "comparisons": [
