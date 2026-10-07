@@ -389,6 +389,28 @@ def test_human_guard_display_does_not_turn_false_or_unknown_into_verified(tmp_pa
     assert "&lt;script&gt;" in text and "<script>" not in text
 
 
+def test_github_failed_job_retry_references_current_attempt_artifact(tmp_path, monkeypatch):
+    _, context = hosted_bundle(tmp_path, host="github")
+    context["attempt"] = 1
+    monkeypatch.setattr(sys, "argv", ["publish_hosted", "--root", str(tmp_path), "--shard", ""])
+    monkeypatch.setenv("SHADOW_CONTEXT", json.dumps(context))
+    monkeypatch.setenv("GITHUB_RUN_ATTEMPT", "2")
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(tmp_path / "host-summary"))
+    assert publisher.main() == 0
+    assert "ci-shadow-aggregate-all-2" in (tmp_path / "host-summary").read_text(encoding="utf-8")
+    assert json.loads(os.environ["SHADOW_CONTEXT"])["attempt"] == 1  # Retained plan provenance is not rewritten.
+
+
+@pytest.mark.parametrize("attempt", ["0", "-1", "True", "2\nunsafe"])
+def test_github_current_attempt_rejects_invalid_metadata(tmp_path, monkeypatch, attempt):
+    _, context = hosted_bundle(tmp_path, host="github")
+    monkeypatch.setattr(sys, "argv", ["publish_hosted", "--root", str(tmp_path), "--shard", ""])
+    monkeypatch.setenv("SHADOW_CONTEXT", json.dumps(context))
+    monkeypatch.setenv("GITHUB_RUN_ATTEMPT", attempt)
+    with pytest.raises(ValueError, match="current GitHub run attempt"):
+        publisher.main()
+
+
 def test_human_review_and_unselected_fields_preserve_nested_unknown_and_false_values(tmp_path):
     report = record(tmp_path)
     report["reviews"] = [{"family": "fixture", "blocking": False, "evidence": None}]

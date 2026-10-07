@@ -397,6 +397,12 @@ def main():
     parser.add_argument("--shard", default=os.environ.get("SHADOW_SHARD", ""))
     args = parser.parse_args()
     context = decode_json(os.environ["SHADOW_CONTEXT"])
+    # Failed-job retries reuse Plan outputs, but artifact uploads belong to the current attempt.
+    if context["host"] == "github" and "GITHUB_RUN_ATTEMPT" in os.environ:
+        attempt = os.environ["GITHUB_RUN_ATTEMPT"]
+        if not re.fullmatch(r"[1-9][0-9]{0,8}", attempt):
+            raise ValueError("Invalid current GitHub run attempt")
+        context["attempt"] = int(attempt)
     destination, receipt = admit(Path(args.root).absolute(), context, args.shard)
     try:
         if context["host"] == "ado":

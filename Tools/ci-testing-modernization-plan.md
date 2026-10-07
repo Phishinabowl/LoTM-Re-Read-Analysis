@@ -88,6 +88,11 @@ The publisher interpreter correction is confirmed and dual-published as `3008f02
 publication and expandable-section rendering are verified at run 55. Full nine-section run 54 passes
 76/76 units and 676 exact server cases, with one exact-byte combined report. New local readability and
 sequential-title edits still await confirmation and bounded hosted presentation proof; 6.5 remains unstarted.
+The presentation edits are subsequently confirmed and published as `68c66a1`. Azure bounded run 56
+passes five units and 449 exact server cases with one exact-byte 4197-byte report; the maintainer
+accepts the readable report and job title. GitHub's unchanged-source retry passes execution but exposes
+a stale-attempt artifact label; its locally verified correction awaits confirmation/publication and
+bounded GitHub proof. Phase 6.4 is not yet closed, and 6.5 remains unstarted.
 The accepted 5.7 results and timing disposition remain intact; local WSL evidence will not substitute
 for actual hosted measurements.
 
@@ -2349,6 +2354,16 @@ pass. These presentation changes remain uncommitted and need hosted title/render
 confirmation. Completed run 54 remains undisturbed on its published source. Use a bounded Azure
 profile and actual host job-list metadata to qualify the presentation follow-up without another
 manual full portfolio replay; do not claim the uncommitted labels were exercised by run 54.
+
+**Published presentation qualification:** Confirmation publishes the twelve-file refinement as
+`68c66a1`. Both PRs remain paused and no full PR validation is triggered. Azure manual run 56 passes
+five units and exactly 449 server pytest cases, with one 4197-byte combined report matching its artifact;
+source protection, cleanup and complete evidence are verified. The maintainer accepts the report and
+sequential job title in the actual UI. GitHub bounded run 37632196992 initially fails during Mermaid
+setup (exit 3221226505), before tests; one unchanged-source retry passes but reuses Plan attempt 1 in
+the report's artifact reference while uploading attempt 2. The prepared current-attempt label fix
+passes 101 report cases per OS, with retained Plan/JSON/XML evidence unchanged. Correction confirmation
+and bounded GitHub publication proof remain open; no additional full manual portfolio is required.
 
 ### Phase 6.5 Host Equivalence And Policy Adoption Review
 

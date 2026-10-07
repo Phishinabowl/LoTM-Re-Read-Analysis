@@ -12,8 +12,9 @@ evidence. The subsequently requested combined Azure report is confirmed and dual
 verifies the single combined attachment and exact native cases; the maintainer confirms its section
 expands and renders correctly. Normal PR run 54 passes all 76 units and 676 server cases, with one
 exact-byte nine-section combined report. The published combined implementation is fully qualified.
-The subsequent human-readability refinement is prepared locally and uncommitted; hosted styling
-acceptance is separate from run 55's confirmed ordering/expansion behavior.
+The human-readability and sequential-title refinement is confirmed and dual-published as `68c66a1`.
+Azure bounded run 56 passes with exact server/report verification, and the maintainer accepts its
+report and job title. A GitHub retry-artifact reference correction is prepared locally and uncommitted.
 First-source Azure run 48 passes all 76 units and publishes 652 verified server cases. Entry is
 confirmed 6.3 at `cc93c8d`; the [modernization plan](ci-testing-modernization-plan.md#phase-64-markdown-tests-tab-and-detailed-publication)
 owns acceptance. No required check, branch policy, event or timing goal is changed.
@@ -435,6 +436,37 @@ qualification uses deliberate manual branch profiles without closed-PR replay in
 modernization plan's 6.5 pause gate requires restoring the same PRs and fresh source/target validation
 before policy adoption and integration. Original policies and required checks are unchanged; annotation
 push checks and the path-specific GitHub cache pilot remain available/active.
+
+## Published Presentation And Retry Reference Audit
+
+Maintainer confirmation publishes all twelve pending files as
+`68c66a1ba1bc8e026b7058474be760a575ba5e77`, with a clean tree and four-reference parity. Both PRs remain
+paused. The publication triggers GitHub annotation run 37632045815 (passed) and the explicitly queued
+manual experiments; no automatic full PR run is observed.
+
+[Azure bounded run 56](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=56)
+passes five units and **449 passing pytest cases**, with every server case identity matching original
+XML. The actual job list shows `Plan - validate scope and catalog`, `CI Check_01_CI_infrastructure`
+and `Aggregate - collect and publish results`. The single **4197-byte** server report matches its
+artifact exactly, has the readable protection/cleanup status and rounded timing labels, and retains
+complete original evidence, source protection and verified cleanup. The maintainer confirms the
+report and title look good, including the expandable `01. CI infrastructure` section.
+
+[GitHub bounded run 37632196992](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37632196992)
+first fails before test execution: the pinned Mermaid smoke command exits with **3221226505** and no
+useful command stdout/stderr. Setup/download receipts are retained, and absent execution is not
+credited as passing. One unchanged-source failed-job retry succeeds in execution and aggregation;
+the actual readable job title is observed. The crash cause is not established; unnecessary rendering
+setup in the infrastructure profile remains an existing role-preparation optimization item for 6.5.
+
+The retry's successful artifact is `ci-shadow-aggregate-all-2`, but its hosted report incorrectly names
+`ci-shadow-aggregate-all-1`: failed-job retries reuse the original Plan context. This is an observed
+reference defect, so correct report-to-artifact qualification remains open despite passing execution.
+The prepared publisher correction uses the validated current `GITHUB_RUN_ATTEMPT` for artifact labels
+without rewriting retained Plan provenance, original report JSON or XML. Invalid attempt values fail
+closed. **101 report cases pass per OS** (Windows 12.11s; Linux 9.91s), including stale-Plan/current-attempt
+and invalid-metadata fixtures; Ruff passes. The new four-file correction is uncommitted pending
+confirmation, then a bounded GitHub publication check. Azure's accepted presentation is unaffected.
 
 **Rollback:** Restore preceding worker templates and remove the new publication invocation. Preserve
 original bundles, failed receipts and optional policies; no catalog or execution contract rollback
