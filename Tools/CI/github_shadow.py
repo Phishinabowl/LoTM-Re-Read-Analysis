@@ -15,6 +15,7 @@ import urllib.request
 import zipfile
 
 sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import bootstrap
 import host_cache
@@ -257,7 +258,7 @@ def main():
     parser.add_argument("--shard")
     parser.add_argument("--inputs", default=".tmp/ci-shadow/downloads")
     args = parser.parse_args()
-    out = bootstrap.owned_path(ROOT / ".tmp/ci-shadow")
+    out = confined(ROOT, ".tmp/ci-shadow")
     out.mkdir(parents=True, exist_ok=True)
     if args.operation == "context":
         event = bootstrap.read_json(os.environ["GITHUB_EVENT_PATH"])

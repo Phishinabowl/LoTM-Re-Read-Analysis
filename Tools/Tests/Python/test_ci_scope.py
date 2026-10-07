@@ -181,6 +181,30 @@ def test_github_transport_refuses_unadmitted_graphs(unsafe, monkeypatch):
         github_shadow.matrices(ROOT, {"profile": "synthetic"})
 
 
+def test_github_context_cli_works_without_site_packages_and_uses_ignored_report_storage(tmp_path):
+    event = tmp_path / "event.json"
+    event.write_text(json.dumps(shadow_event("a" * 40, "b" * 40)))
+    output = tmp_path / "outputs.txt"
+    environment = {
+        **os.environ,
+        **shadow_environment("c" * 40),
+        "GITHUB_EVENT_PATH": str(event),
+        "GITHUB_OUTPUT": str(output),
+    }
+    child = subprocess.run(
+        [sys.executable, "-I", "-S", str(ROOT / "Tools/CI/github_shadow.py"), "context"],
+        cwd=tmp_path,
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    assert child.returncode == 0, child.stdout + child.stderr
+    values = dict(line.split("=", 1) for line in output.read_text().splitlines())
+    assert values["checkout"] == "c" * 40
+    assert json.loads(values["context"])["profile"] == "pr-integration"
+
+
 @pytest.mark.integration
 def test_multicommit_mergebase_unicode_spaces_and_deletion(repo):
     base = git(repo, "rev-parse", "HEAD")

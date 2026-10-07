@@ -1,6 +1,6 @@
 # CI 6.2 Thin GitHub Shadow Adapter
 
-**Status:** Implemented locally; hosted publication and PR/source/merge proof remain open.
+**Status:** Published as `407107b`; draft GitHub PR 3 is open. Hosted PR/source/merge proof remains open.
 Entry is confirmed 6.1 at `1b2911f`. This checkpoint does not replace existing CI or close Phase 6.
 The [modernization plan](ci-testing-modernization-plan.md#phase-62-thin-github-actions-adapter)
 owns acceptance; [host integration design](ci-testing-host-integration-design.md) owns event/merge
@@ -92,6 +92,13 @@ No GitHub artifact service or workflow execution is required locally. Manual rep
 exact recorded objects; replacing an unavailable merge with another tree is not equivalent proof.
 
 ## Verification And Remaining Hosted Gate
+
+The first automatic [shadow run 37574526788](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37574526788)
+fails at context setup before any tests launch: the adapter mistakenly used `.local`-only bootstrap
+path admission for `.tmp/ci-shadow`. The scoped correction uses the existing confined report-path
+authority, retaining link/escape checks. A real `-I -S` bare-interpreter CLI regression covers the
+host's pre-bootstrap context step and verifies bounded outputs without installed packages. The failed
+run remains historical evidence; production coverage is not credited for its skipped workers.
 
 Final scope/bootstrap/report regression passes 133 cases on Windows and Linux. The earlier broader
 execution/report/native-result/compatibility cohort passes 219 cases; its report additions are
