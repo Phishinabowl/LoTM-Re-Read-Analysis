@@ -242,8 +242,9 @@ def test_ordered_azure_report_uses_catalog_order_and_preserves_original_xml(tmp_
     receipt["status"] = "admitted"
     publisher.ordered_azure_summary(tmp_path, context, destination, receipt, plan)
     text = (destination / "summary.md").read_text(encoding="utf-8")
-    assert text.index("# CI execution") < text.index("01. z-first") < text.index("02. a-second")
-    assert text.count("<details>") == text.count("</details>") == 2
+    assert text.index("# CI execution") < text.index("01. Z first") < text.index("02. A second")
+    assert text.count("<details>") == text.count("</details>")
+    assert "<summary>01. Z first</summary>" in text and "<summary>02. A second</summary>" in text
     assert "CI execution: failed" in text and "ci-shadow-shard-a-second" in text
     assert receipt["ordered_shards"] == ["z-first", "a-second"]
     assert (owner / "custom.xml").read_bytes() == original
@@ -254,7 +255,7 @@ def test_ordered_azure_report_records_missing_shard_without_invented_coverage(tm
     plan["shards"].append({"id": "missing", "order": 2})
     publisher.ordered_azure_summary(tmp_path, context, destination, receipt, plan)
     text = (destination / "summary.md").read_text(encoding="utf-8")
-    assert "03. missing" in text and "no execution or passing coverage is inferred" in text
+    assert "03. Missing" in text and "no execution or passing coverage is inferred" in text
     assert receipt["status"] == "failed"
 
 
@@ -348,6 +349,53 @@ def test_azure_publisher_uses_prepared_python_with_setup_failure_fallback():
     assert "& $env:PUBLICATION_PYTHON Tools/CI/publish_hosted.py" in step["pwsh"]
     assert "Test-Path -LiteralPath $env:PUBLICATION_PYTHON -PathType Leaf" in step["pwsh"]
     assert "else {\n    python Tools/CI/publish_hosted.py" in step["pwsh"]
+
+
+def test_hosted_report_readability_preserves_original_evidence(tmp_path):
+    owner, context = hosted_bundle(tmp_path, runtime="python")
+    original = {path: path.read_bytes() for path in owner.rglob("*") if path.is_file()}
+    destination, receipt = publisher.admit(tmp_path, context)
+    text = (destination / "summary.md").read_text(encoding="utf-8")
+    assert "**Canonical/source files:** Unchanged." in text
+    assert "**Process cleanup:** Verified." in text
+    assert "1.250 s" in text and "{'unchanged'" not in text
+    assert "- No trustworthy history" in text and "| Fixture | Python | passed |" in text
+    assert "implementation/fixture::python" in text and "Run provenance and stable check IDs" in text
+    assert receipt["status"] == "admitted"
+    assert original == {path: path.read_bytes() for path in owner.rglob("*") if path.is_file()}
+    assert "**Recorded native tests:** 1 / 1 passed; 0 failed, 0 errors, 0 skipped." in text
+
+
+def test_collection_report_labels_timing_without_claiming_pipeline_wall_time(tmp_path):
+    report = record(tmp_path)
+    report["budget"].update(collection=True, elapsed_seconds=1.7467565000000604)
+    report["cleanup"] = {"verified": True, "state": "retained", "reason": "Evidence retained"}
+    text = publisher.readable_report(report)
+    assert "**Aggregate collection time:** 1.747 s." in text
+    assert "**Sum of check durations:** 1.250 s." in text
+    assert "not the whole pipeline duration" in text and "Excludes agent queues" in text
+    assert "**Process cleanup:** Verified." in text and "**Evidence retention:** Evidence retained." in text
+
+
+@pytest.mark.parametrize("value,expected", [(False, "Changes detected"), (None, "Not recorded")])
+def test_human_guard_display_does_not_turn_false_or_unknown_into_verified(tmp_path, value, expected):
+    report = record(tmp_path)
+    report["canonical_guard"]["unchanged"] = value
+    report["cleanup"]["verified"] = value
+    report["canonical_guard"]["changed_paths"] = ["unsafe <script>|page"]
+    text = publisher.readable_report(report)
+    assert f"**Canonical/source files:** {expected}." in text
+    assert "**Process cleanup:** " + ("Not verified." if value is False else "Not recorded.") in text
+    assert "&lt;script&gt;" in text and "<script>" not in text
+
+
+def test_human_review_and_unselected_fields_preserve_nested_unknown_and_false_values(tmp_path):
+    report = record(tmp_path)
+    report["reviews"] = [{"family": "fixture", "blocking": False, "evidence": None}]
+    report["selection"]["unselected"] = [{"id": "fixture", "reasons": ["unaffected", "<unsafe>|path"]}]
+    text = publisher.readable_report(report)
+    assert "blocking: No; evidence: Not recorded" in text
+    assert "reasons: unaffected; &lt;unsafe&gt;" in text and "[&#x27;" not in text
 
 
 def test_azure_failed_bundle_export_retains_publication_diagnostics(tmp_path, monkeypatch):

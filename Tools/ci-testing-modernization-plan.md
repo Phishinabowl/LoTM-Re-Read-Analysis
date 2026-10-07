@@ -84,7 +84,10 @@ qualification and the Azure UI walkthrough are verified; final documentation/che
 maintainer confirmation. Phase 6.5 remains unstarted.
 The requested combined Azure report refinement is confirmed and published as `5513fa7`; its hosted
 single-attachment and expandable-section presentation still requires qualification before acceptance.
-A reproduced publisher interpreter-handoff correction is locally verified and uncommitted for review.
+The publisher interpreter correction is confirmed and dual-published as `3008f02`; bounded Azure
+publication and expandable-section rendering are verified at run 55. Full nine-section run 54 passes
+76/76 units and 676 exact server cases, with one exact-byte combined report. New local readability and
+sequential-title edits still await confirmation and bounded hosted presentation proof; 6.5 remains unstarted.
 The accepted 5.7 results and timing disposition remain intact; local WSL evidence will not substitute
 for actual hosted measurements.
 
@@ -2315,12 +2318,53 @@ and Linux; replay of actual run 49 bundles preserves 19 XML files and yields a 1
 report. Confirmation publishes the refinement as `5513fa7`. A bare-interpreter reproduction exposes
 the catalog's PyYAML requirement; the prepared Azure publisher handoff uses verified `Bootstrap.python`
 and preserves dependency-free failed-admission diagnostics. All 91 report cases pass on each OS.
-Affected Azure runs 52/53 are cancelled without acceptance credit. Correction publication, bounded
-hosted proof and rendered UI verification remain open; run 49's preceding evidence does not prove
-the new presentation already works.
+Affected Azure runs 52/53 are cancelled without acceptance credit. Confirmation publishes correction
+`3008f02`; bounded run 55 passes five units and exactly 438 server pytest cases, and stores one exact-byte
+3292-byte combined report. The maintainer confirms its aggregate-first expandable section renders
+correctly. Current-source GitHub shadow 37620275974 and full Azure run 54 both pass 76/76 units and
+676 cases. Run 54's complete aggregate, all server case identities/outcomes and single 104912-byte
+nine-section report are independently verified. It costs 63m30s queue-to-finish / 51m38s summed job
+execution with bounded run 55 sharing the slot; this does not waive the 6.5 performance gate.
+Preceding run 49 is retained separately, and no further full manual replay of the published combined
+implementation is required for presentation-only follow-up.
+
+**Human-readability follow-up:** The maintainer's run 55 screenshot requests clearer hosted output.
+The prepared projection replaces raw dictionaries/lists and unrounded durations with readable
+status/counts, friendly check names/runtime columns, honest protection/cleanup flags and explicit
+collection-versus-check timing. Stable IDs and exact diagnostics remain available; canonical
+JSON/XML/artifact Markdown/manifests are unchanged. All 96 report cases pass on each OS, and a real
+run 55 preview verifies original evidence before/after rendering. These edits remain uncommitted;
+completed run 54 uses its published source. Confirmation/publication and rendered-view acceptance of
+the new projection remain required; this does not start 6.5 or change timing/selection policy.
+
+**Sequential display follow-up:** The maintainer requests readable sequential titles in the actual
+Azure job list. A prepared display-only helper numbers independent jobs 01-08 and dependent parity
+09, preserving catalog order within each wave. GitHub uses readable matrix/worker titles; Azure uses
+readable sequential matrix-leg keys because job display macros do not expand. Planning and aggregation
+have explicit labels; each runtime's conformance batches show 1 of 2 / 2 of 2. The combined report uses
+the same wave order and titles. Stable execution IDs, dependency job IDs, artifacts, membership and
+deadlines remain unchanged, as do retained original required check names. All 189 scope/report cases
+pass per OS, including clean-checkout inclusion of the new dependency-free helper; Ruff/actionlint
+pass. These presentation changes remain uncommitted and need hosted title/rendering proof after
+confirmation. Completed run 54 remains undisturbed on its published source. Use a bounded Azure
+profile and actual host job-list metadata to qualify the presentation follow-up without another
+manual full portfolio replay; do not claim the uncommitted labels were exercised by run 54.
 
 ### Phase 6.5 Host Equivalence And Policy Adoption Review
 
+**Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
+validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
+`3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during
+optimization; no pipeline, policy or required-check configuration is disabled. GitHub annotations
+and the path-specific cache pilot remain separate push triggers. Pipeline 3's recent run inventory
+has no queued/active work after the pause. Existing run evidence and PR discussions remain retained.
+
+- [ ] During the pause, use deliberate manual branch profiles for presentation and optimization
+  experiments, recording exact source/profile/coverage and queue/setup costs. Omit closed-PR replay
+  inputs; branch snapshot qualification is not proof of current PR merge/target behavior. Reactivate
+  Azure PR 19 and reopen GitHub PR 3 before fresh PR/event equivalence, final policy adoption and
+  integration. Revalidate latest source/target and complete required coverage; prior green runs do
+  not authorize merging newer changes. Prefer restoring these PRs over replacing their history.
 - [ ] After closing 6.4 on Python 3.14.5, perform a focused Python patch-upgrade checkpoint before
   final timing and host-equivalence qualification. Review the current stable 3.14 patch release and
   release notes, select an explicit candidate, and verify dependency/package compatibility on

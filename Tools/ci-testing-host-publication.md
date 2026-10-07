@@ -8,8 +8,12 @@ both pass 76/76 units and 663 unique cases. Azure run 49 stores ten Markdown att
 aggregate-only native results. The maintainer confirms Tests and Markdown are both visible in the
 actual tenant UI for failure run 50. The published 6.4 implementation has complete qualification
 evidence. The subsequently requested combined Azure report is confirmed and dual-published as
-`5513fa7`; its actual hosted presentation is still unqualified. A reproduced interpreter-handoff
-correction is prepared locally and remains uncommitted for review.
+`5513fa7`, with interpreter correction `3008f02` confirmed and dual-published. Bounded Azure run 55
+verifies the single combined attachment and exact native cases; the maintainer confirms its section
+expands and renders correctly. Normal PR run 54 passes all 76 units and 676 server cases, with one
+exact-byte nine-section combined report. The published combined implementation is fully qualified.
+The subsequent human-readability refinement is prepared locally and uncommitted; hosted styling
+acceptance is separate from run 55's confirmed ordering/expansion behavior.
 First-source Azure run 48 passes all 76 units and publishes 652 verified server cases. Entry is
 confirmed 6.3 at `cc93c8d`; the [modernization plan](ci-testing-modernization-plan.md#phase-64-markdown-tests-tab-and-detailed-publication)
 owns acceptance. No required check, branch policy, event or timing goal is changed.
@@ -328,9 +332,109 @@ verified executable when available, and retains bare-Python diagnostic fallback 
 Shard-only artifact retention does not load the full catalog; failed aggregate admission can emit
 its summary with no site packages. A real `-S` CLI regression proves the latter, and workflow coverage
 checks the prepared-interpreter handoff. **91 report cases pass per OS** (Windows 11.37s; Linux 10.06s).
-The correction is uncommitted, awaiting confirmation before retrying bounded Azure publication and
+At that review checkpoint, the correction awaits confirmation before bounded Azure publication and
 the actual Extensions rendering check. Original run 49 and the bounded failure/recovery evidence
 remain intact; GitHub publication has no new catalog dependency.
+
+**Corrected hosted qualification:** Maintainer confirmation publishes the five-file correction as
+`3008f0238bb10a15e6907d7bc821199eed266dd5`; HEAD, upstream, GitHub and Azure tracking references agree.
+[Bounded Azure run 55](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=55)
+passes all five infrastructure units. Actual server test run 24 contains exactly **438 passing pytest
+cases**, matching every original compound XML identity with no duplicate, Pester or custom placeholder.
+Complete publication, canonical/source guard and process cleanup are independently verified.
+
+Both attachment APIs report **one** combined summary. Its **3292 stored bytes** match the admitted
+artifact exactly, with aggregate first and `01. infrastructure-0` next. The maintainer explicitly
+confirms the section expands and its Markdown renders correctly in Extensions. The ordinary
+native-policy shard of run 54 also succeeds and records `retained-in-shard-artifact`, with no separate
+summary attachment. This is observed host behavior, not only local string/HTML validation.
+
+Run 55 costs **20m19s queue-to-finish** but **9m05s summed job execution**, including provisioning and
+publication, while sharing the single slot with full PR run 54. This is not a content-only profile
+or an accepted steady-state feedback target. Retain queue and preparation costs for the 6.5 review.
+
+[Current-source GitHub shadow 37620275974](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37620275974)
+passes all 76 units and 676 cases at merge `5508ad72caf2f3dd71f67faac6570fccba189e92`. Its complete
+manifest, source provenance and guards are verified; existing required CI 37620275631 and annotations
+37620266841 pass. [Azure policy run 54](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=54)
+completes successfully on the same source at merge `589c5cff04669f8ed8d3f1ffb9ae5e235be842e2`.
+All eleven jobs and 76 units pass. Actual server runs **26, 28 and 30** contain exactly **558 pytest,
+60 Pester and 58 custom = 676 unique passing cases**, with every original compound XML identity
+and outcome matched. Complete manifest, canonical/source protection and cleanup are verified.
+
+Both attachment APIs report **one combined summary**. Its **104912 server bytes** match the admitted
+artifact exactly, with all nine shard sections in the then-published catalog order. Thus the full
+combined report and prepared-interpreter handoff are qualified on a real PR run, beyond bounded run
+55 and local replay. The newer readability/wave-numbering edits below are uncommitted and are not
+credited to run 54; its historical metadata and section names remain intact.
+
+Queue-to-finish is **63m30s**, with **51m38s summed job execution**, including provisioning and
+publication. Bounded run 55 shares the single slot, so this is not an uncontended baseline. These
+costs remain unacceptable as steady-state feedback and retain the priority 6.5 optimization gate.
+No further full manual replay is needed for the already-qualified published combined implementation.
+
+## Human-Readable Hosted Projection
+
+The maintainer's run 55 screenshot confirms working ordering/expansion but exposes raw Python
+dictionary/list metadata and excessive floating-point precision. The prepared hosted projection
+renders the verified report JSON into scalar status/counts, readable selection reasons and a result
+table with friendly check names and explicit runtimes. Canonical/source protection, containment and
+cleanup use Unchanged/Verified/Not verified/Not recorded according to recorded booleans; unknown and
+false values cannot become success. Retained reviews/unselected reasons render as readable fields.
+
+Durations use three decimal places and explicit units. Aggregate collection time is labelled as
+collection rather than whole-pipeline duration. Summed check durations exclude agent queues, job
+environment preparation and publication and may overlap. Recorded native counts retain failed,
+error and skipped totals. Stable unit IDs, run identity, commit/scope and the raw selection diagnostic
+remain in expandable details; bounded failures and exact native XML remain available.
+
+Both aggregate and embedded shard views use this same hosted formatter. Original report JSON,
+JUnit, canonical artifact Markdown and publication manifests are unchanged; their existing
+projection/hash verification remains valid for historical bundles. This is presentation only,
+with no execution, selection or result-contract change. Completed run 54 uses its published source
+and cannot establish acceptance of this unpublished formatting refinement.
+
+All **96 report cases pass per OS** (Windows 11.34s; Linux 9.24s), covering original-evidence
+immutability, honest false/unknown states, timing labels, nested review values and existing failure/
+publication behavior. Ruff and diff hygiene pass. A preview from run 55's actual aggregate produces
+2058 bytes and verifies the original manifest before and after generation. Local preview is not
+hosted rendering proof; publish only after confirmation and check the refined view in the tenant.
+
+## Sequential Job And Section Titles
+
+The maintainer identifies confusing historical numeric suffixes in the actual Azure job list and
+requests sequential readable titles. The prepared dependency-free `presentation.py` helper derives
+display order from catalog dependency waves, retaining catalog order within each wave. Full-profile
+independent jobs display 01-08 and dependent parity displays 09, so the dependent job no longer appears
+with a smaller number after later independent work. Planning and aggregate collection are explicitly
+named. Python and PowerShell conformance each show their own batch 1 of 2 / batch 2 of 2.
+
+GitHub receives readable display titles through its matrix and reusable worker. Azure does not expand
+matrix variables in job display names; readable matrix-leg keys such as
+`Check_03_Python_conformance_batch_1_of_2` use a short `CI` job display prefix instead of unsupported
+dynamic macros. Existing matrix transport names change, but shard execution IDs, dependency job IDs,
+artifact names, unit membership and deadlines remain unchanged. Retained original required checks and
+the shadow aggregate's caller name remain unchanged; actual new hosted labels still require proof.
+
+The combined report uses the same sequence and readable shard titles, with stable IDs preserved in
+technical detail. This supersedes the preceding report-only catalog ordering where parity preceded
+compatibility/media. It does not reorder execution, alter the catalog or change selection semantics.
+Local scope/report checks pass **189 cases on each OS** (Windows 36.69s; Linux 23.82s), including complete
+clean-checkout planning with the new helper, sequential cross-wave numbers, original shard union/
+deadlines, invalid display-number rejection and existing failure/evidence preservation. Ruff and
+actionlint pass. These edits remain uncommitted together with the readability refinement; ongoing
+completed run 54 is unchanged and cannot demonstrate the new titles. After confirmation, qualify the
+new title metadata in actual host job lists and refined report rendering through a bounded Azure
+profile; retain the full run 54 evidence separately rather than rerunning it manually for presentation.
+
+**Temporary PR pause:** At the maintainer's explicit request, GitHub draft PR 3 is closed and Azure
+validation PR 19 is abandoned on 2026-10-07, without merges or branch deletion. Both remote source
+branches are verified at `3008f02`; recent pipeline-3 runs have no queued/active work. Pending local
+presentation/evidence edits are not committed or published by this hosting action. Subsequent
+qualification uses deliberate manual branch profiles without closed-PR replay inputs. The
+modernization plan's 6.5 pause gate requires restoring the same PRs and fresh source/target validation
+before policy adoption and integration. Original policies and required checks are unchanged; annotation
+push checks and the path-specific GitHub cache pilot remain available/active.
 
 **Rollback:** Restore preceding worker templates and remove the new publication invocation. Preserve
 original bundles, failed receipts and optional policies; no catalog or execution contract rollback

@@ -97,7 +97,17 @@ def event_context(environment, pull=None):
 def matrix(value):
     result = {}
     for row in value["include"]:
-        key = re.sub(r"[^A-Za-z0-9_]", "_", row["shard"])
+        if "display_number" in row:
+            if (
+                type(row["display_number"]) is not int
+                or not 1 <= row["display_number"] <= 99
+                or not isinstance(row.get("display_title"), str)
+            ):
+                raise ValueError("Invalid Azure display identity")
+            title = re.sub(r"[^A-Za-z0-9]+", "_", row["display_title"]).strip("_")
+            key = f"Check_{row['display_number']:02d}_{title}"
+        else:
+            key = re.sub(r"[^A-Za-z0-9_]", "_", row["shard"])
         if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,99}", key) or key in result:
             raise ValueError("Azure matrix identity is invalid or collides")
         result[key] = row

@@ -9,6 +9,9 @@ on:
       shard:
         type: string
         default: ""
+      display_name:
+        type: string
+        default: "Aggregate - collect and publish results"
       os:
         type: string
         required: true
@@ -24,7 +27,7 @@ permissions:
 
 jobs:
   execute:
-    name: Shadow ${{ inputs.shard || 'aggregate' }}
+    name: ${{ inputs.display_name }}
     runs-on: ${{ inputs.os }}
     timeout-minutes: ${{ inputs.timeout }}
     env:

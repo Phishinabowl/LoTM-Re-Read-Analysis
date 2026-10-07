@@ -25,7 +25,7 @@ variables:
 jobs:
   - job: Plan
     condition: or(eq(variables['Build.Reason'], 'PullRequest'), eq('${{ parameters.publication_qualification }}', 'none'))
-    displayName: Validate Azure execution and catalog plan
+    displayName: Plan - validate scope and catalog
     timeoutInMinutes: 5
     cancelTimeoutInMinutes: 2
     pool:

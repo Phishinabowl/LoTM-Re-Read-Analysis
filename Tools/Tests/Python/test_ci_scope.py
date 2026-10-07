@@ -144,6 +144,27 @@ def test_azure_matrix_collision_fails_and_empty_wave_is_explicitly_unexecuted():
     }
 
 
+def test_shard_job_titles_are_sequential_across_waves_without_renaming_execution_ids():
+    plan, independent, dependent = github_shadow.matrices(ROOT, {"profile": "pr-integration"})
+    rows = independent["include"] + dependent["include"]
+    assert [row["display_number"] for row in rows] == list(range(1, 10))
+    assert rows[2]["display_name"] == "03 — Python conformance (batch 1 of 2)"
+    assert rows[3]["display_name"] == "04 — Python conformance (batch 2 of 2)"
+    assert rows[4]["display_name"] == "05 — PowerShell 7 conformance (batch 1 of 2)"
+    assert rows[-1]["display_name"] == "09 — Cross-runtime parity" and rows[-1]["shard"] == "parity-5"
+    assert {row["shard"] for row in rows} == {row["id"] for row in plan["shards"]}
+    legs = {**ado_shadow.matrix(independent), **ado_shadow.matrix(dependent)}
+    assert list(legs)[0] == "Check_01_Policy_and_implementation_tests"
+    assert list(legs)[-1] == "Check_09_Cross_runtime_parity"
+    assert [row["display_number"] for row in legs.values()] == list(range(1, 10))
+
+
+@pytest.mark.parametrize("number", [True, 0, -1, 100, "1"])
+def test_azure_display_number_rejects_invalid_or_boolean_identity(number):
+    with pytest.raises(ValueError, match="display identity"):
+        ado_shadow.matrix({"include": [{"shard": "fixture", "display_number": number, "display_title": "Fixture"}]})
+
+
 def test_azure_output_escapes_logging_controls(capsys):
     ado_shadow.output(context="data%\r\n##vso[task.complete result=Succeeded]fake")
     assert capsys.readouterr().out == (
@@ -399,6 +420,8 @@ def test_host_full_planning_cli_in_clean_private_checkout(tmp_path, adapter):
         destination.chmod(0o755 if row["mode"] == "100755" else 0o644)
     # Include the new adapter during pre-publication review before it enters the tracked inventory.
     shutil.copy2(ROOT / "Tools/CI/ado_shadow.py", root / "Tools/CI/ado_shadow.py")
+    # New display-only helper must participate in clean-checkout proof before publication.
+    shutil.copy2(ROOT / "Tools/CI/presentation.py", root / "Tools/CI/presentation.py")
     git(root, "init", "--initial-branch=main")
     git(root, "config", "user.name", "CI planning fixture")
     git(root, "config", "user.email", "ci-fixture@example.invalid")

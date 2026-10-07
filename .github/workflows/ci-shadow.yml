@@ -32,7 +32,7 @@ permissions:
 jobs:
   plan:
     if: ${{ github.event_name != 'workflow_dispatch' || (github.event.inputs.publication_qualification || 'none') == 'none' }}
-    name: Shadow Plan
+    name: Plan - validate scope and catalog
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
@@ -79,7 +79,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
   independent:
-    name: Shadow Independent (${{ matrix.shard }})
+    name: ${{ matrix.display_name }}
     needs: plan
     strategy:
       fail-fast: false
@@ -88,10 +88,11 @@ jobs:
     with:
       context: ${{ needs.plan.outputs.context }}
       shard: ${{ matrix.shard }}
+      display_name: ${{ matrix.display_name }}
       os: ${{ matrix.os }}
       timeout: ${{ matrix.timeout }}
   dependent:
-    name: Shadow Dependent (${{ matrix.shard }})
+    name: ${{ matrix.display_name }}
     needs: [plan, independent]
     if: ${{ always() && !cancelled() && needs.plan.result == 'success' && needs.plan.outputs.dependent_count != '0' }}
     strategy:
@@ -101,6 +102,7 @@ jobs:
     with:
       context: ${{ needs.plan.outputs.context }}
       shard: ${{ matrix.shard }}
+      display_name: ${{ matrix.display_name }}
       os: ${{ matrix.os }}
       timeout: ${{ matrix.timeout }}
       download: true

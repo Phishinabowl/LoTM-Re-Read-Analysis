@@ -22,9 +22,167 @@ from execution_reports import (
     verify_publication,
 )
 from native_results import parse_junit
+from presentation import shard_presentation
 
 ROOT = Path(__file__).resolve().parents[2]
 SUMMARY_LIMIT = 900 * 1024  # Below GitHub's 1 MiB per-step summary limit, including our notice.
+
+
+def check_name(identity):
+    name = identity.split("/", 1)[-1].split("::", 1)[0]
+    name = name.removeprefix("python-").removeprefix("powershell-")
+    acronyms = {"ci": "CI", "qa": "QA", "api": "API", "epub": "EPUB"}
+    return " ".join(acronyms.get(word, word.capitalize()) for word in name.split("-"))
+
+
+def human_value(value):
+    if value is None:
+        return "Not recorded"
+    if type(value) is bool:
+        return "Yes" if value else "No"
+    if isinstance(value, dict):
+        return "; ".join(key.replace("_", " ") + ": " + human_value(item) for key, item in value.items())
+    if isinstance(value, list):
+        return "; ".join(human_value(item) for item in value) or "None"
+    return str(value)
+
+
+def readable_report(report):
+    """Human hosted projection; original JSON/XML/Markdown remain immutable evidence."""
+    selection, counts = report["selection"], report["counts"]
+    guard, cleanup = report["canonical_guard"], report["cleanup"]
+
+    def flag(value, positive, negative):
+        return positive if value is True else negative if value is False else "Not recorded"
+
+    def duration(value):
+        return f"{value:.3f} s" if type(value) in (int, float) else "Not recorded"
+
+    terminal = "; ".join(f"{value} {key}" for key, value in counts["terminal"].items() if value)
+    lines = [
+        "# CI execution: " + markdown_text(report["status"]),
+        "",
+        "**Profile:** " + markdown_text(report["profile"]),
+        "",
+        f"**Checks:** {terminal or 'None completed'}. "
+        f"{counts['selected']} selected; {counts['unselected']} not selected.",
+        "",
+        "**Selection:** " + markdown_text(selection.get("applied_mode", "unknown")) + " profile.",
+    ]
+    native_rows = [row["native_counts"] for row in report["results"] if row["native_counts"] is not None]
+    if native_rows:
+        totals = {
+            key: sum(row[key] for row in native_rows) for key in ("passed", "collected", "failed", "errors", "skipped")
+        }
+        lines += [
+            "",
+            f"**Recorded native tests:** {totals['passed']} / {totals['collected']} passed; "
+            f"{totals['failed']} failed, {totals['errors']} errors, {totals['skipped']} skipped.",
+        ]
+    reasons = selection.get("fallback_reasons", [])
+    if reasons:
+        lines += ["", "**Selection reasons:**", ""]
+        for reason in reasons:
+            if isinstance(reason, str) and reason.startswith("comparison unavailable:"):
+                lines += [
+                    "- Changed-file comparison was unavailable.",
+                    "",
+                    "<details>",
+                    "<summary>Selection diagnostic</summary>",
+                    "",
+                    markdown_text(reason),
+                    "",
+                    "</details>",
+                ]
+            else:
+                lines += ["- " + markdown_text(reason)]
+    else:
+        lines += ["", "**Selection fallback:** None recorded."]
+    collected = report["budget"].get("collection") is True
+    label = "Aggregate collection time" if collected else "Execution time for this shard/run"
+    lines += ["", f"**{label}:** {duration(report['budget'].get('elapsed_seconds'))}."]
+    if collected:
+        lines += [
+            "",
+            "Collection combines completed results; this is not the whole pipeline duration.",
+            "",
+            "**Sum of check durations:** " + duration(sum(row["elapsed_seconds"] for row in report["results"])) + ". "
+            "Excludes agent queues, job environment setup and publication; may include overlapping work.",
+        ]
+    lines += [
+        "",
+        "**Canonical/source files:** " + flag(guard.get("unchanged"), "Unchanged", "Changes detected") + ".",
+        "",
+        "**Process cleanup:** " + flag(cleanup.get("verified"), "Verified", "Not verified") + ".",
+    ]
+    if "containment_verified" in guard:
+        lines += ["", "**Containment:** " + flag(guard["containment_verified"], "Verified", "Not verified") + "."]
+    if cleanup.get("external_scratch"):
+        lines += ["", "**Temporary execution files:** " + markdown_text(cleanup["external_scratch"]) + "."]
+    if cleanup.get("reason"):
+        lines += ["", "**Evidence retention:** " + markdown_text(cleanup["reason"]) + "."]
+    if guard.get("changed_paths"):
+        lines += ["", "**Changed protected paths:**", ""]
+        lines += ["- " + markdown_text(path) for path in guard["changed_paths"]]
+    lines += [
+        "",
+        "## Results",
+        "",
+        "| Check | Runtime | Result | Duration | Native tests (passed / collected) | Notes |",
+        "| --- | --- | --- | ---: | ---: | --- |",
+    ]
+    for row in report["results"]:
+        native = row["native_counts"]
+        cases = "—" if native is None else f"{native['passed']} / {native['collected']}"
+        runtime = {"python": "Python", "powershell7": "PowerShell 7"}.get(row["runtime"], row["runtime"])
+        lines.append(
+            f"| {markdown_text(check_name(row['id']))} | {markdown_text(runtime)} | "
+            f"{markdown_text(row['status'])} | {duration(row['elapsed_seconds'])} | {cases} | "
+            f"{markdown_text('; '.join(row['reasons']))} |"
+        )
+    for title, rows in (
+        ("Unselected coverage", selection.get("unselected", [])),
+        ("Retained reviews", report["reviews"]),
+    ):
+        if rows:
+            lines += ["", "## " + title, ""]
+            for row in rows:
+                fields = row.items() if isinstance(row, dict) else [("Detail", row)]
+                lines += [
+                    "- "
+                    + "; ".join(
+                        markdown_text(key.replace("_", " ")) + ": " + markdown_text(human_value(value))
+                        for key, value in fields
+                    )
+                ]
+    if report["failures"]:
+        lines += ["", "## Failures", ""]
+        for failure in report["failures"]:
+            text, truncated = excerpt(failure["excerpt"])
+            lines += ["- " + markdown_text(f"{failure['id'] or 'run'} [{failure['classification']}]: {text}")]
+            if truncated:
+                lines += ["  Complete diagnostic retained in report.json."]
+    lines += [
+        "",
+        "<details>",
+        "<summary>Run provenance and stable check IDs</summary>",
+        "",
+        "Execution commit: " + markdown_text(report["provenance"].get("executed_commit", "unknown")),
+        "",
+        "Scope: " + markdown_text(report["provenance"].get("mode", "unknown")),
+        "",
+        "Run: " + markdown_text(report["run_id"]),
+        "",
+    ]
+    lines += ["- " + markdown_text(row["id"]) for row in report["results"]]
+    lines += [
+        "",
+        "</details>",
+        "",
+        "[Detailed JSON](report.json) · [Publication inventory](publication-manifest.json)",
+        "",
+    ]
+    return "\n".join(lines)
 
 
 def native_failures(owner, manifest):
@@ -116,8 +274,7 @@ def admit(root, context, shard=""):
             if not re.fullmatch(r"[1-9][0-9]{0,8}", build):
                 raise ValueError("Invalid Azure build identity")
             artifact = "ci-shadow-shard-" + shard if shard else "ci-shadow-aggregate-" + build
-        content = confined(owner, "summary.md").read_text(encoding="utf-8")
-        content = content.split("\n## Artifacts\n", 1)[0] + native_failures(owner, manifest)
+        content = readable_report(report) + native_failures(owner, manifest)
         atomic_bytes(destination, "summary.md", hosted_markdown(content, url, artifact))
         # Only the collected aggregate supplies test cases. Shard summaries never duplicate them.
         if not shard:
@@ -200,8 +357,8 @@ def ordered_azure_summary(root, context, destination, receipt, plan):
         ):
             raise ValueError("Ordered summary received duplicate or foreign shard evidence")
         owners[identity] = (owner, manifest, report)
-    shards = sorted(plan["shards"], key=lambda row: row["order"])
-    expected = {row["id"] for row in shards}
+    shards = shard_presentation(plan)
+    expected = {row["shard"] for row in shards}
     if set(owners) - expected or (receipt["status"] == "admitted" and set(owners) != expected):
         raise ValueError("Ordered summary shard inventory differs from admitted aggregate")
     if receipt["status"] == "admitted":
@@ -210,15 +367,17 @@ def ordered_azure_summary(root, context, destination, receipt, plan):
         if aggregate["selection"]["shard_sources"] != {key: value[2]["run_id"] for key, value in owners.items()}:
             raise ValueError("Ordered summary differs from collected shard owners")
     text = confined(destination, "summary.md").read_text(encoding="utf-8")
-    text += "\n\n# Shard reports in catalog order\n\n"
-    text += "Aggregate above; expand a shard below. Numbers describe reading order, not completion order.\n"
+    text += "\n\n# Shard reports in execution-wave order\n\n"
+    text += (
+        "Aggregate above; expand a shard below. Catalog order is retained within each wave; "
+        "dependent work follows independent work.\n"
+    )
     for index, shard in enumerate(shards, 1):
-        identity = shard["id"]
-        text += f"\n<details>\n<summary>{index:02d}. {html.escape(identity)}</summary>\n\n"
+        identity = shard["shard"]
+        text += f"\n<details>\n<summary>{index:02d}. {html.escape(shard['title'])}</summary>\n\n"
         if identity in owners:
-            owner, manifest, _ = owners[identity]
-            content = confined(owner, "summary.md").read_text(encoding="utf-8").split("\n## Artifacts\n", 1)[0]
-            content += native_failures(owner, manifest)
+            owner, manifest, report = owners[identity]
+            content = readable_report(report) + native_failures(owner, manifest)
             text += hosted_markdown(content, context["run_url"], "ci-shadow-shard-" + identity).decode("utf-8")
         else:
             text += "Shard evidence unavailable; no execution or passing coverage is inferred.\n"
@@ -229,7 +388,7 @@ def ordered_azure_summary(root, context, destination, receipt, plan):
         raise ValueError("Combined Azure summary exceeds the hosted display allowance; inspect retained artifacts")
     atomic_bytes(destination, "summary.md", data, replace=True)
     receipt["summary_label"] = "report"
-    receipt["ordered_shards"] = [row["id"] for row in shards]
+    receipt["ordered_shards"] = [row["shard"] for row in shards]
 
 
 def main():

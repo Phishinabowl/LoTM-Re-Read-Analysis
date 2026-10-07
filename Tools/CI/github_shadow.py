@@ -22,6 +22,7 @@ import host_cache
 from catalog import Catalog
 from execution_reports import verify_publication, confined
 from scope import Git, resolve_scope
+from presentation import shard_presentation
 
 ROOT = Path(__file__).resolve().parents[2]
 TARGET = "architecture/framework-extraction-foundation"
@@ -130,6 +131,12 @@ def matrices(root, context):
             "timeout": minutes,
         }
         (dependent if row["depends_on"] else independent).append(entry)
+    presentation = {row["shard"]: row for row in shard_presentation(plan)}
+    for entry in independent + dependent:
+        display = presentation[entry["shard"]]
+        entry.update(
+            display_name=display["display_name"], display_number=display["number"], display_title=display["title"]
+        )
     return plan, {"include": independent}, {"include": dependent}
 
 

@@ -11,7 +11,7 @@ parameters:
 
 jobs:
   - job: ${{ parameters.job }}
-    displayName: Shadow ${{ parameters.job }}
+    displayName: ${{ iif(eq(parameters.wave, 'aggregate'), 'Aggregate - collect and publish results', 'CI') }}
     dependsOn: ${{ parameters.dependsOn }}
     ${{ if eq(parameters.wave, 'dependent') }}:
       # Job conditions are evaluated before matrix variables exist; use upstream wave metadata.
