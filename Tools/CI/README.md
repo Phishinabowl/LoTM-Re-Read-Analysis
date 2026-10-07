@@ -170,6 +170,11 @@ hosted steady-state artifact adoption and native result publication remain later
 
 ## Dependency Authorities And Cache Boundaries
 
+CI 6.4's [hosted publication increment](../ci-testing-host-publication.md) adds Markdown for both
+hosts and aggregate-only native pytest/Pester/custom publication for Azure's Tests tab. It verifies
+the existing manifest and preserves execution failures; hosted acceptance remains open. Exact test
+XML stays in the artifact, separate from publication receipts and concise hosted display.
+
 CI 6.3 publishes the [native Azure shadow adapter](../ci-testing-azure-shadow.md), reusing the qualified
 executor with Azure metadata/output normalization and native cache/artifact tasks. Pipeline 3, optional
 policy 4 and validation PR 19 are observed; smoke 44 passes 5/5. Merge 45 and source 46 both pass 76/76

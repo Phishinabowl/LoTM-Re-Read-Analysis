@@ -141,17 +141,21 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] == "evidence":
         out = transport.confined(transport.ROOT, ".tmp/ci-shadow/transport")
         out.mkdir(parents=True, exist_ok=False)
-        bundle = transport.ROOT / ".tmp/ci-shadow/bundle"
-        if bundle.exists():
-            for owner in sorted(bundle.iterdir()):
-                transport.export_bundle(owner, out / "bundle")
         for name in ("context.json", "tools.json", "failure.json"):
             source = transport.confined(transport.ROOT, ".tmp/ci-shadow/" + name)
             if source.is_file():
                 shutil.copy2(source, out / name)
+        publication = transport.confined(transport.ROOT, ".tmp/ci-shadow/publication")
+        if publication.exists():
+            shutil.copytree(publication, out / "publication")
         source = transport.ROOT / ".tmp/ci-cache-pilot"
         if source.exists():
             shutil.copytree(source, out / "setup")
+        # Preserve admission/setup diagnostics even if a run bundle fails strict export below.
+        bundle = transport.ROOT / ".tmp/ci-shadow/bundle"
+        if bundle.exists():
+            for owner in sorted(bundle.iterdir()):
+                transport.export_bundle(owner, out / "bundle")
         return 0
     if len(sys.argv) > 1 and sys.argv[1] == "context":
         context = event_context(os.environ, read_pull(os.environ))

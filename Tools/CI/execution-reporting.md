@@ -2,8 +2,9 @@
 
 CI 4.5 is confirmed by the maintainer on 2026-10-06. The explicit local runner records one result model and derives
 detailed JSON, concise JSON, Markdown and JUnit from it. Existing standalone conformance/compatibility
-detailed JSON and validation-run-summary v1 remain unchanged. Hosted summary/upload tasks and
-publication receipts remain Phase 6.4; local publication admission is available now.
+detailed JSON and validation-run-summary v1 remain unchanged. The [6.4 publication increment](../ci-testing-host-publication.md)
+implements hosted submission; live summary/Tests/upload acceptance remains open. Local admission
+remains authoritative; submission receipts alone prove no server acceptance or cancellation upload.
 
 CI 5.3 promotes owning conformance/compatibility failures and formatter file/count diagnostics into
 unit reasons before deriving these projections. Reasons use the existing 20-line/4,096-byte excerpt

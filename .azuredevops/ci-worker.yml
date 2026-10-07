@@ -76,6 +76,53 @@ jobs:
           ${{ if ne(parameters.wave, 'aggregate') }}:
             SHADOW_SHARD: $(shard)
       - pwsh: |
+          python Tools/CI/publish_hosted.py
+          exit $LASTEXITCODE
+        name: Publication
+        condition: always()
+        timeoutInMinutes: 2
+        displayName: Admit results and publish Markdown summary
+        env:
+          ${{ if ne(parameters.wave, 'aggregate') }}:
+            SHADOW_SHARD: $(shard)
+      - ${{ if eq(parameters.wave, 'aggregate') }}:
+          - task: PublishTestResults@2
+            condition: and(always(), eq(variables['Publication.python_enabled'], 'true'))
+            displayName: Publish pytest cases
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: $(Publication.python_files)
+              mergeTestResults: true
+              failTaskOnFailedTests: true
+              failTaskOnFailureToPublishResults: true
+              failTaskOnMissingResultsFile: true
+              testRunTitle: 'pytest | $(Build.BuildNumber)'
+              publishRunAttachments: true
+          - task: PublishTestResults@2
+            condition: and(always(), eq(variables['Publication.powershell_enabled'], 'true'))
+            displayName: Publish Pester PS7 cases
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: $(Publication.powershell_files)
+              mergeTestResults: true
+              failTaskOnFailedTests: true
+              failTaskOnFailureToPublishResults: true
+              failTaskOnMissingResultsFile: true
+              testRunTitle: 'Pester PS7 | $(Build.BuildNumber)'
+              publishRunAttachments: true
+          - task: PublishTestResults@2
+            condition: and(always(), eq(variables['Publication.custom_enabled'], 'true'))
+            displayName: Publish custom suites and infrastructure outcomes
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: $(Publication.custom_files)
+              mergeTestResults: true
+              failTaskOnFailedTests: true
+              failTaskOnFailureToPublishResults: true
+              failTaskOnMissingResultsFile: true
+              testRunTitle: 'Custom suites and infrastructure | $(Build.BuildNumber)'
+              publishRunAttachments: true
+      - pwsh: |
           python Tools/CI/ado_shadow.py evidence
           exit $LASTEXITCODE
         condition: always()

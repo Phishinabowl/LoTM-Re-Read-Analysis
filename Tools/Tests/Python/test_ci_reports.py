@@ -21,6 +21,8 @@ try:
     controller = importlib.import_module("run_ci")
     aggregate = importlib.import_module("aggregate_execution")
     github_shadow = importlib.import_module("github_shadow")
+    ado_shadow = importlib.import_module("ado_shadow")
+    publisher = importlib.import_module("publish_hosted")
 finally:
     sys.path[:] = before
 
@@ -59,6 +61,180 @@ def record(owner, status="passed", native=False):
     report["canonical_guard"] = {"unchanged": True}
     report["budget"] = {"elapsed_seconds": 1.25}
     return report
+
+
+def hosted_bundle(root, status="passed", runtime=None, shard="", host="github"):
+    owner = root / ".tmp/ci-shadow/bundle/run-hosted-fixture"
+    owner.mkdir(parents=True)
+    report = record(owner, status, native=runtime is not None)
+    report["provenance"]["executed_commit"] = "a" * 40
+    if shard:
+        # Admission uses the existing finalized shard provenance contract.
+        report["provenance"]["shard_source"] = {"shard": shard}
+    if runtime:
+        row = report["results"][0]
+        row.update(id="implementation/fixture::" + runtime, runtime=runtime)
+        report["selection"]["candidate_ids"] = report["selection"]["selected_ids"] = [row["id"]]
+        native = b'<testsuite tests="1"><testcase classname="fixture" name="native" time="0.2"/></testsuite>\n'
+        reports.atomic_bytes(owner, "units/native/publication.xml", native)
+        report["artifacts"] = [reports.fingerprint(owner, "units/native/publication.xml")]
+        row["artifacts"] = ["units/native/publication.xml"]
+    reports.finalize(owner, report)
+    context = {
+        "host": host,
+        "profile": "synthetic",
+        "executed": "a" * 40,
+        "attempt": 2,
+        "run_url": "https://github.com/fixture/repository/actions/runs/123"
+        if host == "github"
+        else "https://dev.azure.com/DreamtechADO/project/_build/results?buildId=123",
+    }
+    return owner, context
+
+
+@pytest.mark.parametrize("status", ["passed", "failed", "timed-out", "blocked", "cancelled"])
+def test_host_publication_preserves_execution_outcome_and_exact_custom_xml(tmp_path, status):
+    owner, context = hosted_bundle(tmp_path, status)
+    destination, receipt = publisher.admit(tmp_path, context)
+    assert receipt["status"] == "admitted"
+    assert receipt["execution_exit_code"] == (0 if status == "passed" else 1)
+    assert (destination / receipt["xml"][0]["path"]).read_bytes() == (owner / "custom.xml").read_bytes()
+    summary = (destination / "summary.md").read_text(encoding="utf-8")
+    assert "ci-shadow-aggregate-all-2" in summary
+    assert "](report.json)" not in summary
+    assert "No trustworthy history" in summary  # Preserve the recorded selection reason.
+    assert r"\[link\](x)" in summary  # Escaped diagnostic prose is not an artifact link.
+    assert receipt["markdown_submission"] == "not-submitted"
+
+
+@pytest.mark.parametrize("runtime,category", [("python", "python"), ("powershell7", "powershell")])
+def test_host_publication_routes_native_cases_once_without_empty_custom_duplicates(tmp_path, runtime, category):
+    owner, context = hosted_bundle(tmp_path, runtime=runtime)
+    destination, receipt = publisher.admit(tmp_path, context)
+    assert receipt["status"] == "admitted"
+    assert len(receipt["xml"]) == 1
+    entry = receipt["xml"][0]
+    assert entry["category"] == category and entry["counts"]["entries"] == 1
+    assert (destination / entry["path"]).read_bytes() == (owner / "units/native/publication.xml").read_bytes()
+
+
+def test_host_shard_summary_does_not_publish_duplicate_test_cases(tmp_path):
+    _, context = hosted_bundle(tmp_path, shard="fixture")
+    _, receipt = publisher.admit(tmp_path, context, "fixture")
+    assert receipt["status"] == "admitted" and receipt["xml"] == []
+
+
+@pytest.mark.parametrize(
+    "mutation", ["missing", "corrupt", "foreign-commit", "foreign-profile", "foreign-shard", "ambiguous"]
+)
+def test_host_publication_rejects_missing_corrupt_or_foreign_results_with_honest_summary(tmp_path, mutation):
+    owner, context = hosted_bundle(tmp_path)
+    if mutation == "missing":
+        (owner / "finalized.json").unlink()
+    elif mutation == "corrupt":
+        (owner / "custom.xml").write_text("corrupt XML")
+    elif mutation == "foreign-commit":
+        context["executed"] = "b" * 40
+    elif mutation == "foreign-profile":
+        context["profile"] = "other"
+    elif mutation == "ambiguous":
+        (owner.parent / "run-foreign").mkdir()
+    destination, receipt = publisher.admit(tmp_path, context, "wrong" if mutation == "foreign-shard" else "")
+    assert receipt["status"] == "failed" and receipt["xml"] == []
+    assert "No test coverage is inferred" in (destination / "summary.md").read_text()
+
+
+def test_host_publication_absent_bundle_never_invents_passing_tests(tmp_path):
+    _, receipt = publisher.admit(tmp_path, {"host": "github", "run_url": "https://github.com/fixture/run"})
+    assert receipt["status"] == "failed" and receipt["execution_exit_code"] is None and receipt["xml"] == []
+
+
+def test_host_summary_utf8_limit_retains_explicit_complete_artifact_pointer():
+    content = publisher.hosted_markdown("🐺" * publisher.SUMMARY_LIMIT, "https://github.com/fixture/run", "artifact")
+    assert len(content) <= publisher.SUMMARY_LIMIT
+    assert "Summary display truncated" in content.decode("utf-8")
+
+
+@pytest.mark.parametrize("host", ["github", "ado"])
+def test_host_summary_submission_is_not_claimed_as_server_acceptance(tmp_path, capsys, host):
+    _, context = hosted_bundle(tmp_path, host=host)
+    destination, receipt = publisher.admit(tmp_path, context)
+    summary_file = tmp_path / "host-summary"
+    publisher.submit(destination, receipt, {"GITHUB_STEP_SUMMARY": str(summary_file)})
+    assert receipt["server_acceptance"] == "requires hosted task/run evidence"
+    if host == "github":
+        assert summary_file.read_bytes() == (destination / "summary.md").read_bytes()
+    else:
+        assert "##vso[task.uploadsummary]" in capsys.readouterr().out
+        assert "ci-shadow-aggregate-123" in (destination / "summary.md").read_text(encoding="utf-8")
+
+
+def test_host_summary_write_failure_preserves_failed_execution(tmp_path):
+    _, context = hosted_bundle(tmp_path, "failed")
+    destination, receipt = publisher.admit(tmp_path, context)
+    with pytest.raises(OSError):
+        publisher.submit(destination, receipt, {"GITHUB_STEP_SUMMARY": str(tmp_path)})
+    assert receipt["execution_exit_code"] == 1 and receipt["markdown_submission"] == "not-submitted"
+
+
+def test_azure_failed_bundle_export_retains_publication_diagnostics(tmp_path, monkeypatch):
+    owner, context = hosted_bundle(tmp_path, host="ado")
+    (owner / "custom.xml").write_text("corrupt XML")
+    destination, receipt = publisher.admit(tmp_path, context)
+    reports.atomic_bytes(destination, "receipt.json", reports.encoded(receipt))
+    monkeypatch.setattr(github_shadow, "ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["ado_shadow.py", "evidence"])
+    with pytest.raises(ValueError):
+        ado_shadow.main()
+    transported = json.loads((tmp_path / ".tmp/ci-shadow/transport/publication/receipt.json").read_text())
+    assert transported["status"] == "failed" and transported["xml"] == []
+
+
+@pytest.mark.parametrize("submission_failed", [False, True])
+def test_host_publication_cli_keeps_execution_and_submission_status_separate(tmp_path, monkeypatch, submission_failed):
+    _, context = hosted_bundle(tmp_path, "failed")
+    monkeypatch.setattr(sys, "argv", ["publish_hosted.py", "--root", str(tmp_path)])
+    monkeypatch.setenv("SHADOW_CONTEXT", json.dumps(context))
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(tmp_path if submission_failed else tmp_path / "summary"))
+    assert publisher.main() == (1 if submission_failed else 0)
+    receipt = json.loads((tmp_path / ".tmp/ci-shadow/publication/receipt.json").read_text(encoding="utf-8"))
+    assert receipt["execution_exit_code"] == 1
+    assert receipt["status"] == ("failed" if submission_failed else "admitted")
+
+
+def test_host_native_tasks_publish_only_admitted_aggregate_xml_after_execution_failures():
+    import yaml
+
+    worker = yaml.safe_load((ROOT / ".azuredevops/ci-worker.yml").read_text())
+    steps = worker["jobs"][0]["steps"]
+    publication = next(step for step in steps if step.get("name") == "Publication")
+    assert publication["condition"] == "always()" and publication["timeoutInMinutes"] == 2
+    tasks = next(
+        step["${{ if eq(parameters.wave, 'aggregate') }}"]
+        for step in steps
+        if "${{ if eq(parameters.wave, 'aggregate') }}" in step
+    )
+    assert len(tasks) == 3
+    for task, category in zip(tasks, ["python", "powershell", "custom"], strict=True):
+        assert task["task"] == "PublishTestResults@2"
+        assert task["condition"] == f"and(always(), eq(variables['Publication.{category}_enabled'], 'true'))"
+        inputs = task["inputs"]
+        assert inputs["testResultsFiles"] == f"$(Publication.{category}_files)"
+        assert inputs["testResultsFormat"] == "JUnit"
+        for key in (
+            "mergeTestResults",
+            "failTaskOnFailedTests",
+            "failTaskOnFailureToPublishResults",
+            "failTaskOnMissingResultsFile",
+            "publishRunAttachments",
+        ):
+            assert inputs[key] is True
+    assert all("continueOnError" not in step for step in steps + tasks)
+    github = yaml.safe_load((ROOT / ".github/workflows/ci-shadow-worker.yml").read_text())
+    github_steps = github["jobs"]["execute"]["steps"]
+    summary_step = next(step for step in github_steps if "publish_hosted.py" in step.get("run", ""))
+    assert summary_step["if"] == "${{ always() }}" and summary_step["timeout-minutes"] == 2
+    assert all("continue-on-error" not in step for step in github_steps)
 
 
 @pytest.mark.parametrize("status", ["passed", "failed"])

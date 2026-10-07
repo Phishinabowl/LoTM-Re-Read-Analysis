@@ -90,6 +90,15 @@ jobs:
               & $env:EXECUTION_PYTHON Tools/CI/github_shadow.py collect
           }
           exit $LASTEXITCODE
+      - name: Publish admitted Markdown summary
+        if: ${{ always() }}
+        shell: pwsh
+        timeout-minutes: 2
+        env:
+          SHADOW_SHARD: ${{ inputs.shard }}
+        run: |
+          python Tools/CI/publish_hosted.py
+          exit $LASTEXITCODE
       - name: Retain exact admitted evidence and setup diagnostics
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -100,6 +109,7 @@ jobs:
             .tmp/ci-shadow/failure.json
             .tmp/ci-shadow/context.json
             .tmp/ci-shadow/tools.json
+            .tmp/ci-shadow/publication
             .tmp/ci-cache-pilot
           include-hidden-files: true
           if-no-files-found: error
