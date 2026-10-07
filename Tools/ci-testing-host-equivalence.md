@@ -6,10 +6,12 @@ Phase 6.5 starts from confirmed Phase 6.4 closeout `2f150d6`. The
 [modernization plan](ci-testing-modernization-plan.md#phase-65-host-equivalence-and-policy-adoption-review)
 owns acceptance. GitHub PR 3 and Azure PR 19 remain paused; no required check, policy, event,
 suite membership, conformance fixture or canonical content is changed by this first increment.
-The Python patch checkpoint is confirmed and dual-published as `b07f942`. Cold/warm dependency and
-build execution passes on both hosts/OSs, but an independently observed pilot checkout-byte gap
-keeps final package-input equivalence open. Its correction and the first collection-role optimization
-are prepared locally and uncommitted. Wider optimization/equivalence/policy-adoption gates remain open.
+The Python patch checkpoint is confirmed and dual-published as `b07f942`. The checkout-byte correction
+and first collection-role optimization are subsequently confirmed and dual-published as `87fd18e`.
+Corrected build inputs match published bytes on both hosts/OSs, both reduced aggregates preserve
+460 cases, and current-source failure publication is independently verified. The maintainer confirms
+these two qualified checkpoints and their evidence on 2026-10-07; wider optimization/equivalence/
+policy-adoption gates remain open.
 
 ## Python Patch Candidate
 
@@ -174,13 +176,68 @@ pending confirmation. Publication must then prove corrected pilot build-input ha
 reduced aggregate's ordinary success/failure publication on both hosts. Further execution-role
 preparation, ADO consolidation, barriers and runtime acquisition remain explicit later increments.
 
+## Published Collection And Checkout Qualification
+
+The maintainer confirms the ten-file follow-up, published as
+`87fd18e6c4a3548871ba10fe6be9d3263c5abe32`. All four local/upstream/remote branch references agree,
+with a clean tree before this evidence update. Both PRs remain paused. These experiments are exact
+manual branch snapshots, not fresh PR merge/target equivalence.
+
+Corrected complete pilots pass on GitHub
+[37661226324](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37661226324) and Azure
+[59](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=59),
+on Windows and Linux. Independent comparison against the exact published GitHub file bytes verifies
+all four jobs' `pyproject.toml` and `LICENSE` hashes. Exact 3.14.8 dependency/bootstrap/package build
+and real render qualification pass; no rollback to 3.14.5 is required for this patch checkpoint.
+The previous cold/warm cache proof remains retained; the byte correction does not change dependency
+pins or cache-hit verification. Final whole-profile equivalence and policy adoption remain separate.
+
+Bounded infrastructure profiles pass on GitHub
+[37661228573](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37661228573) and Azure
+[60](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=60).
+Each preserves five approved checks and **460 passing native cases**, with complete 67-file manifest
+validation, unchanged sources and verified cleanup. Aggregate artifacts contain only runtime
+bootstrap/pilot receipts; no PowerShell, Node, wheel-build or render receipt is present. Azure's 460
+server case identities/outcomes match original XML exactly; its one **4196-byte** combined report
+matches the admitted artifact. GitHub's admitted report is **2042 bytes**, with the actual artifact link.
+
+| Host / role | Preparation | Whole job |
+| --- | ---: | ---: |
+| GitHub execution, complete payload | 67.297s | 262s |
+| GitHub aggregate, runtime-only payload | 7.041s | 74s |
+| Azure execution, complete payload | 76.741s | 268.113s |
+| Azure aggregate, runtime-only payload | 7.485s | 63.630s |
+
+These same-source role samples show removal of unused aggregate provisioning. Different jobs have
+different work and allocations; they are not controlled whole-pipeline speedup percentages or
+accepted final latency baselines. Preparation excludes native transport/acquisition. Azure run 60
+shares the slot with pilot 59: queue-to-finish is 12m14s, while start-to-finish is 9m22s; neither is
+an uncontended native/full feedback benchmark. Execution jobs still prepare the complete payload.
+
+Existing bounded failure controls are replayed at the corrected source on GitHub
+[37662167069](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37662167069) and Azure
+[61](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=61).
+Both remain intentionally failed after assertion failures, an owned child timeout, missing-result
+admission and deliberate publication loss. Original execution exits, complete manifests, source
+protection, cleanup and failure excerpts are independently verified. Azure stores exactly three
+failed native cases (pytest/Pester/custom), with identities/outcomes and nonempty error messages
+matching originals. Its four diagnostic Markdown attachments match admitted bytes exactly; missing
+coverage produces no invented case. These probe jobs verify current-source failure transport and
+runtime behavior; they do not run the production reduced aggregate or substitute for portfolio coverage.
+
+Original artifacts, server bytes and native timing records remain under ignored `.tmp/ci-phase65`
+and `.tmp/ci-phase64/ado60-server` / `ado61-server`. Wider execution-role preparation, ADO cohort
+consolidation, narrower barriers, acquisition warnings/credentials, PR/event equivalence, final
+timing review and policy adoption remain open. No check name, policy, selection mode or timing goal
+is relaxed by this increment. The local default/editor selection is not silently changed: use the
+verified 3.14.8 environment from its bootstrap receipt; existing 3.14.5 installations remain retained.
+
 ## Remaining Qualification And Rollback
 
-Publish the reviewed patch checkpoint only after maintainer confirmation, then qualify exact
-interpreter acquisition and dependency/package behavior on both hosted platforms and both OSs.
-Use deliberate manual runs while PRs remain paused; the path-specific GitHub cache pilot will also
-trigger when its version-pin file is published. Do not mistake a branch pilot for fresh PR merge proof.
-Adoption is conditional on those results; setup failure cannot silently select another version.
+The patch and aggregate-preparation checkpoints are confirmed on 2026-10-07. Continue with deliberate
+manual optimization runs while PRs remain paused; branch qualification is not fresh PR merge proof.
+The adopted exact Python baseline is now 3.14.8, with retained 3.14.5 rollback evidence. Setup failure
+cannot silently select another version.
 
 Review the two `UsePythonVersion@0` warnings during the acquisition increment. Its documented
 `githubToken` input concerns registry download limits, while exact-pin acquisition must survive

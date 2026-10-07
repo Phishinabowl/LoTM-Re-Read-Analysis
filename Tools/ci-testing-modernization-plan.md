@@ -2387,7 +2387,14 @@ and runtime-only aggregate preparation are locally prepared: 128 focused cases p
 bootstraps on both OSs, and a real Windows collector preserving five checks/460 cases. This ten-file
 increment awaits publication confirmation and hosted qualification. Execution-role preparation,
 consolidation, barriers, runtime acquisition and final host/event/policy equivalence remain open.
-No timing goal or coverage boundary is relaxed. Both PRs stay paused.
+The ten-file follow-up is subsequently confirmed and published as `87fd18e`. Corrected complete
+pilots prove published build-input byte equality on both hosts/OSs. Both bounded infrastructure
+profiles pass five checks and 460 cases; reduced aggregate preparation measures 7.041s GitHub and
+7.485s Azure, with exact server/report admission. Current-source bounded failure probes remain
+intentionally red and preserve complete diagnostics, including three exact failed Azure cases.
+The maintainer confirms the qualified patch and first aggregate-preparation checkpoints and their
+evidence update on 2026-10-07. Wider execution roles, consolidation, barriers, acquisition and final equivalence/
+policy gates remain open. No timing goal or coverage boundary is relaxed. Both PRs stay paused.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
@@ -2402,7 +2409,7 @@ has no queued/active work after the pause. Existing run evidence and PR discussi
   Azure PR 19 and reopen GitHub PR 3 before fresh PR/event equivalence, final policy adoption and
   integration. Revalidate latest source/target and complete required coverage; prior green runs do
   not authorize merging newer changes. Prefer restoring these PRs over replacing their history.
-- [ ] After closing 6.4 on Python 3.14.5, perform a focused Python patch-upgrade checkpoint before
+- [x] After closing 6.4 on Python 3.14.5, perform a focused Python patch-upgrade checkpoint before
   final timing and host-equivalence qualification. Review the current stable 3.14 patch release and
   release notes, select an explicit candidate, and verify dependency/package compatibility on
   Windows and Linux plus both hosted platforms. On acceptance, update authoritative pins and their
