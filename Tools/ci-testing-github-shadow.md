@@ -1,6 +1,9 @@
 # CI 6.2 Thin GitHub Shadow Adapter
 
-**Status:** Published as `407107b`; draft GitHub PR 3 is open. Hosted PR/source/merge proof remains open.
+**Status:** Implementation published as `9ff0827`; complete hosted PR/source/merge qualification is
+verified and confirmed by the maintainer on 2026-10-07. This checkpoint publishes the reviewed final
+evidence. [Draft GitHub PR 3](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/pull/3) is open;
+no merge or protection adoption occurs here. Historical failures below retain their original scope.
 Entry is confirmed 6.1 at `1b2911f`. This checkpoint does not replace existing CI or close Phase 6.
 The [modernization plan](ci-testing-modernization-plan.md#phase-62-thin-github-actions-adapter)
 owns acceptance; [host integration design](ci-testing-host-integration-design.md) owns event/merge
@@ -160,12 +163,72 @@ annotation policy (22/22 fixtures, 484 files, zero findings) and `git diff --che
 Windows actionlint provisioner acquires the official archive, verifies its digest and probes 1.7.12.
 Linux archive/host provisioning is still part of live shadow qualification, not inferred from WSL tests.
 
-Before closure, publish the reviewed adapter, open the authorized draft GitHub PR into the framework
+The staged checkpoint required publication of the reviewed adapter and an authorized draft GitHub PR into the framework
 branch, and record passing live automatic merge and explicit source replay. Verify actual scope covers
 more than the latest commit, all expected shards/gates execute, pinned setup/import origins qualify,
 ordinary failures do not suppress independent work and original required contexts remain intact.
 Retain exact source/tree/catalog identities and real job/setup/transport durations. Final admission
 and placement remain 6.5; do not infer them from local tests or 6.1 preparation timing.
+
+## Final Hosted Qualification And Review
+
+The confirmed correction is published as `9ff08279cb51a8a0daa5fdba8bccc236a7273d01`, with
+HEAD/upstream/GitHub/ADO parity. Two complete `pr-integration` runs succeed:
+
+| Surface | Execution | Result | Evidence |
+| --- | --- | --- | --- |
+| Automatic framework PR merge | `0d36b3b097ab42f747413ccae5b2c6a7543459ef` | 76/76 required units pass | [37577793370](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37577793370) |
+| Explicit PR source replay | `9ff08279cb51a8a0daa5fdba8bccc236a7273d01` | 76/76 required units pass | [37577813837](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37577813837) |
+| Retained reference CI | Same PR source/merge provenance | All four original contexts pass | [37577793101](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37577793101) |
+
+Both plans resolve exact framework base `c4b79326e8dde5420f61d318f4f541e752b6030a` and the same
+source tip. Both record 174 branch-wide changed paths with complete deletion precision and no
+comparison fallback; the latest correction alone changes ten files. They execute different commits
+but capture the same digest `eb8ea9a4f0a934fa54dbda7d0707bf86d1f208e3fa82fc7a6ff3cddc54fbea77`.
+Every run has eight independent shards, one parity shard and one final collection job; all finish
+successfully. Artifact admission independently verifies every final file/XML digest, complete unit
+union/order, same snapshot/catalog ownership, unchanged source/containment guards and verified cleanup.
+The 544 native testcase identities match exactly: **484 pytest / 60 Pester** per run. Installed-wheel
+validation is an additional custom implementation unit, not invented native cases. All 42 detailed
+conformance summaries match across source/merge and their 21 Python/PS7 pairs match exactly. All ten
+PR compatibility owners pass, including corrected reporting/extraction; required media coverage also passes.
+
+Earlier failures prove that ordinary unit failures do not suppress independent work: all 76 units
+were collected, all four failures stayed visible, and the aggregate stayed red. This is genuine
+failure/continuation evidence; controlled publication-loss/cancellation/native Tests-tab acceptance
+remains Phase 6.4. Source/merge success does not erase any earlier failed attempt.
+
+| Measured component | Merge run | Source replay |
+| --- | ---: | ---: |
+| Dispatch to final completed run | 971s (16m11s) | 965s (16m05s) |
+| Summed allocated job time | 2448s (40m48s) | 2434s (40m34s) |
+| Planning job, including runtime bootstrap | 30s | 27s |
+| Compatibility worker, including setup/transport | 648s | 695s |
+| Parity worker, including setup/transport | 135s | 105s |
+| Final collection worker, including setup/transport | 148s | 125s |
+| Collection supervisor interval only | 2.915s | 2.959s |
+
+These are single full shadow samples, not medians, full-verification benchmarks or final feedback
+admission. Wall time includes dispatch/allocation, preparation and publication. Job-time sums count
+overlapping allocations and cannot be presented as wall time. Planning explicitly acquires its small
+runtime-only environment; every worker still prepares the complete qualified payload, including
+rendering even for parity/collection. The graph additionally waits for all independent workers before
+the dependent wave, although parity's data sources are only conformance shards. Both costs are
+visible optimization opportunities for 6.5: qualify smaller preparation profiles and reduce avoidable
+barriers using catalog dependencies. Do not change membership, isolation, result admission or feedback
+targets to hide those costs. Native/full 90s/960s goals and existing accepted local timing exceptions
+remain; this checkpoint does not adopt hosted timing exceptions or required checks.
+
+Exact report bundles, plans, native job/task timing metadata and independent audits are retained under
+ignored `.tmp/ci-phase62`: `final-comparison.json`, `final-conformance-comparison.json` and per-run
+aggregate/publication audits. The original reference CI and non-main annotation check remain green;
+no required context, branch protection, ADO pipeline/policy or schedule is changed. The new observed
+aggregate context is `CI Aggregate (modernization-shadow) / Shadow aggregate`, which is nonrequired;
+use actual names at the 6.5 adoption review, not an assumed shortened reusable-workflow label.
+
+All 6.2 implementation/runtime evidence is complete. Final documentation and the four verified
+checklist items are confirmed on 2026-10-07. Phase 6.3 has not started; the draft PR remains open
+for continued shadow validation and is not merge-ready.
 
 **Rollback:** Disable/remove only the new shadow adapters and optional draft PR; preserve existing CI,
 required identities, canonical sources, verified caches and the published 6.1 evidence. No merge or

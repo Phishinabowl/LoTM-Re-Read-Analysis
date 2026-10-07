@@ -1,5 +1,14 @@
 # CI Testing Coverage And Consumer Dependency Ledger
 
+**CI 6.2 current hosted overlay (verified and confirmed on 2026-10-07):**
+[GitHub source/merge qualification](ci-testing-github-shadow.md#final-hosted-qualification-and-review)
+at `9ff0827` passes all 76 PR units in each run, with exactly matching 484 pytest/60 Pester identities,
+42 detailed conformance summaries, complete branch scope and verified shard/publication/guard/cleanup
+evidence. All ten PR compatibility owners pass and original reference contexts remain green. Earlier
+72/76 red collection proves continued failures without omissions; it remains historical evidence.
+New scope/transfer/startup/checkout coverage uses existing groups; no semantic family or fixture is
+retired. Full hosted verification, ADO adoption, native publication and final placement remain later gates.
+
 CI 6.1 qualifies [host readiness and a temporary payload-cache pilot](ci-testing-host-readiness.md).
 Six additional cache-key/corruption/recovery cases are covered by the existing `python-bootstrap`
 group; its focused 26 cases pass on Windows/Linux. No suite membership, semantic family, required

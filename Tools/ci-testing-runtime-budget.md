@@ -1,5 +1,16 @@
 # CI Runtime, Dependency And Budget Design
 
+**CI 6.2 hosted PR shadow overlay (verified and confirmed on 2026-10-07):**
+[Complete qualification](ci-testing-github-shadow.md#final-hosted-qualification-and-review) records
+76/76 for source and merge at `9ff0827`, with exact coverage/native identities. Dispatch-to-completion
+wall is 971s/965s (16m11s/16m05s); summed job allocation is 2448s/2434s (40m48s/40m34s). This is PR
+shadow evidence, not full-verification or final hosted admission. Collection itself costs only
+2.915s/2.959s while its full worker costs 148s/125s because complete dependency/render preparation
+is repeated. Compatibility workers cost 648s/695s; parity also waits behind the whole independent
+wave. Qualify reduced preparation and dependency-specific barriers at 6.5 without dropping units or
+isolation. These single samples do not relax feedback targets, reserves or 90s/960s goals. Source and
+merge replay duplication is intentional qualification overhead, not proposed routine double execution.
+
 CI 6.1's [corrected core payload checkpoint](ci-testing-host-readiness.md#corrected-core-payload-checkpoint)
 measures Python development/media and PS development bootstrap at 22.454-26.693s cold and
 11.088-12.701s warm across GitHub/ADO Windows/Linux. Cache restore/save, interpreter provisioning,

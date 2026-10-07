@@ -76,7 +76,8 @@ is measured and audited; its bounded evidence, timing exceptions and provisional
 and the complete checkpoint are confirmed on 2026-10-06. The expanded Phase 5 local gate is closed;
 Phase 6.1's expanded implementation is published as `ba6047a`; complete hosted setup, negative
 controls and recovery are verified, with the final evidence/checkpoint confirmed on 2026-10-07.
-Phase 6.2 is implemented locally with its live hosted checkpoint still open. The accepted 5.7 results and timing
+Phase 6.2 implementation and complete hosted source/merge proof are verified, with final evidence
+and the checkpoint confirmed on 2026-10-07. Phase 6.3 has not started. The accepted 5.7 results and timing
 disposition remain intact; local WSL evidence will not substitute for actual hosted measurements.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
@@ -2194,21 +2195,28 @@ and closes 6.1; actual profile adoption begins separately at 6.2.
 
 ### Phase 6.2 Thin GitHub Actions Adapter
 
-The [GitHub shadow checkpoint](ci-testing-github-shadow.md) stages catalog-derived worker waves,
-strict event/source/merge provenance, qualified cache/bootstrap transport and exact transferable
-bundles. Production PowerShell child isolation is included with explicit regression. Existing
-required check names remain unchanged. Local verification and actual hosted PR/source/merge proof
-must complete before this checkpoint is confirmed; Phase 6.3 has not started.
+The [GitHub shadow checkpoint](ci-testing-github-shadow.md#final-hosted-qualification-and-review)
+is implemented and hosted-qualified at published `9ff0827`: automatic framework PR merge and explicit
+source replay both pass all 76 required units, with 484 pytest/60 Pester identities and exact 42-row
+conformance parity. Both plans prove all 174 branch-wide changed paths and coherent equal-content
+snapshots; unit order, shard union, artifact hashes, source guards and cleanup are verified. Original
+required reference checks pass unchanged. Earlier complete failed runs demonstrate independent
+continuation and a red aggregate. Final evidence and the four checkboxes below are verified and
+confirmed on 2026-10-07. Production cancellation/publication
+loss and Tests-tab/Markdown acceptance retain their 6.4 gate; final timing/placement remain 6.5.
+Observed PR shadow wall is 16m11s/16m05s, with repeated complete setup and graph barriers explicitly
+recorded for optimization, not adopted as final feedback targets. Phase 6.3 has not started.
 
-- [ ] Bootstrap pinned dependencies, verify runtime versions, pass event scope, and invoke repository
+- [x] Bootstrap pinned dependencies, verify runtime versions, pass event scope, and invoke repository
   profiles with no YAML-owned suite membership or validation semantics.
-- [ ] Preserve existing check names and full required coverage; use nonrequired shadow jobs while
+- [x] Preserve existing check names and full required coverage; use nonrequired shadow jobs while
   comparing new orchestration against original checks.
-- [ ] Validate workflow policy, immutable action pins, read-only permissions, cache invalidation,
+- [x] Validate workflow policy, immutable action pins, read-only permissions, cache invalidation,
   job budgets, cancellation behavior, and complete-history requirements.
-- [ ] Prove PR source/merge execution and full multi-commit scope at the framework target branch.
+- [x] Prove PR source/merge execution and full multi-commit scope at the framework target branch.
 
-**Checkpoint:** Observed GitHub evidence matches local profile behavior and identifies the executed commit.
+**Checkpoint:** Implemented, locally and hosted verified; confirmed on 2026-10-07.
+Observed GitHub evidence matches local profile behavior and identifies exact source/merge execution.
 
 ### Phase 6.3 Native Azure Pipelines Adapter
 

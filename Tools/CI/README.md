@@ -170,9 +170,11 @@ hosted steady-state artifact adoption and native result publication remain later
 
 ## Dependency Authorities And Cache Boundaries
 
-CI 6.2 stages the [GitHub shadow adapter](../ci-testing-github-shadow.md): catalog-owned shard waves,
+CI 6.2 qualifies the [GitHub shadow adapter](../ci-testing-github-shadow.md): catalog-owned shard waves,
 exact event/execution provenance and admitted evidence transport delegate to the existing local runner.
-Hosted PR/source/merge qualification remains open; required reference jobs are preserved.
+Automatic PR merge and source replay both pass 76/76, with exact native identities/semantic parity
+and admitted final artifacts. The checkpoint is confirmed on 2026-10-07; required reference jobs
+are preserved. Native hosted publication and optimized final placement remain 6.4/6.5.
 
 CI 6.1 qualifies a temporary [host cache pilot](../ci-testing-host-readiness.md) using
 `host_cache.py prepare` / `host_cache.py bootstrap` and native GitHub/Azure cache transports.
