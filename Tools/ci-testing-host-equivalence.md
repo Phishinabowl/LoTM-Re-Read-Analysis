@@ -234,7 +234,8 @@ verified 3.14.8 environment from its bootstrap receipt; existing 3.14.5 installa
 
 ## Execution Preparation And Read-Only Azure Placement Proposal
 
-The next increment is locally qualified and remains uncommitted pending maintainer confirmation.
+The maintainer confirms publication of this increment on 2026-10-07. It is dual-published as
+`6b8452c18fe922a352c7314b32c61bda96ae45f0`; HEAD, upstream and both remote branch references agree.
 Preparation now derives from adapters in the approved repository catalog and assigned shard:
 
 | Role | Required payload | Current assignment |
@@ -282,8 +283,62 @@ No cohort is adopted, and no job-count reduction is credited as measured perform
 Before activation, qualify shared preparation, independent continuation/cancellation, per-shard
 finalized bundles, partial-failure diagnostics, artifact routing, exact aggregate coverage and
 catalog-ordered report sections. Keep individual shard execution and the complete-preparation
-baseline available as rollback. Manual hosted core/build proof is the next gate; full/event/policy
-qualification remains open and both PRs remain paused.
+baseline available as rollback. The bounded hosted preparation proof below qualifies this increment;
+full/event/policy qualification remains open and both PRs remain paused.
+
+### Hosted Preparation Qualification At 6b8452c
+
+Both bounded `ci-infrastructure` runs pass five checks and 475 cases at the exact published source:
+[GitHub 37682136133](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37682136133)
+and [Azure 62](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=62).
+Their native case identities match the local core reference exactly. Both original 67-file finalized
+manifests verify, with source protection and cleanup preserved. Workers receive the catalog role map
+and actually provision `core`; aggregates provision `collection`. GitHub's current-attempt artifact
+link verifies, and Azure's server stores precisely the 475 original passing cases in test run 42.
+Azure stores one 4,203-byte Markdown report matching admitted artifact bytes exactly.
+
+| Bounded job | Preparation seconds | Whole job seconds |
+| --- | ---: | ---: |
+| GitHub core execution | 23.186 | 183.000 |
+| GitHub collection | 7.142 | 74.000 |
+| Azure core execution | 25.123 | 246.370 |
+| Azure collection | 7.781 | 60.140 |
+
+Earlier complete-prepared infrastructure samples measured 67.297s on GitHub and 76.741s on Azure.
+The present receipts prove removal of build/render work with 15 additional preparation/placement
+regressions retained; these are measured samples rather than a controlled total-pipeline speedup
+percentage. Azure 62 takes 9m52.679s queue-to-finish and 9m44.497s start-to-finish, sharing its hosted
+slot with cold pilot 63. Queue/wave waits do not become test execution time or an accepted full-run
+performance baseline.
+
+Build-only cold/warm qualification passes on both hosts and OSs:
+[GitHub cold 37682147008](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37682147008),
+[GitHub warm 37682390304](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37682390304),
+[Azure cold 63](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=63)
+and [Azure warm 64](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=64).
+
+| Build recipe | Cold setup seconds | Warm setup seconds |
+| --- | ---: | ---: |
+| GitHub Windows | 35.082 | 20.764 |
+| GitHub Linux | 29.637 | 12.023 |
+| Azure Windows | 50.759 | 20.990 |
+| Azure Linux | 31.644 | 17.880 |
+
+All eight jobs retain Python 3.14.8, PowerShell 7.6.6 and package 0.1.0. Each warm receipt proves
+an exact hit on its corresponding cold key; no floating/fallback runtime is used. Published LICENSE
+and pyproject input hashes match across all builds, with clean source labels. Build-only receipts
+contain bootstrap/build steps and no Node/render qualification. Pilot artifacts retain build receipts,
+not the wheel archives themselves; this is not an independent hosted wheel-byte comparison.
+The push-triggered [core pilot 37682073311](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37682073311)
+also passes both OSs without build/render inputs, as does the separate annotation check.
+
+Original receipts, aggregate/shard artifacts, Azure server bytes and timing audits remain in ignored
+`.tmp/ci-phase65` and `.tmp/ci-phase64/ado62-server`. This is manual branch preparation qualification,
+not full conformance/compatibility portfolio or fresh PR/event proof. Installed-package execution
+under the derived build role remains part of subsequent broader worker qualification. No cohort,
+required-check change, selective execution or policy adoption is activated. GitHub PR 3 remains
+closed and Azure PR 19 abandoned. Existing failure/cancellation contracts, complete-preparation
+rollback and timing goals remain intact; acquisition warnings and narrower barriers remain open.
 
 ## Remaining Qualification And Rollback
 

@@ -2408,6 +2408,21 @@ cancellation, per-shard finalized artifacts and exact aggregate/report coverage 
 qualified increment. See [host-equivalence evidence](ci-testing-host-equivalence.md) for recipe timings,
 capacity arithmetic, retained rollback and remaining gates.
 
+The maintainer confirms publication of that preparation increment on 2026-10-07, and it is
+dual-published as `6b8452c`. All four branch references agree; both PRs remain paused. Bounded
+manual hosted qualification follows at this exact source, rather than reopening full PR runs.
+
+That bounded qualification now passes: GitHub infrastructure run 37682136133 and Azure run 62
+preserve five checks/475 cases, with exact local/hosted native identities, complete original manifests,
+source protection and cleanup. Azure stores all 475 passing cases and one byte-matching combined
+report. Core preparation measures 23.186s GitHub / 25.123s Azure; collection measures 7.142s / 7.781s.
+Build-only cold/warm pilots pass all eight host/OS jobs with exact cache reuse, pinned runtimes and
+published build-input equality, without rendering inputs. These samples qualify the preparation
+increment, not full/event/policy equivalence or the final full-run timing gate. Azure consolidation
+remains a read-only proposal pending independent continuation/cancellation, per-shard artifact and
+aggregate proof; interpreter acquisition warnings, narrower barriers and broader worker qualification
+also remain open. Both PRs stay paused. See the linked host-equivalence record for run URLs and timings.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during
