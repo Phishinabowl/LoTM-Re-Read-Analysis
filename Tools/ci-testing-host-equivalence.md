@@ -661,6 +661,16 @@ host-image patch replacement. No personal credential is added to YAML, no existi
 is repurposed, and no host-managed secret is created by this checkpoint. A repository-owned
 hash-pinned acquisition alternative must be reviewed and measured before replacing native setup.
 
+The infrastructure comparison evidence is confirmed and dual-published as `8ada9f7` on 2026-10-07.
+The next [pinned Python acquisition proposal](ci-python-acquisition-design.md) is a design-review
+checkpoint. Run 68's slow worker log and read-only upstream source show substantial Windows
+installation/pip-refresh work after the archive transfer; the exact-pin warning is emitted even
+when the interpreter is already cached. The proposal separates warning/authentication disposition
+from a completed-interpreter cache experiment, retains native rollback and requires trusted seal,
+fixed-prefix, cold/warm, corruption/recovery and original test-publication proof before adoption.
+No installer is executed locally, no runtime archive is downloaded, no secret is created and no
+new hosted run is queued by this source/proposal pass. Both PRs remain paused; 6.5 stays open.
+
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
 complete local/hosted portfolio identity and failure/cancellation behavior. Restore the same PRs

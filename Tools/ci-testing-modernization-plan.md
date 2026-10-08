@@ -2510,6 +2510,14 @@ three jobs and host acquisition varies. The bounded complete infrastructure gate
 full portfolio, mixed native/custom publication, nonempty dependency waves, acquisition optimization
 and fresh event/policy adoption remain open. Both PRs stay paused and default placement unchanged.
 
+The maintainer confirms this comparison evidence, published as `8ada9f7` on 2026-10-07 with
+dual-remote parity. The next design checkpoint is the
+[pinned Python acquisition proposal](ci-python-acquisition-design.md): opt-in completed native
+interpreter caching, with native mode retained, exact-pin warning explained, cold registry
+authentication disposition explicit, and sealed inventory/fixed-prefix qualification before
+execution. Upstream installers are inspected as text only; no local installation, secret,
+runtime download, default change or hosted qualification is introduced by the proposal.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during
@@ -2537,7 +2545,7 @@ has no queued/active work after the pause. Existing run evidence and PR discussi
   isolation or failure semantics. Remeasure both hosts and review remaining gaps against unchanged
   feedback goals before policy adoption; functional 6.3 confirmation does not waive this gate.
 - [ ] Address both observed `UsePythonVersion@0` warnings explicitly: preserve the adopted exact
-  Python pin (3.14.5 until an upgrade is accepted) while qualifying acquisition when hosted images
+  Python pin from [runtime versions](CI/Data/runtime-versions.json) while qualifying acquisition when hosted images
   replace preinstalled patch versions; review GitHub registry authentication and anonymous download
   limits. Measure repeated
   acquisition/cache costs, use host-managed secret storage if download credentials are adopted,
