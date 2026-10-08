@@ -224,18 +224,44 @@ function Assert-CiPythonReferenceFields {
     }
 }
 
-function Read-CiPythonLinuxReleaseReference {
+function Read-CiPythonPlatformReference {
     param(
         [Parameter(Mandatory)][string]$SpecificationPath,
         [Parameter(Mandatory)][string]$ReferencePath,
         [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
         [datetime]$DeadlineUtc = [datetime]::MaxValue,
-        [scriptblock]$Cancelled = { $false }
+        [scriptblock]$Cancelled = { $false },
+        [ValidateSet('linux', 'windows')][string]$OS = 'linux'
     )
+    $linux = $OS -ceq 'linux'
+    $normalization = if ($linux) {
+        'native-core-v2-linux-release-modes'
+    }
+    else {
+        'native-core-v1'
+    }
+    $image = if ($linux) {
+        'ubuntu-24.04'
+    }
+    else {
+        'windows-2022'
+    }
+    $asset = if ($linux) {
+        "python-$($RuntimeVersions.python)-linux-24.04-x64.tar.gz"
+    }
+    else {
+        "python-$($RuntimeVersions.python)-win32-x64.zip"
+    }
+    $contract = if ($linux) {
+        'ci-python-linux-release-reference'
+    }
+    else {
+        'ci-python-windows-native-reference'
+    }
     $spec = (Read-CiPythonReferenceJson $SpecificationPath $DeadlineUtc $Cancelled).value
     Assert-CiPythonReferenceFields $spec @('schema_version', 'reference_file', 'reference_sha256', 'expected_inventory_sha256', 'identity')
     if ($spec.schema_version -isnot [long] -and $spec.schema_version -isnot [int] -or $spec.schema_version -ne 1 -or
-        $spec.reference_file -isnot [string] -or $spec.reference_file -cne "python-linux-$($RuntimeVersions.python)-reference.json" -or
+        $spec.reference_file -isnot [string] -or $spec.reference_file -cne "python-$OS-$($RuntimeVersions.python)-reference.json" -or
         [IO.Path]::GetFileName($ReferencePath) -cne $spec.reference_file) {
         throw 'Exact release reference declaration required.'
     }
@@ -249,12 +275,12 @@ function Read-CiPythonLinuxReleaseReference {
         'image_family', 'architecture', 'asset', 'archive_sha256')
     if (@($identity.Values | Where-Object { $_ -isnot [string] }).Count -or
         $RuntimeVersions.python -cnotmatch '^3\.14\.[0-9]+$' -or $identity.python -cne $RuntimeVersions.python -or
-        $identity.normalization -cne 'native-core-v2-linux-release-modes' -or $identity.provider -cne 'actions/python-versions' -or
+        $identity.normalization -cne $normalization -or $identity.provider -cne 'actions/python-versions' -or
         $identity.provider_build -cnotmatch ('^' + [regex]::Escape($identity.python) + '-[0-9]+$') -or
-        $identity.implementation -cne 'cpython' -or $identity.gil -cne 'enabled' -or $identity.image_family -cne 'ubuntu-24.04' -or
-        $identity.architecture -cne 'x64' -or $identity.asset -cne "python-$($identity.python)-linux-24.04-x64.tar.gz" -or
+        $identity.implementation -cne 'cpython' -or $identity.gil -cne 'enabled' -or $identity.image_family -cne $image -or
+        $identity.architecture -cne 'x64' -or $identity.asset -cne $asset -or
         $identity.archive_sha256 -cnotmatch '^[0-9a-f]{64}$') {
-        throw 'Pinned Linux release identity required.'
+        throw 'Pinned platform release identity required.'
     }
     $loaded = Read-CiPythonReferenceJson $ReferencePath $DeadlineUtc $Cancelled
     if ($loaded.sha256 -cne $spec.reference_sha256) {
@@ -263,7 +289,7 @@ function Read-CiPythonLinuxReleaseReference {
     $reference = $loaded.value
     Assert-CiPythonReferenceFields $reference @('contract', 'schema_version', 'identity', 'inventory')
     Assert-CiPythonReferenceFields $reference.identity @($identity.Keys)
-    if ($reference.contract -isnot [string] -or $reference.contract -cne 'ci-python-linux-release-reference' -or
+    if ($reference.contract -isnot [string] -or $reference.contract -cne $contract -or
         ($reference.schema_version -isnot [long] -and $reference.schema_version -isnot [int]) -or $reference.schema_version -ne 1 -or
         @($reference.identity.Values | Where-Object { $_ -isnot [string] }).Count -or
         @($identity.Keys | Where-Object { $reference.identity[$_] -cne $identity[$_] }).Count) {
@@ -272,7 +298,8 @@ function Read-CiPythonLinuxReleaseReference {
     $inventory = $reference.inventory
     Assert-CiPythonReferenceFields $inventory @('schema_version', 'root_unix_mode', 'entries', 'sha256')
     if (($inventory.schema_version -isnot [long] -and $inventory.schema_version -isnot [int]) -or $inventory.schema_version -ne 3 -or
-        ($inventory.root_unix_mode -isnot [long] -and $inventory.root_unix_mode -isnot [int]) -or $inventory.root_unix_mode -ne 493 -or
+        ($linux -and (($inventory.root_unix_mode -isnot [long] -and $inventory.root_unix_mode -isnot [int]) -or $inventory.root_unix_mode -ne 493)) -or
+        (-not $linux -and $null -ne $inventory.root_unix_mode) -or
         $inventory.sha256 -isnot [string] -or $inventory.sha256 -cne $spec.expected_inventory_sha256 -or
         $inventory.entries -isnot [array] -or $inventory.entries.Count -eq 0 -or $inventory.entries.Count -gt 200000) {
         throw 'Complete typed mode-aware release reference required.'
@@ -298,7 +325,11 @@ function Read-CiPythonLinuxReleaseReference {
             kind = $row.kind
         }
         if ($row.kind -ceq 'file') {
-            Assert-CiPythonReferenceFields $row @('path', 'kind', 'bytes', 'sha256', 'unix_mode')
+            $fields = @('path', 'kind', 'bytes', 'sha256')
+            if ($linux) {
+                $fields += 'unix_mode'
+            }
+            Assert-CiPythonReferenceFields $row $fields
             if (($row.bytes -isnot [long] -and $row.bytes -isnot [int]) -or $row.bytes -lt 0 -or $row.bytes -gt 256MB -or
                 $row.sha256 -isnot [string] -or $row.sha256 -cnotmatch '^[0-9a-f]{64}$') {
                 throw 'Typed bounded reference file required.'
@@ -307,7 +338,11 @@ function Read-CiPythonLinuxReleaseReference {
             $copy.sha256 = $row.sha256
         }
         elseif ($row.kind -ceq 'directory') {
-            Assert-CiPythonReferenceFields $row @('path', 'kind', 'unix_mode')
+            $fields = @('path', 'kind')
+            if ($linux) {
+                $fields += 'unix_mode'
+            }
+            Assert-CiPythonReferenceFields $row $fields
         }
         else {
             Assert-CiPythonReferenceFields $row @('path', 'kind', 'target')
@@ -317,7 +352,7 @@ function Read-CiPythonLinuxReleaseReference {
             }
             $copy.target = $row.target
         }
-        if ($row.kind -cne 'symlink') {
+        if ($linux -and $row.kind -cne 'symlink') {
             if (($row.unix_mode -isnot [long] -and $row.unix_mode -isnot [int]) -or $row.unix_mode -notin 420, 493 -or
                 ($row.kind -ceq 'directory' -and $row.unix_mode -ne 493)) {
                 throw 'Canonical reference mode required.'
@@ -342,7 +377,7 @@ function Read-CiPythonLinuxReleaseReference {
             }
         }
     }
-    $frame = [ordered]@{ root_unix_mode = 493
+    $frame = [ordered]@{ root_unix_mode = $inventory.root_unix_mode
         entries = @($entries.ToArray())
     }
     $encoded = [Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $frame -Depth 7 -Compress))
@@ -354,6 +389,28 @@ function Read-CiPythonLinuxReleaseReference {
         reference_sha256 = $loaded.sha256
         inventory = $inventory
     }
+}
+
+function Read-CiPythonLinuxReleaseReference {
+    param([Parameter(Mandatory)][string]$SpecificationPath, [Parameter(Mandatory)][string]$ReferencePath,
+        [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue, [scriptblock]$Cancelled = { $false })
+    Read-CiPythonPlatformReference $SpecificationPath $ReferencePath $RuntimeVersions $DeadlineUtc $Cancelled -OS linux
+}
+
+function Get-CiPythonPlatformReference {
+    param([Parameter(Mandatory)][ValidateSet('linux', 'windows')][string]$OS,
+        [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue, [scriptblock]$Cancelled = { $false })
+    $data = Join-Path $PSScriptRoot 'Data'
+    $specification = if ($OS -ceq 'linux') {
+        'python-linux-release-reference-spec.json'
+    }
+    else {
+        'python-windows-native-reference-spec.json'
+    }
+    Read-CiPythonPlatformReference (Join-Path $data $specification) `
+    (Join-Path $data "python-$OS-$($RuntimeVersions.python)-reference.json") $RuntimeVersions $DeadlineUtc $Cancelled -OS $OS
 }
 
 function Get-CiPythonLinuxReleaseReference {
@@ -768,6 +825,147 @@ function Get-CiPythonRuntimeCapture {
         saved = $false
         omitted_paths = @()
         inventory = $inventory
+    }
+}
+
+function Get-CiPythonSealedCachePlan {
+    param([Parameter(Mandatory)][Collections.IDictionary]$Context,
+        [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue, [scriptblock]$Cancelled = { $false })
+    Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+    $image = switch -CaseSensitive ($Context.os) {
+        'windows' {
+            'windows-2022'
+        }
+        'linux' {
+            'ubuntu-24.04'
+        }
+        default {
+            ''
+        }
+    }
+    if (-not $image -or $Context.host -cne 'ado' -or $Context.event -cne 'Manual' -or
+        $Context.hosted -isnot [bool] -or -not $Context.hosted -or $Context.image_family -cne $image -or
+        $Context.architecture -cne 'x64' -or $Context.executed_commit -isnot [string] -or
+        $Context.executed_commit -cnotmatch '^[0-9a-f]{40}$') {
+        throw 'Captured manual hosted context required for sealed planning.'
+    }
+    $reference = Get-CiPythonPlatformReference $Context.os $RuntimeVersions -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    $prefix = if ($Context.os -ceq 'windows') {
+        "C:/hostedtoolcache/windows/Python/$($RuntimeVersions.python)/x64"
+    }
+    else {
+        "/opt/hostedtoolcache/Python/$($RuntimeVersions.python)/x64"
+    }
+    $identity = [ordered]@{ schema_version = 2
+        os = $Context.os
+        image_family = $image
+        architecture = 'x64'
+        python_version = $reference.identity.python
+        implementation = $reference.identity.implementation
+        gil = $reference.identity.gil
+        provider = $reference.identity.provider
+        provider_build = $reference.identity.provider_build
+        archive_sha256 = $reference.identity.archive_sha256
+        normalization = $reference.identity.normalization
+        reference_sha256 = $reference.reference_sha256
+        inventory_schema_version = 3
+        inventory_sha256 = $reference.inventory.sha256
+        prefix_strategy = 'native-fixed-prefix'
+        prefix = $prefix
+        executable = $(if ($Context.os -ceq 'windows') {
+                'python.exe'
+            }
+            else {
+                'bin/python3.14'
+            })
+    }
+    $encoded = [Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $identity -Compress))
+    $digest = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($encoded)).ToLowerInvariant()
+    [pscustomobject]@{ contract = 'ci-python-runtime-sealed-cache-plan'
+        schema_version = 2
+        identity = $identity
+        executed_commit = $Context.executed_commit
+        cache_key = "lotm-python-runtime-v2-$digest"
+        restoration_qualified = $false
+        executed = $false
+        handoff_admitted = $false
+    }
+}
+
+function Get-CiPythonSealedCacheDecision {
+    param([Parameter(Mandatory)]$Plan, [Parameter(Mandatory)][string]$StagingRoot,
+        [Parameter(Mandatory)][string]$CacheHit, [datetime]$DeadlineUtc = [datetime]::MaxValue,
+        [scriptblock]$Cancelled = { $false })
+    Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+    if ($Plan.contract -cne 'ci-python-runtime-sealed-cache-plan' -or
+        ($Plan.schema_version -isnot [int] -and $Plan.schema_version -isnot [long]) -or $Plan.schema_version -ne 2 -or
+        $CacheHit -cnotin 'true', 'false' -or $Plan.executed -isnot [bool] -or $Plan.executed -or
+        $Plan.restoration_qualified -isnot [bool] -or $Plan.restoration_qualified -or
+        $Plan.handoff_admitted -isnot [bool] -or $Plan.handoff_admitted) {
+        throw 'Unpromoted sealed staging plan and exact cache result required.'
+    }
+    $osName = if ($IsWindows) {
+        'windows'
+    }
+    elseif ($IsLinux) {
+        'linux'
+    }
+    else {
+        ''
+    }
+    if ($Plan.identity.os -cne $osName) {
+        throw 'Staged payload verification requires the matching implementation host.'
+    }
+    $pins = (Read-CiPythonReferenceJson (Join-Path $PSScriptRoot 'Data/runtime-versions.json') $DeadlineUtc $Cancelled).value
+    $context = @{ host = 'ado'
+        event = 'Manual'
+        hosted = $true
+        os = $osName
+        image_family = $Plan.identity.image_family
+        architecture = 'x64'
+        executed_commit = $Plan.executed_commit
+    }
+    $expected = Get-CiPythonSealedCachePlan $context $pins -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    if ($Plan.cache_key -cne $expected.cache_key -or
+        (ConvertTo-Json -InputObject $Plan.identity -Compress) -cne (ConvertTo-Json -InputObject $expected.identity -Compress)) {
+        throw 'Sealed cache plan differs from repository declarations.'
+    }
+    $root = Get-CiPythonCachePath $StagingRoot
+    if ($CacheHit -ceq 'false') {
+        if ((Test-Path $root) -and @((Get-ChildItem -LiteralPath $root -Force)).Count) {
+            throw 'Declared cache miss has unexpected staged bytes.'
+        }
+        return [pscustomobject]@{ contract = 'ci-python-runtime-sealed-cache-decision'
+            schema_version = 2
+            status = 'native-required'
+            cache_hit = $false
+            integrity_verified = $false
+            executed = $false
+            cache_key = $expected.cache_key
+            inventory_sha256 = $null
+            restoration_qualified = $false
+            handoff_admitted = $false
+        }
+    }
+    $inventory = Get-CiPythonRuntimeInventory $root -SealModes -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    if ($inventory.sha256 -cne $expected.identity.inventory_sha256) {
+        throw 'Staged bytes or modes differ from the external sealed reference.'
+    }
+    $executable = Get-Item -LiteralPath (Get-CiPythonCachePath $root $expected.identity.executable) -Force -ErrorAction Stop
+    if ($executable.PSIsContainer -or $executable.LinkType -or ($executable.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        throw 'A sealed staged interpreter must be a regular file.'
+    }
+    [pscustomobject]@{ contract = 'ci-python-runtime-sealed-cache-decision'
+        schema_version = 2
+        status = 'staging-verified'
+        cache_hit = $true
+        integrity_verified = $true
+        executed = $false
+        cache_key = $expected.cache_key
+        inventory_sha256 = $inventory.sha256
+        restoration_qualified = $false
+        handoff_admitted = $false
     }
 }
 

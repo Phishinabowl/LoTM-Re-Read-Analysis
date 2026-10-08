@@ -835,9 +835,82 @@ This establishes bounded executable/root-preserving v2 normalization and paired 
 not a warm-cache performance measurement or an ordinary-profile target result. There is no evidence
 yet that restoring/saving this cache is faster than the native path on either OS.
 
-The three-document result/disposition increment is uncommitted for review. Next adapt the unadopted
-cache-plan/admission scaffolding to explicit mode-aware normalization/reference identities and reviewed
-external Windows/Linux seals, then qualify owned staging/fixed-prefix restoration before any cache
-execution. Retain native acquisition as default/rollback. Cold/warm restore/save costs, deliberate
-corruption/failure/recovery, absent-interpreter behavior and original profile/worker/cohort/collector
-handoffs remain required before adoption. Phase 6.5 stays open; no further hosted run is queued.
+The maintainer confirms the result/disposition checkpoint, dual-published as `8652baa` with four-ref
+parity. Next adapt the unadopted cache-plan/admission scaffolding to explicit mode-aware normalization/
+reference identities and reviewed external Windows/Linux seals, then qualify owned staging/fixed-prefix
+restoration before any cache execution. Retain native acquisition as default/rollback. Cold/warm
+restore/save costs, deliberate corruption/failure/recovery, absent-interpreter behavior and original
+profile/worker/cohort/collector handoffs remain required before adoption. Phase 6.5 stays open.
+
+## Mode-Aware Seals and Read-Only Cache Admission Implemented for Review
+
+The next focused increment prepares the Windows external reference alongside the existing Linux
+reference, a common strict platform reader preserving the Linux API, and separate schema-2 sealed
+cache plan/decision helpers. No existing pipeline or caller selects these cache helpers yet. There
+is no cache restore/save, destination creation, executable launch, registry change or tool-cache write.
+
+The [Windows specification](CI/Data/python-windows-native-reference-spec.json) binds the exact provider
+archive, declared build and complete normalized inventory. The [Windows reference](CI/Data/python-windows-3.14.8-reference.json)
+contains the independently audited run-74 pair's 3,878 rows at inventory fingerprint
+`9dc6d79241cd40fe80e6b8476055f2d7d4d2184ce5099aca2509238d68ef85ec`. Its 742,725 UTF-8/LF bytes hash to
+`952d15ad6b7cf9062000f5e855ebee2489812314cd01daac041f74de2ef10a98`.
+The [explicit freeze command](CI/derive_windows_native_reference.py) rehashes the pinned 33,100,332-byte
+archive, requires distinct same-source capture IDs 1/2 with completed immutable candidate/probe/cleanup
+declarations, recomputes both reviewed inventory digests and refuses output that differs from the
+declared reference-file checksum. It never extracts/runs the installer or automatically updates hashes.
+
+This Windows reference is derived from qualified native outputs, unlike Linux's direct archive-member
+derivation. The independent service-log/artifact audit of run 74 establishes the real acquisition and
+allocation provenance; parsing copied receipt declarations alone is not proof of two remote agents.
+Both run-74 Windows agents download the exact `3.14.8-36806082737` asset. Earlier cold/preinstalled
+samples also match the same complete normalized fingerprint. Keep that provenance distinction explicit;
+do not claim that reading the installer archive independently reconstructs Windows installed bytes.
+Linux continues using its existing archive-derived 3,040-entry reference without changes.
+
+The shared reader retains complete typed/ordinal/path/parent/link/file-hash validation and bounded
+duplicate-key-aware parsing. Linux requires its exact Unix modes and 0755 root. Windows requires a
+null Unix root and no invented Unix-mode fields. Both loader paths bind repository-owned specification
+and reference bytes; cached manifests cannot supply either. A scoped LF attribute keeps Windows
+reference bytes stable on checkout, just as for Linux. Both OSs reproduce exact Windows reference bytes.
+
+`Get-CiPythonSealedCachePlan` reads the external reference itself; its caller cannot supply a replacement
+seal. It is restricted to captured manual ADO hosted/x64 context. The deterministic `lotm-python-runtime-v2`
+key binds OS/image/architecture, exact CPython/GIL/version, provider build/archive, normalization,
+reference-file checksum, inventory schema 3/fingerprint and declared native fixed prefix/executable.
+Source commit is recorded separately so ordinary source changes do not invalidate identical runtime
+bytes. The metadata plan still declares restoration, execution and handoff unqualified.
+
+`Get-CiPythonSealedCacheDecision` independently reconstructs the expected plan from current repository
+declarations, rejects schema/key/identity or premature-promotion changes and requires the matching host
+for physical staging checks. Only exact `true`/`false` cache results are accepted. A clean miss returns
+`native-required` without creating any owner. An exact hit recomputes the full physical schema-3
+inventory, verifies the regular interpreter and returns only `staging-verified`, with execution,
+restoration and handoff still false. Changed bytes/modes, missing/extra files, a self-trust manifest,
+linked/unsafe owners, dirty misses and inexact hits fail rather than silently falling back or executing.
+Hash-valid staging is not authority to overwrite a native installation or register a tool-cache slot.
+
+The original schema-1 scaffold remains isolated and unadopted; its decision helper explicitly rejects
+schema-2 plans. Retire that temporary scaffold and redundant tests only after the new receipt/probe/
+restoration lifecycle proves equivalent or stronger coverage. Windows's retained `native-core-v1`
+normalization is a different revision boundary and is not Windows PowerShell 5.1 support.
+
+Verification passes 94 bootstrap/reference pytest cases per OS (Windows 5.24s; Linux 6.23s) and 140
+registered dependency/reference/admission Pester cases per OS (Windows 13.951s; Linux 25.874s), with
+zero errors/skips. The new cases cover paired reference refusal, archive/source/schema/immutable-payload
+identity, exact staged hits/misses, key stability/reference changes, corrupt/extra/missing/mode-altered
+payloads, plan tampering, premature promotion, inexact results and cancellation/deadline refusal.
+Existing registrations, 120-second group deadlines, native ownership and concise result behavior remain.
+Both metadata-test hosts produce identical Windows/Linux plan keys. Real Windows reference output is
+byte-identical across Windows/Linux. Ruff/formatting, annotation policy/22 fixtures, generated reference
+checksum/line-ending checks, documentation links and diff checks pass.
+
+This ten-file source/data/test/evidence increment is uncommitted for review. No hosted experiment is
+needed to accept read-only plan/admission behavior. Next implement the separate owned-restoration lease:
+validate actual hosted tools root against the declared prefix, require an absent exact destination,
+create only a fresh owned target, preserve existing installations/other patches, copy and reverify sealed
+bytes/modes before any probe, and retain honest failure/cancellation/partial-owner evidence. An occupied
+host prefix must never be treated as permission to overwrite it; qualify its explicit native route or
+blocked disposition separately. Missing-interpreter behavior must be demonstrated on a naturally
+appropriate agent, not manufactured by removing image runtimes. Keep the destination and cache YAML
+disabled until local lease/receipt regressions and bounded hosted acceptance pass. Restore/save costs,
+fault/recovery, broader handoffs and adoption remain open. Phase 6.5 stays open; PRs remain paused.

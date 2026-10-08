@@ -583,6 +583,145 @@ Describe 'Private normalized runtime candidates without execution' -Tag Unit {
     }
 }
 
+Describe 'Mode-aware external seals and nonexecuting staged cache admission' -Tag Unit {
+    BeforeEach {
+        $osName = if ($IsWindows) {
+            'windows'
+        }
+        else {
+            'linux'
+        }
+        $image = if ($IsWindows) {
+            'windows-2022'
+        }
+        else {
+            'ubuntu-24.04'
+        }
+        $stage = Join-Path $TestDrive ('sealed-stage-' + [guid]::NewGuid().ToString('N'))
+        $null = [IO.Directory]::CreateDirectory((Join-Path $stage 'bin'))
+        $exe = if ($IsWindows) {
+            'python.exe'
+        }
+        else {
+            'bin/python3.14'
+        }
+        [IO.File]::WriteAllText((Join-Path $stage $exe), 'fixture only; never execute')
+        $inventory = Get-CiPythonRuntimeInventory $stage -SealModes
+        $identity = (Get-Content (Join-Path $repoRoot "Tools/CI/Data/python-$osName-$(if ($IsWindows) { 'native' } else { 'release' })-reference-spec.json") -Raw |
+                ConvertFrom-Json -AsHashtable).identity
+        $fixtureReference = [pscustomobject]@{ identity = $identity
+            reference_sha256 = ('b' * 64)
+            inventory = $inventory
+        }
+        $context = @{ host = 'ado'
+            event = 'Manual'
+            hosted = $true
+            os = $osName
+            image_family = $image
+            architecture = 'x64'
+            executed_commit = ('a' * 40)
+        }
+        Mock Get-CiPythonPlatformReference { $fixtureReference }
+        $plan = Get-CiPythonSealedCachePlan $context $pins
+    }
+
+    It 'loads the full pinned Windows reference on either test host' {
+        # This explicit reader exercises metadata portability without the fixture loader mock.
+        $data = Join-Path $repoRoot 'Tools/CI/Data'
+        $reference = Read-CiPythonPlatformReference (Join-Path $data 'python-windows-native-reference-spec.json') `
+        (Join-Path $data 'python-windows-3.14.8-reference.json') $pins -OS windows
+        $reference.inventory.entries.Count | Should -Be 3878
+        $reference.inventory.sha256 | Should -BeExactly '9dc6d79241cd40fe80e6b8476055f2d7d4d2184ce5099aca2509238d68ef85ec'
+        $reference.inventory.root_unix_mode | Should -BeNullOrEmpty
+    }
+
+    It 'uses a stable v2 key across source commits while binding reference identity' {
+        $context.executed_commit = 'c' * 40
+        $second = Get-CiPythonSealedCachePlan $context $pins
+        $second.cache_key | Should -BeExactly $plan.cache_key
+        $second.executed_commit | Should -Not -BeExactly $plan.executed_commit
+        $plan.cache_key | Should -Match '^lotm-python-runtime-v2-[0-9a-f]{64}$'
+        $fixtureReference.reference_sha256 = 'd' * 64
+        (Get-CiPythonSealedCachePlan $context $pins).cache_key | Should -Not -BeExactly $plan.cache_key
+        $plan.restoration_qualified | Should -BeFalse
+    }
+
+    It 'admits complete staged bytes only to nonexecuting verification' {
+        $decision = Get-CiPythonSealedCacheDecision $plan $stage true
+        $decision.status | Should -BeExactly 'staging-verified'
+        $decision.integrity_verified | Should -BeTrue
+        $decision.executed | Should -BeFalse
+        $decision.restoration_qualified | Should -BeFalse
+        $decision.handoff_admitted | Should -BeFalse
+    }
+
+    It 'requests native acquisition on a clean miss without creating any owner' {
+        $missing = Join-Path $TestDrive 'missing-sealed-stage'
+        $decision = Get-CiPythonSealedCacheDecision $plan $missing false
+        $decision.status | Should -BeExactly 'native-required'
+        $decision.cache_hit | Should -BeFalse
+        Test-Path $missing | Should -BeFalse
+    }
+
+    It 'rejects <mutation> in staged bytes or sealed plan' -ForEach @(
+        @{ mutation = 'corrupt' }, @{ mutation = 'extra-manifest' }, @{ mutation = 'missing' },
+        @{ mutation = 'wrong-key' }, @{ mutation = 'identity' }, @{ mutation = 'promoted' },
+        @{ mutation = 'schema' }, @{ mutation = 'inexact' }, @{ mutation = 'dirty-miss' }) {
+        $hit = 'true'
+        switch ($mutation) {
+            'corrupt' {
+                [IO.File]::WriteAllText((Join-Path $stage $exe), 'corrupt')
+            }
+            'extra-manifest' {
+                [IO.File]::WriteAllText((Join-Path $stage 'self-trust.json'), '{"valid":true}')
+            }
+            'missing' {
+                [IO.File]::Delete((Join-Path $stage $exe))
+            }
+            'wrong-key' {
+                $plan.cache_key = 'lotm-python-runtime-v1-wrong'
+            }
+            'identity' {
+                $plan.identity.normalization = 'unknown'
+            }
+            'promoted' {
+                $plan.restoration_qualified = $true
+            }
+            'schema' {
+                $plan.schema_version = 2.0
+            }
+            'inexact' {
+                $hit = 'inexact'
+            }
+            'dirty-miss' {
+                $hit = 'false'
+            }
+        }
+        { Get-CiPythonSealedCacheDecision $plan $stage $hit } | Should -Throw
+    }
+
+    It 'detects actual mode tampering on Linux and wrong reference pin on Windows' {
+        if ($IsLinux) {
+            [IO.File]::SetUnixFileMode((Join-Path $stage $exe), [IO.UnixFileMode]511)
+        }
+        else {
+            $fixtureReference.identity.python = '3.14.7'
+        }
+        { Get-CiPythonSealedCacheDecision $plan $stage true } | Should -Throw
+    }
+
+    It 'rejects unsupported hosted context, cancellation and deadline' {
+        $context.event = 'PullRequest'
+        { Get-CiPythonSealedCachePlan $context $pins } | Should -Throw
+        { Get-CiPythonSealedCacheDecision $plan $stage true -Cancelled { $true } } | Should -Throw '*cancelled*'
+        { Get-CiPythonSealedCacheDecision $plan $stage true -DeadlineUtc ([datetime]::UtcNow.AddSeconds(-1)) } | Should -Throw '*expired*'
+    }
+
+    It 'never allows schema-1 decision logic to admit a schema-2 plan' {
+        { Get-CiPythonCacheDecision $plan $stage true } | Should -Throw '*plan*'
+    }
+}
+
 Describe 'Pre-Python cache admission without cached execution' -Tag Unit {
     BeforeEach {
         $payload = Join-Path $TestDrive ('cache β with spaces ' + [guid]::NewGuid().ToString('N'))

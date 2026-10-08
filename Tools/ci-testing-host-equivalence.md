@@ -823,11 +823,26 @@ PS source checks are corroborated. Fresh execution covers only downloaded retain
 run-73 captured projection plus synthetic real copy tests cover the all-0777 file variant, as explicitly
 allowed by the bounded plan. Do not claim that variant was freshly scheduled or any owned cache hit.
 
-Three result/disposition documents await review. Next qualify mode-aware cache plan/external seals
-and owned staging/fixed-prefix restore; restore/save benefit, faults/recovery and ordinary handoffs
-remain open. Provider/cache/trusted-seal/restore/save/handoff admission remains withheld. See
-the acquisition design for complete timing/evidence and coverage boundaries. Phase 6.5 and paused
-PRs remain unchanged; no further hosted run is queued.
+The maintainer confirms this result checkpoint, published as `8652baa` with four-ref parity. The next
+increment prepares a complete Windows external reference from the audited native pair, alongside the
+existing archive-derived Linux reference, common strict platform reading and separate mode-aware
+schema-2 cache-plan/staging-admission helpers. Exact provider archive/reference/inventory identity,
+normalization and fixed prefix bind the cache key; current source revision is separate. A verified
+staging hit cannot grant restoration, execution or handoff. No cache task, destination write or new
+hosted run is introduced.
+
+All 94 focused Python and 140 registered Pester cases pass per OS with zero errors/skips. Final group
+costs are 13.951s Windows/25.874s Linux; plan keys and 742,725 Windows reference bytes reproduce
+identically across metadata-test hosts. Tests exercise real staged fixtures, corrupt/missing/extra/
+mode-altered bytes, metadata/key/schema/promoted-state refusal and bounded cancellation. Windows
+reference provenance is qualified native output plus the independent service audit, not installed
+bytes extracted from its installer archive. Linux derivation/proofs remain unchanged.
+
+Ten source/data/test/evidence files await review. Next qualify actual hosted prefix/absent-target
+ownership, no-overwrite leases and complete copy/probe/receipt behavior. Current v1 cache scaffold
+stays unadopted until lifecycle replacement coverage permits retirement; it cannot admit v2 plans.
+Restore/save benefit, fault/recovery and ordinary handoffs remain open. See the acquisition design
+for complete boundaries/rollback. Phase 6.5 and paused PRs remain unchanged; no new hosted run is queued.
 
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare

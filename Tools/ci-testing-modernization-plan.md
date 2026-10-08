@@ -2663,13 +2663,28 @@ projection and real synthetic copy coverage are retained separately, consistent 
 bounded sequence. Do not force image variance by removing host installations or treat native download
 timings as owned warm-cache benefit.
 
-Three result/disposition documents await confirmation. Next adapt the unadopted cache-plan/admission
-scaffolding to explicit mode-aware normalization/reference identities and reviewed external Windows/
-Linux seals, then qualify owned staging/fixed-prefix restoration before cached execution. Native
-acquisition remains default/rollback. Cold/warm restore/save benefit, faults/recovery, missing-exact-
-interpreter behavior, original profile equivalence and planning/worker/cohort/collector handoffs
-remain open. See the acquisition design for exact evidence and limits. Phase 6.5 stays open;
-PRs remain paused; no further hosted run is queued.
+The maintainer confirms the result checkpoint, published as `8652baa` with four-ref parity. The next
+read-only admission increment prepares the full Windows external reference from the audited paired
+native outputs and pinned archive, common platform reading preserving Linux reference behavior,
+and separate schema-2 cache plan/staging decision helpers. Cache keys bind exact external reference,
+schema-3 inventory, normalization/provider identity and declared fixed prefix. Hash-valid staging
+does not grant destination ownership, cached execution, restoration or handoff.
+
+All 94 focused pytest and 140 registered Pester cases pass per OS with zero errors/skips; Windows
+reference bytes and plan keys reproduce identically across hosts. Staged hit/miss, byte/mode/
+manifest corruption, metadata/key/schema/promoted-state refusal and deadline/cancellation contracts
+are covered within existing group registrations/deadlines. Windows reference provenance remains
+qualified native output plus service audit, distinct from Linux's archive-member derivation. Preserve
+that distinction and leave schema-1 scaffold retirement until replacement lifecycle coverage is proved.
+
+Ten source/data/test/evidence files await confirmation. Next implement/qualify a separate hosted
+fixed-prefix ownership lease: actual tools-root validation, absent exact destination, fresh owned
+copy, no host overwrite or other-patch cleanup, complete verification before probes and honest partial/
+failure/cancellation receipts. Classify occupied prefixes explicitly; do not remove image runtimes to
+manufacture absence. Cache YAML and ordinary acquisition remain unchanged until those gates pass.
+Cold/warm restore/save benefit, fault/recovery, original profile equivalence and planning/worker/cohort/
+collector handoffs remain open. See the acquisition design for exact evidence and limits. Phase 6.5
+stays open; PRs remain paused; no further hosted run is queued.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain

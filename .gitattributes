@@ -3,3 +3,4 @@
 *.psd1 text eol=crlf
 *.py text eol=lf
 Tools/CI/Data/python-linux-*-reference.json text eol=lf
+Tools/CI/Data/python-windows-*-reference.json text eol=lf

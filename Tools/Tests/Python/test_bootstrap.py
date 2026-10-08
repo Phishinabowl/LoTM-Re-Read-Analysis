@@ -22,6 +22,80 @@ finally:
 pytestmark = pytest.mark.unit
 
 
+@pytest.mark.parametrize(
+    "mutation", ["none", "archive", "same-capture", "revision", "unqualified", "bool-schema", "inventory"]
+)
+def test_windows_reference_freezes_only_reviewed_same_source_qualified_pairs(tmp_path, mutation):
+    import copy
+    import hashlib
+
+    spec = importlib.util.spec_from_file_location(
+        "windows_reference_deriver", ROOT / "Tools/CI/derive_windows_native_reference.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    declaration = json.loads(module.SPEC.read_text())
+    archive = tmp_path / "provider.zip"
+    archive.write_bytes(b"data-only archive fixture")
+    declaration["identity"]["archive_sha256"] = hashlib.sha256(archive.read_bytes()).hexdigest()
+    inventory = json.loads((ROOT / "Tools/CI/Data/python-windows-3.14.8-reference.json").read_text())["inventory"]
+    owners = [tmp_path / name for name in ("first", "second")]
+    for index, owner in enumerate(owners, 1):
+        owner.mkdir()
+        capture = {
+            "os": "windows",
+            "image_family": "windows-2022",
+            "architecture": "x64",
+            "requested_python": "3.14.8",
+            "executed_commit": "a" * 40,
+            "capture_id": str(index),
+            "inventory": {"sha256": "e" * 64},
+        }
+        candidate = {
+            "schema_version": 1,
+            "normalization": "native-core-v1",
+            "status": "candidate-complete",
+            "source_sha256": "e" * 64,
+            "inventory": copy.deepcopy(inventory),
+        }
+        qualification = {
+            "status": "qualification-passed",
+            "executed_commit": "a" * 40,
+            "runtime_probe_verified": True,
+            "environment_verified": True,
+            "payload_unchanged": True,
+            "processes": [{"child_exit_code": 0, "cleanup": {"verified": True}}] * 3,
+        }
+        if index == 2:
+            if mutation == "same-capture":
+                capture["capture_id"] = "1"
+            elif mutation == "revision":
+                qualification["executed_commit"] = "b" * 40
+            elif mutation == "unqualified":
+                qualification["payload_unchanged"] = False
+            elif mutation == "bool-schema":
+                candidate["schema_version"] = True
+            elif mutation == "inventory":
+                candidate["inventory"]["entries"][1]["bytes"] = 0
+        for name, value in (
+            ("capture.json", capture),
+            ("candidate.json", candidate),
+            ("candidate-qualification.json", qualification),
+        ):
+            (owner / name).write_text(json.dumps(value), encoding="utf-8")
+    if mutation == "archive":
+        archive.write_bytes(b"corrupted provider")
+    if mutation == "none":
+        result = module.derive(archive, *owners, declaration)
+        assert result["inventory"] == inventory and result["identity"] == declaration["identity"]
+        assert not list(tmp_path.glob("*.exe"))
+        with pytest.raises(TimeoutError):
+            module.derive(archive, *owners, declaration, timeout=0)
+    else:
+        with pytest.raises(ValueError):
+            module.derive(archive, *owners, declaration)
+
+
 def release_deriver_fixture(tmp_path, mutation="none"):
     import hashlib
     import io
