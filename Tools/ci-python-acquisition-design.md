@@ -539,6 +539,129 @@ observed 0777 image modes or excluding permissions from integrity. Preserve curr
 require private-copy regression plus hosted requalification of any changed normalization. This is a
 recommendation for review; `native-core-v1` still preserves native modes and no new seal is adopted.
 
-This three-document outcome/disposition increment is uncommitted for review. Repeated Linux seals,
-external provider/seal admission, fixed-prefix restoration, faults/recovery, warm/cold benefit and
-ordinary profile handoffs remain open. Phase 6.5 stays open; no additional hosted run is queued.
+The maintainer confirms this outcome/disposition checkpoint and the archive-derived permission
+direction, published as `d9f7298` with four-ref parity. The concrete policy below is prepared for
+review before production implementation. Repeated Linux seals, external provider/seal admission,
+fixed-prefix restoration, faults/recovery, warm/cold benefit and ordinary profile handoffs remain
+open. Phase 6.5 stays open; no additional hosted run is queued.
+
+## Concrete Linux Release Permission Policy Checkpoint
+
+**Status:** proposed implementation contract, not active normalization or cache admission. The
+maintainer agrees to the archive-derived direction; this checkpoint makes its complete acceptance
+rules and verification sequence reviewable. Current `native-core-v1` behavior is unchanged.
+
+### Independent Reference Derivation
+
+Read-only derivation rehashes the exact pinned tar asset, reads its metadata and hashes retained
+regular members through streams. Nothing is extracted or executed. It derives the retained set
+from the archive itself using the existing source-backed-bytecode/native-base-pip omission rules;
+it does not use a cache-supplied manifest or a hosted capture to choose which files to trust.
+The archive contains one complete pip 26.2.1 distribution; that is omitted without changing the
+project's adopted pip 26.2 lock. A cache directory is omitted only if source-backed omissions make
+it empty; preexisting empty directories and sourceless bytecode remain required by the policy.
+
+The reviewed native installer removes exactly `setup.sh` and adds exactly these direct aliases:
+
+| Added path | Exact target | Reference source |
+| --- | --- | --- |
+| `bin/python` | `python3.14` | Pinned installer text |
+| `bin/python314` | `python3.14` | Pinned installer text |
+| `python` | `./bin/python3.14` | Pinned installer text |
+
+All eight archive-supplied links retain their exact targets. The resulting reference has 2,813
+regular files, 216 directories and 11 direct file links: 3,040 entries total. Its 3,029 mode-bearing
+entries comprise 318 at 0755 (216 directories and 102 executable files) and 2,711 files at 0644.
+The root is 0755. Full ordinal schema-3 framing independently reproduces
+`5e88f33c1f23523d9099daf29854fb12536ec3d0e6e5b3b7e212993503ec8794`.
+
+Every retained file hash, byte count, path, type and link target matches both run-73 candidates.
+Only the first candidate requires 3,029 permission reductions; the second already matches exactly.
+The derivation completes in 1.749s. The ignored review artifact is
+`.tmp/ci-phase65/linux-permission-policy-design/reference.json`; its reproducer is
+`.tmp/ci-phase65/derive_linux_permission_reference.py`.
+It is marked design-only, policy unadopted and cache unadmitted. This extends the prior mode-only
+comparison to actual independent archive-byte verification; it is not a restored-runtime test.
+
+### Reference Ownership and Revision
+
+Implement a repository-owned reference outside runtime payloads under the existing CI data boundary.
+It contains exact provider `actions/python-versions`, build `3.14.8-36806082737`, asset name/archive
+SHA-256, CPython 3.14.8, Ubuntu 24.04/x64/normal-GIL identity, the three reviewed aliases, omission
+revision, complete expected schema-3 inventory and expected digest. Record the reference-file digest
+in the reviewed acquisition specification; never accept a replacement reference from a cache,
+downloaded runtime, child environment or user-supplied receipt.
+
+Generate the committed reference reproducibly from the hash-verified asset, then independently
+validate it against captured candidates. Retain a single authoritative reference rather than
+duplicating thousands of entries in documentation or workflow YAML. A Python patch, provider build,
+asset hash or omission-policy change requires explicit reference review and regeneration; no floating
+lookup or automatic digest update is allowed. Keep Windows at `native-core-v1` in this increment.
+
+Linux's new explicit normalization is `native-core-v2-linux-release-modes`; inventory schema 3
+continues to include modes. Version the reference/provenance fields of candidate receipts so the
+driver cannot treat an unstamped v1 receipt as v2. Existing schema-1 cache-plan scaffolding remains
+unadopted and must be adapted separately before actual restore/handoff admission. Separate cache
+keys by normalization/reference identity when that backend is implemented; do not reuse v1 keys.
+
+### Admission and Copy Rules
+
+1. Load only the reviewed plain repository reference through bounded parsing. Verify file digest,
+   contract/revision, exact adopted identity, complete typed rows, ordinal uniqueness, canonical
+   relative paths and the independently framed inventory digest. Reject duplicate JSON keys,
+   Boolean-as-integer fields, missing/extra fields, malformed hashes and incomplete references.
+2. Compute the existing native projection without writing to it. Require its complete retained
+   path/type/size/hash/link set to match the reference. Unknown retained files, altered binaries,
+   incomplete stdlib, missing aliases or different link targets fail before candidate execution.
+   Directory links, chained/escaping links, hard links and special files remain rejected.
+3. For each retained regular file/directory, accept only its exact reference mode or the observed
+   native 0777 variant. Normalize the latter to that entry's exact reference mode **in the fresh
+   private candidate only**. Missing execute/read bits, other unqualified modes, setuid/setgid/sticky
+   bits and arbitrary permission changes fail. Do not infer executable bits from suffixes or blanket
+   chmod every file. Source-root mode must be captured and qualified separately: propose a 0755/0777
+   allowlist with a 0755 candidate root; current raw captures do not prove the native root's mode.
+4. Linux symlink permission bits are not chmod targets; preserve and verify exact link kind/target.
+   Apply reviewed directory/file modes through existing safe private-owner paths. Record source
+   identity, reference identity and every changed mode in the sidecar receipt. Capture the original
+   source-root mode and verify it remains unchanged alongside native file inventory.
+5. Verify the candidate against the complete external reference after copying and before each
+   executable probe. Preserve the final candidate/source checks, cancellation/deadlines, fresh
+   owner/refusal of partial reuse, diagnostic retention and aggregate failure behavior. No post-test
+   deletion of generated bytecode or rewriting a mismatched expected digest is permitted.
+6. A valid v2 candidate still withholds provider/cache/restore/save/handoff admission until their
+   separate gates pass. Probe actual module/core-library ownership and bootstrap locks as in run 73.
+   Mode normalization does not qualify fixed-prefix restoration, library relocation or ordinary
+   planning/worker/cohort/collector handoffs.
+
+The exact/0777 allowance is limited to this reviewed identity and complete matching retained bytes.
+It is not a generic permission sanitizer. Future legitimate mode changes require a new reviewed
+reference; failed validation retains ordinary native acquisition as the default.
+
+### Bounded Implementation and Acceptance Sequence
+
+- Implement the reproducible reference derivation/reader and explicit v2 private-copy path. Existing
+  Windows/v1/default callers remain unchanged. Update only candidate qualification receipt validation
+  and explicit manual pilot wiring needed for the v2 experiment; no cache task or ordinary adapter.
+- Extend the existing registered Pester dependency and Python bootstrap groups. Cover correct native
+  modes, the observed all-0777 source, mixed qualified modes, wrong reference/version/digest, duplicate
+  or incomplete rows, changed bytes/types/paths/links, missing executable bits, privileged/unqualified
+  modes, source-root preservation, partial-copy reuse refusal, cancellation and mid-copy failure.
+  Prove identical complete output from both qualified native variants and no native source writes.
+  Preserve existing group IDs/deadlines, meaningful real file/link/mode fixtures and concise results.
+- Reproduce the full real archive reference from the exact bytes; independently compare v2 data-only
+  projections of the two captured Linux variants. Run focused native/Python/static checks locally.
+  Local source-built WSL Python is not a substitute for the Actions release's executable qualification.
+- After scoped publication confirmation, preview exact committed YAML and run one bounded four-job
+  Windows/Linux experiment. Require equal Linux mode-aware inventories across qualified source
+  variants, successful real probes/fresh locked environments, unchanged sources, verified process
+  cleanup and honest failure receipts. Record image/native-selection provenance explicitly.
+- If image scheduling does not provide both native variants, retain deterministic captured/synthetic
+  variant proof and report the hosted boundary honestly; do not remove image runtimes to create a
+  cache miss. Separate current hosted execution evidence from historical variant coverage.
+- Only after this gate passes, review source-controlled trusted seals and fixed-prefix restoration,
+  then cold/warm, corruption/failure/recovery and measured benefit. Ordinary CI remains native until
+  broader same-source profile/handoff qualification and adoption review are complete.
+
+Rollback keeps `native-core-v1` and original native acquisition available, retains failed v2 evidence
+and declines cache admission. This three-document concrete-policy checkpoint is uncommitted for
+review; no production reference, normalization change or additional hosted run is introduced yet.

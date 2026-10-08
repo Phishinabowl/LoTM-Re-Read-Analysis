@@ -771,10 +771,22 @@ Linux mismatch; pipeline success does not imply cache/trusted-seal/restore/hando
 Read-only comparison against the rehashed pinned tar archive confirms all 3,029 downloaded modes
 match release metadata. The next recommended design checkpoint reviews archive-derived canonical
 permissions and fail-closed provenance/type/mode rules before changing normalization. Current native
-mode preservation remains in force; no seal or cache backend is adopted. Three evidence/disposition
-documents remain uncommitted; permission policy, external seals, fixed-prefix restoration and benefit
-measurement remain open. See the acquisition design for full tables/digests/evidence. Phase 6.5 and
-both paused PR states remain unchanged; no additional hosted run is queued.
+mode preservation remains in force; no seal or cache backend is adopted. The maintainer confirms
+that direction/outcome checkpoint, dual-published as `d9f7298` with four-ref parity.
+
+The next concrete policy independently derives the complete retained reference from the pinned tar
+bytes plus three exact installer-added aliases and removal of `setup.sh`. All 2,813 retained regular
+file hashes match both real Linux captures. The 3,040-entry external reference reproduces the original
+mode-aware digest; all 3,029 modes match the downloaded variant. The proposal accepts only exact
+reference modes or observed 0777 with matching bytes/types/paths/links, reducing permissions only in
+a fresh private owner. Root/source preservation, strict external reference identity, explicit Linux
+v2 normalization, receipt stamping and failure/meta-regression gates precede hosted retry.
+
+This is read-only design proof, not active normalization or restored-runtime qualification. Three
+concrete-policy documents remain uncommitted; implementation, Linux repeatability, trusted seals,
+fixed-prefix restoration and benefit measurement remain open. See the acquisition design's concrete
+policy for exact admission/rollback and test sequence. Phase 6.5 and paused PRs remain unchanged;
+no additional hosted run is queued.
 
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare

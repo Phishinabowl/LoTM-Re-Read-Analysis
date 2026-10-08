@@ -2610,10 +2610,24 @@ modes from the seal by default. This is the next scoped design recommendation, n
 current native-mode preservation and ordinary native acquisition remain unchanged. Require private-copy
 regressions and hosted requalification after any normalization change.
 
-Three outcome/disposition documents await confirmation. External seals, repeated Linux mode-aware
-payloads, fixed-prefix restoration, faults/recovery, cache benefit, broader profile handoffs and defaults
-remain open; see the acquisition design for exact evidence/limits. No additional hosted run is queued.
-Phase 6.5 stays open; PRs remain paused.
+The maintainer confirms the outcome/disposition checkpoint and archive-derived direction, published
+as `d9f7298` with four-ref parity. The next concrete permission-policy checkpoint is prepared in the
+acquisition design before implementation. Read-only derivation from the rehashed pinned tar plus
+exact installer aliases/removal independently matches all 2,813 retained file hashes in both Linux
+captures and reproduces the complete 3,040-entry reference digest.
+
+The proposed explicit Linux v2 path requires exact external reference identity, complete matching
+bytes/types/paths/links and only reference-mode or observed-0777 inputs; reductions occur solely in
+a fresh private copy. Record mode changes/reference provenance and source-root preservation; keep
+modes sealed. Add focused reference/mutation/mode/failure/cancellation regressions within existing
+registered groups, then qualify exact committed source through the bounded manual pilot. Keep
+Windows/v1/default acquisition unchanged and isolate later trusted-seal/cache/restore gates.
+
+Three concrete-policy documents await confirmation. Production reference/normalization implementation,
+repeated Linux mode-aware payloads, external seals, fixed-prefix restoration, faults/recovery, cache
+benefit, broader profile handoffs and defaults remain open. See the acquisition design for exact
+rules and rollback. No production implementation or additional hosted run is introduced by this
+read-only checkpoint. Phase 6.5 stays open; PRs remain paused.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
