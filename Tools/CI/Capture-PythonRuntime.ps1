@@ -16,10 +16,8 @@ if (Test-Path -LiteralPath $output) {
 $null = New-Item -ItemType Directory -Path $output
 Write-Host '##vso[task.setvariable variable=CAPTURE_OUTPUT_READY]true'
 try {
-    $root = Get-CiPythonCachePath (Join-Path $env:AGENT_TOOLSDIRECTORY "Python/$($pins.python)/x64")
-    if ([IO.Path]::GetFullPath($env:NATIVE_PYTHON_LOCATION).TrimEnd([IO.Path]::DirectorySeparatorChar) -cne $root) {
-        throw 'Native selected Python differs from the exact expected tool-cache prefix.'
-    }
+    $root = Get-CiPythonNativeCaptureRoot -ToolsRoot $env:AGENT_TOOLSDIRECTORY `
+        -SelectedLocation $env:NATIVE_PYTHON_LOCATION -RuntimeVersions $pins
     $context = @{ host = 'ado'
         event = $env:BUILD_REASON
         hosted = $true

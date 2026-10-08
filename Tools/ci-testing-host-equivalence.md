@@ -699,6 +699,16 @@ cases pass per OS, zero skips/errors; YAML structure parses locally. Temporary d
 Azure preview and actual native provenance/repeated-capture comparison await publication approval.
 The acquisition design records the exact bounds and intentionally unverified receipt fields.
 
+The capture candidate is confirmed and dual-published as `5ab075c`; temporary Azure pipeline 4 is
+registered without automatic execution and its preview matches the four bounded manual jobs.
+Run 70 uses that exact source. Native setup succeeds, but three capture jobs reject an unqualified
+native-output handoff before inventory; failure receipts publish correctly. The run is canceled,
+with its fourth job canceled and no admitted capture/seal/cache operations. A scoped correction
+names/qualifies the producer output and adds early unresolved-output rejection plus platform-aware
+exact-prefix comparison. All 69 registered native cases pass per OS. This new diff is uncommitted;
+retry qualification and actual repeated inventories remain open. See the acquisition design for
+source references, run timing and precise outcome disposition.
+
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
 complete local/hosted portfolio identity and failure/cancellation behavior. Restore the same PRs

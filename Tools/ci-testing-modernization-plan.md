@@ -2543,6 +2543,14 @@ CI/defaults/paused PRs are unchanged. Publish/register/preview this bounded expe
 confirmation, then compare repeated captures and native acquisition logs before deciding any
 payload normalization or external seal. Detailed scope is in the acquisition design.
 
+The candidate is confirmed/published as `5ab075c`, registered as temporary Azure pipeline 4 and
+previewed successfully. Initial run 70 is stopped after three shared native-output handoff failures;
+the fourth job is canceled. Native setup succeeds and failure artifacts are retained, but no raw
+inventory or runtime seal is admitted. A producer-qualified output/prefix correction is prepared
+with six added regressions; all 69 dependency cases pass per OS. Publish the corrected diff only
+after confirmation, then repeat preview and the same bounded experiment. This failure does not
+change defaults, required checks, paused PRs or the outstanding restoration/reproducibility gates.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during

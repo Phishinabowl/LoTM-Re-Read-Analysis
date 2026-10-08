@@ -150,6 +150,34 @@ function Get-CiPythonRuntimeInventory {
     }
 }
 
+function Get-CiPythonNativeCaptureRoot {
+    param(
+        [Parameter(Mandatory)][string]$ToolsRoot,
+        [Parameter(Mandatory)][AllowEmptyString()][string]$SelectedLocation,
+        [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions
+    )
+    if ([string]::IsNullOrWhiteSpace($SelectedLocation) -or $SelectedLocation -match '\$\(' -or
+        -not [IO.Path]::IsPathRooted($SelectedLocation)) {
+        throw 'Native Python output is empty, unresolved or not absolute.'
+    }
+    if ($RuntimeVersions.python -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+$') {
+        throw 'Exact authoritative Python pin required for native prefix validation.'
+    }
+    $expected = Get-CiPythonCachePath (Join-Path $ToolsRoot "Python/$($RuntimeVersions.python)/x64")
+    $selected = Get-CiPythonCachePath $SelectedLocation
+    $comparison = if ($IsWindows) {
+        [StringComparison]::OrdinalIgnoreCase
+    }
+    else {
+        [StringComparison]::Ordinal
+    }
+    if (-not $selected.TrimEnd([IO.Path]::DirectorySeparatorChar).Equals(
+            $expected.TrimEnd([IO.Path]::DirectorySeparatorChar), $comparison)) {
+        throw 'Native selected Python differs from the exact expected tool-cache prefix.'
+    }
+    $expected
+}
+
 function Get-CiPythonRuntimeCapture {
     param(
         [Parameter(Mandatory)][Collections.IDictionary]$Context,

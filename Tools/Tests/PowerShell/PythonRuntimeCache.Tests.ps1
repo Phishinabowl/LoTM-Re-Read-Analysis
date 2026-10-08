@@ -470,4 +470,39 @@ Describe 'Pre-Python cache admission without cached execution' -Tag Unit {
             $env:LOTM_RUNTIME_CAPTURE = $previous
         }
     }
+
+    It 'validates the selected exact native prefix with a trailing separator and platform case rules' {
+        $tools = Join-Path $TestDrive 'private tools owner'
+        $expected = [IO.Path]::GetFullPath((Join-Path $tools "Python/$($pins.python)/x64"))
+        (Get-CiPythonNativeCaptureRoot $tools ($expected + [IO.Path]::DirectorySeparatorChar) $pins) |
+            Should -BeExactly $expected
+        if ($IsWindows) {
+            (Get-CiPythonNativeCaptureRoot $tools $expected.ToUpperInvariant() $pins) | Should -BeExactly $expected
+        }
+        else {
+            { Get-CiPythonNativeCaptureRoot $tools $expected.ToUpperInvariant() $pins } | Should -Throw '*differs*'
+        }
+    }
+
+    It 'rejects incomplete native output <location>' -ForEach @(
+        @{ location = '' }, @{ location = '$(pythonLocation)' },
+        @{ location = '$(NativePython.pythonLocation)' }, @{ location = 'relative/python' }
+    ) {
+        { Get-CiPythonNativeCaptureRoot $TestDrive $location $pins } | Should -Throw '*empty, unresolved*'
+    }
+
+    It 'rejects a different native patch and a linked selected prefix owner' {
+        $tools = Join-Path $TestDrive 'tool-cache fixture'
+        $wrong = Join-Path $tools 'Python/3.14.7/x64'
+        { Get-CiPythonNativeCaptureRoot $tools $wrong $pins } | Should -Throw '*differs*'
+        $alias = Join-Path $TestDrive 'selected-link'
+        $kind = if ($IsWindows) {
+            'Junction'
+        }
+        else {
+            'SymbolicLink'
+        }
+        $null = New-Item -ItemType $kind -Path $alias -Target $payload
+        { Get-CiPythonNativeCaptureRoot $tools $alias $pins } | Should -Throw '*owner or parent*'
+    }
 }

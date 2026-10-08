@@ -246,3 +246,40 @@ measurements are Windows 6.693s and Linux 16.874s; final verification after form
 also passes 63/63 per OS (Windows 6.219s, Linux 16.428s). YAML parses and its manual-only/four-job/no-cache
 structure is checked locally; Azure service preview and live acquisition/capture remain unverified.
 This increment remains uncommitted for review; neither a new definition nor hosted jobs exist yet.
+
+## First Hosted Capture Attempt And Handoff Correction
+
+The capture-only increment is confirmed and dual-published as `5ab075c` with all four refs matching.
+The authorized temporary Azure definition is pipeline 4, `LoTM Python Runtime Capture Pilot`, with
+no automatic first run. Azure's preview confirms four manual-only matrix allocations, the exact-pin
+variable handoff, 15-minute limits and no cache tasks. The first run is
+[70](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=70),
+at exactly `5ab075c397ef8caba0f63a8574db2be0151572a6`.
+
+Native acquisition succeeds for the two Windows jobs and first Linux job, but all three capture
+steps reject the selected-prefix handoff and publish bounded failure receipts. The collector's YAML
+uses unqualified `$(pythonLocation)` even though the native task declares it as an output variable.
+The [Azure agent source](https://github.com/microsoft/azure-pipelines-agent/blob/master/src/Agent.Worker/ExecutionContext.cs)
+qualifies declared outputs with the producing task's reference name. The task's own metadata declares
+this output; [Azure documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/use-python-version-v0?view=azure-pipelines)
+describes its role. An unresolved macro can become a relative local path under `GetFullPath`, causing
+the exact-prefix check to fail rather than pointing to the acquired interpreter.
+
+Run 70 is explicitly canceled to stop repeating this shared handoff failure. Three matrix jobs
+have already failed by the time cancellation takes effect; the fourth is canceled. Overall result
+is canceled, elapsed queue-to-finish 187.465s. The three native tasks take 42.380s, 38.740s and 10.537s;
+these are acquisition observations, not runtime cache savings. No raw runtime inventory, trusted
+seal, restoration, cache save or handoff is admitted. Native logs, final timeline and all three
+failure artifacts remain in ignored inspection storage. Defaults and paused PRs are unchanged.
+
+The prepared correction explicitly names the native step `NativePython` and consumes
+`$(NativePython.pythonLocation)`. A tested prefix helper rejects empty/unresolved/relative output
+before path normalization, preserves exact version/architecture ownership, rejects linked owners,
+and uses Windows-insensitive/Linux-sensitive path comparison. Six added cases join the existing
+group; all 69 cases pass through native JUnit admission per OS, zero skips/errors (Windows 6.431s,
+Linux 16.592s). A no-agent Azure preview using the corrected YAML override confirms that the named
+producer and qualified consumer agree and retains all four bounded jobs with no cache tasks. This
+validates service expansion only; the queued-source retry and actual runtime handoff are unverified.
+The fix and updated evidence remain uncommitted for confirmation. Repeat preview
+and the same four-job experiment only after publishing the corrected source; real inventories and
+reproducibility/normalization qualification remain open.

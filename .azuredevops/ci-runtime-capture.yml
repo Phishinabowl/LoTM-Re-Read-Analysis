@@ -39,6 +39,7 @@ jobs:
           Write-Host "##vso[task.setvariable variable=CAPTURE_PYTHON_VERSION]$($pins.python)"
         displayName: Read authoritative exact pin before Python setup
       - task: UsePythonVersion@0
+        name: NativePython
         inputs:
           versionSpec: $(CAPTURE_PYTHON_VERSION)
           architecture: x64
@@ -48,7 +49,7 @@ jobs:
         displayName: Inventory native tree without mutation or restored execution
         env:
           LOTM_RUNTIME_CAPTURE: hosted-capture-only
-          NATIVE_PYTHON_LOCATION: $(pythonLocation)
+          NATIVE_PYTHON_LOCATION: $(NativePython.pythonLocation)
           CAPTURE_IMAGE: $(image)
           CAPTURE_ID: $(capture)
       - task: PublishPipelineArtifact@1
