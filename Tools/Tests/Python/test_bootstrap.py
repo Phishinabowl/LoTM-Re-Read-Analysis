@@ -22,6 +22,172 @@ finally:
 pytestmark = pytest.mark.unit
 
 
+def release_deriver_fixture(tmp_path, mutation="none"):
+    import hashlib
+    import io
+    import tarfile
+
+    spec = importlib.util.spec_from_file_location(
+        "release_deriver", ROOT / "Tools/CI/derive_python_release_reference.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    specification = json.loads(module.SPEC.read_text(encoding="utf-8"))
+    directories = ["bin", "lib", "lib/python3.14", "lib/python3.14/site-packages"]
+    files = {"bin/python3.14": b"fixture interpreter"}
+    rows = [{"path": path, "kind": "directory", "unix_mode": 0o755} for path in directories]
+    rows += [
+        {
+            "path": path,
+            "kind": "file",
+            "bytes": len(data),
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "unix_mode": 0o755,
+        }
+        for path, data in files.items()
+    ]
+    rows += [
+        {"path": path, "kind": "symlink", "target": target}
+        for path, target in {
+            "bin/python": "python3.14",
+            "bin/python314": "python3.14",
+            "python": "./bin/python3.14",
+        }.items()
+    ]
+    if mutation == "generated":
+        extra_dirs = [
+            "lib/python3.14/__pycache__",
+            "lib/python3.14/preexisting",
+            "lib/python3.14/preexisting/__pycache__",
+        ]
+        directories += extra_dirs
+        rows += [{"path": path, "kind": "directory", "unix_mode": 0o755} for path in extra_dirs]
+        retained_files = {
+            "lib/python3.14/module.py": b"source",
+            "lib/python3.14/__pycache__/sourceless.cpython-314.pyc": b"required",
+        }
+        rows += [
+            {
+                "path": path,
+                "kind": "file",
+                "bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "unix_mode": 0o644,
+            }
+            for path, data in retained_files.items()
+        ]
+        files.update(retained_files)
+        files["lib/python3.14/__pycache__/module.cpython-314.pyc"] = b"generated"
+    frame = {"root_unix_mode": 0o755, "entries": sorted(rows, key=lambda row: row["path"])}
+    specification["expected_inventory_sha256"] = hashlib.sha256(
+        json.dumps(frame, ensure_ascii=False, separators=(",", ":")).encode()
+    ).hexdigest()
+    prefix = "lib/python3.14/site-packages/"
+    directories += [prefix + "pip", prefix + "pip-26.2.1.dist-info"]
+    files.update(
+        {
+            prefix + "pip/__init__.py": b"pip",
+            prefix + "pip-26.2.1.dist-info/RECORD": b"record",
+            "setup.sh": b"never run",
+        }
+    )
+    archive = tmp_path / "fixture.tar.gz"
+    with tarfile.open(archive, "w:gz") as stream:
+        for path in [".", *directories]:
+            member = tarfile.TarInfo(path)
+            member.type, member.mode = tarfile.DIRTYPE, 0o755
+            stream.addfile(member)
+        for path, data in files.items():
+            member = tarfile.TarInfo(path)
+            member.size, member.mode = len(data), 0o755 if path == "bin/python3.14" else 0o644
+            if mutation == "mode" and path == "bin/python3.14":
+                member.mode = 0o777
+            stream.addfile(member, io.BytesIO(data))
+        if mutation in ("escape", "hardlink", "duplicate", "link"):
+            member = tarfile.TarInfo(
+                {"escape": "../outside", "hardlink": "hard", "duplicate": "bin", "link": "bad"}[mutation]
+            )
+            member.mode = 0o644
+            if mutation in ("hardlink", "link"):
+                member.type = tarfile.LNKTYPE if mutation == "hardlink" else tarfile.SYMTYPE
+                member.linkname = "../outside"
+            stream.addfile(member)
+    specification["identity"]["archive_sha256"] = hashlib.sha256(archive.read_bytes()).hexdigest()
+    if mutation == "archive-hash":
+        specification["identity"]["archive_sha256"] = "0" * 64
+    if mutation == "inventory-hash":
+        specification["expected_inventory_sha256"] = "0" * 64
+    return module, archive, specification, frame
+
+
+def test_release_reference_is_reproducible_and_never_extracts_or_runs_installer(tmp_path):
+    module, archive, specification, frame = release_deriver_fixture(tmp_path)
+    before = archive.read_bytes()
+    result = module.derive(archive, specification)
+    assert result == module.derive(archive, specification)
+    assert result["inventory"]["entries"] == frame["entries"]
+    assert list(tmp_path.iterdir()) == [archive] and archive.read_bytes() == before
+    assert result["identity"]["normalization"] == "native-core-v2-linux-release-modes"
+
+
+def test_release_derivation_preserves_sourceless_and_preexisting_empty_cache_inputs(tmp_path):
+    module, archive, specification, frame = release_deriver_fixture(tmp_path, "generated")
+    result = module.derive(archive, specification)
+    assert result["inventory"]["entries"] == frame["entries"]
+    paths = {row["path"] for row in result["inventory"]["entries"]}
+    assert "lib/python3.14/__pycache__/sourceless.cpython-314.pyc" in paths
+    assert "lib/python3.14/preexisting/__pycache__" in paths
+    assert "lib/python3.14/__pycache__/module.cpython-314.pyc" not in paths
+
+
+@pytest.mark.parametrize(
+    "mutation", ["mode", "escape", "hardlink", "duplicate", "link", "archive-hash", "inventory-hash"]
+)
+def test_release_reference_refuses_unqualified_archive_or_expected_identity(tmp_path, mutation):
+    module, archive, specification, _ = release_deriver_fixture(tmp_path, mutation)
+    with pytest.raises(ValueError):
+        module.derive(archive, specification)
+    assert list(tmp_path.iterdir()) == [archive]
+
+
+def test_release_reference_observes_bounded_derivation_deadline(tmp_path):
+    module, archive, specification, _ = release_deriver_fixture(tmp_path)
+    with pytest.raises(TimeoutError):
+        module.derive(archive, specification, timeout=0)
+
+
+@pytest.mark.parametrize("output_mode", ["fresh", "existing", "escape", "digest"])
+def test_release_generator_requires_reviewed_bytes_and_fresh_owned_output(tmp_path, monkeypatch, output_mode):
+    import hashlib
+
+    module, archive, specification, _ = release_deriver_fixture(tmp_path)
+    result = module.derive(archive, specification)
+    expected = (json.dumps(result, indent=2, ensure_ascii=False) + "\n").encode()
+    specification["reference_sha256"] = hashlib.sha256(expected).hexdigest()
+    spec_path = tmp_path / "spec.json"
+    output = tmp_path / "reference.json"
+    if output_mode == "existing":
+        output.write_bytes(b"preserve existing output")
+    elif output_mode == "escape":
+        output = tmp_path / ".." / "outside-reference.json"
+    elif output_mode == "digest":
+        specification["reference_sha256"] = "0" * 64
+    spec_path.write_text(json.dumps(specification), encoding="utf-8")
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    monkeypatch.setattr(module, "SPEC", spec_path)
+    monkeypatch.setattr(sys, "argv", ["derive", "--archive", str(archive), "--output", str(output)])
+    if output_mode == "fresh":
+        module.main()
+        assert output.read_bytes() == expected
+    else:
+        with pytest.raises(ValueError):
+            module.main()
+        if output_mode == "existing":
+            assert output.read_bytes() == b"preserve existing output"
+        else:
+            assert not output.exists()
+
+
 def load_host_cache():
     prior = sys.path[:]
     try:

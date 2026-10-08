@@ -663,5 +663,66 @@ reference; failed validation retains ordinary native acquisition as the default.
   broader same-source profile/handoff qualification and adoption review are complete.
 
 Rollback keeps `native-core-v1` and original native acquisition available, retains failed v2 evidence
-and declines cache admission. This three-document concrete-policy checkpoint is uncommitted for
-review; no production reference, normalization change or additional hosted run is introduced yet.
+and declines cache admission. The maintainer confirms this concrete policy checkpoint, dual-published
+as `68470c2` with four-ref parity. The first implementation increment below establishes its reference
+foundation; production v2 copying and hosted normalization qualification remain separate next steps.
+
+## Release Reference Foundation Implemented for Review
+
+The first focused implementation adds a reproducible, explicitly invoked Python deriver, the
+repository-owned Linux release specification/reference, and strict PS7 reference admission helpers.
+No ordinary caller, capture pipeline, candidate-copy behavior or cache backend selects v2 yet.
+The existing `native-core-v1` builder/driver remains unchanged. The complete reference file is generated
+from verified archive bytes rather than hand-authored hashes; its expected inventory digest is the
+already independently proved `5e88f33c1f23523d9099daf29854fb12536ec3d0e6e5b3b7e212993503ec8794`.
+
+Authoritative files:
+
+- [Release specification](CI/Data/python-linux-release-reference-spec.json) binds provider/build,
+  CPython/GIL/OS/image/architecture, exact archive identity, normalization revision, reference filename,
+  reference-file SHA-256 and expected mode-aware inventory SHA-256.
+- [Full release reference](CI/Data/python-linux-3.14.8-reference.json) contains the single complete
+  3,040-entry external inventory. Its 703,313 UTF-8 bytes hash to
+  `95e112863137211040344814033dca6a6c0156bc51546022643108f78ee165c6`.
+- [Derivation command](CI/derive_python_release_reference.py) rehashes the pinned archive before and
+  after bounded metadata/member processing, applies the reviewed omissions/aliases, verifies expected
+  inventory and exact output bytes, and creates only a fresh repository-owned output. It does not
+  download, extract, run installers, overwrite an output or automatically update expected digests.
+- [PS7 helpers](CI/PythonRuntimeCache.ps1) bind ordinary reference loading to the repository CI data
+  boundary. The explicit path reader exists for deterministic private fixtures; no cache payload or
+  environment supplies a specification to the production-bound loader.
+
+The reader rejects linked/nonregular/hard-linked/oversized input, invalid UTF-8, duplicate JSON keys,
+unexpected fields/revisions/provider identity, malformed checksums, missing/extra/Boolean numeric
+metadata, noncanonical or unordered paths, incomplete parents, unqualified modes and indirect/unsafe
+links. It recomputes the complete ordinal inventory digest rather than trusting a declared count.
+Parsing and row validation observe deadline/cancellation. Real input-owner ancestry is checked once;
+metadata rows use lexical validation and complete parent/link checks, avoiding thousands of redundant
+filesystem stats on the Windows-mounted WSL checkout.
+
+The scoped `.gitattributes` rule fixes generated Linux reference JSON to LF so a Windows checkout
+cannot silently change its byte checksum. Native image permissions, project interpreter selection,
+dependency locks, supported runtimes, catalogs and existing group deadlines are unchanged.
+
+Verification passes 69 bootstrap/deriver pytest cases per OS (Windows 3.46s; Linux 4.20s) and all
+105 registered dependency/reference Pester cases per OS (Windows 11.082s; Linux 20.528s), with zero
+errors/skips. The new cases cover reproducible archive derivation, unsafe members/links/permissions,
+hash mismatches, retained sourceless/preexisting-empty cache inputs, output ownership/no overwrite,
+typed complete reference admission, duplicate keys, malformed declarations, linked owners, bounded
+input, expired leases and mid-parse cancellation. Group IDs/membership and 120-second deadlines
+remain unchanged; cases extend the two already-registered test entry files.
+
+Initial WSL Pester verification passes in 71.420s; removing redundant per-row filesystem ownership
+checks reduces the same complete group to 20.528s while preserving admission checks. This is local
+fixture/reference cost, not a hosted warm-cache baseline. Windows and Linux both regenerate exact
+reference bytes from the pinned real archive. Evidence is retained under
+`.tmp/ci-phase65/linux-permission-policy-design` and `reference-reader-optimized-pester-*`.
+Ruff/formatting, work-annotation policy/22 fixtures, generated-data/line-ending checks, documentation
+links and diff checks pass.
+
+This ten-file source/data/test/evidence increment is uncommitted for review. After publication,
+connect the loaded reference to the explicit Linux v2 projection/private-copy path, record source-root
+and mode-change provenance, enforce stamped reference identity in the Python driver, and qualify
+existing fixtures plus both captured source variants before the next bounded hosted run. No additional
+hosted experiment is needed to accept the standalone reference foundation. Phase 6.5 stays open;
+trusted-seal/restoration/fault/recovery/benefit and ordinary handoff/adoption gates remain open.

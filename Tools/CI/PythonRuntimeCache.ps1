@@ -169,6 +169,201 @@ function Get-CiPythonRuntimeInventory {
     }
 }
 
+function Read-CiPythonReferenceJson {
+    param([string]$Path, [datetime]$DeadlineUtc, [scriptblock]$Cancelled)
+    Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+    $path = Get-CiPythonCachePath ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($Path))) ([IO.Path]::GetFileName($Path))
+    $file = Get-Item -LiteralPath $path -Force -ErrorAction Stop
+    if ($file.PSIsContainer -or $file.LinkType -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -or
+        $file.Length -gt 2MB -or ($IsLinux -and ($file.UnixStat.HardlinkCount -gt 1 -or $file.UnixMode -notmatch '^-'))) {
+        throw 'Plain bounded release reference file required.'
+    }
+    $bytes = [IO.File]::ReadAllBytes($path)
+    if ($bytes.Length -gt 2MB) {
+        throw 'Release reference size limit exceeded.'
+    }
+    $text = [Text.UTF8Encoding]::new($false, $true).GetString($bytes)
+    $options = [Text.Json.JsonDocumentOptions]::new()
+    $options.MaxDepth = 16
+    $document = [Text.Json.JsonDocument]::Parse($text, $options)
+    try {
+        $queue = [Collections.Generic.Queue[Text.Json.JsonElement]]::new()
+        $queue.Enqueue($document.RootElement)
+        while ($queue.Count) {
+            Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+            $node = $queue.Dequeue()
+            if ($node.ValueKind -eq [Text.Json.JsonValueKind]::Object) {
+                $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+                foreach ($property in $node.EnumerateObject()) {
+                    if (-not $names.Add($property.Name)) {
+                        throw 'Duplicate release reference JSON key.'
+                    }
+                    $queue.Enqueue($property.Value)
+                }
+            }
+            elseif ($node.ValueKind -eq [Text.Json.JsonValueKind]::Array) {
+                foreach ($value in $node.EnumerateArray()) {
+                    $queue.Enqueue($value)
+                }
+            }
+        }
+    }
+    finally {
+        $document.Dispose()
+    }
+    [pscustomobject]@{ value = ($text | ConvertFrom-Json -AsHashtable)
+        sha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant()
+    }
+}
+
+function Assert-CiPythonReferenceFields {
+    param($Value, [string[]]$Fields)
+    if ($Value -isnot [Collections.IDictionary] -or $Value.Count -ne $Fields.Count -or
+        @($Value.Keys | Where-Object { $_ -cnotin $Fields }).Count) {
+        throw 'Exact release reference fields required.'
+    }
+}
+
+function Read-CiPythonLinuxReleaseReference {
+    param(
+        [Parameter(Mandatory)][string]$SpecificationPath,
+        [Parameter(Mandatory)][string]$ReferencePath,
+        [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue,
+        [scriptblock]$Cancelled = { $false }
+    )
+    $spec = (Read-CiPythonReferenceJson $SpecificationPath $DeadlineUtc $Cancelled).value
+    Assert-CiPythonReferenceFields $spec @('schema_version', 'reference_file', 'reference_sha256', 'expected_inventory_sha256', 'identity')
+    if ($spec.schema_version -isnot [long] -and $spec.schema_version -isnot [int] -or $spec.schema_version -ne 1 -or
+        $spec.reference_file -isnot [string] -or $spec.reference_file -cne "python-linux-$($RuntimeVersions.python)-reference.json" -or
+        [IO.Path]::GetFileName($ReferencePath) -cne $spec.reference_file) {
+        throw 'Exact release reference declaration required.'
+    }
+    foreach ($key in 'reference_sha256', 'expected_inventory_sha256') {
+        if ($spec[$key] -isnot [string] -or $spec[$key] -cnotmatch '^[0-9a-f]{64}$') {
+            throw 'Typed reference hash required.'
+        }
+    }
+    $identity = $spec.identity
+    Assert-CiPythonReferenceFields $identity @('normalization', 'provider', 'provider_build', 'python', 'implementation', 'gil',
+        'image_family', 'architecture', 'asset', 'archive_sha256')
+    if (@($identity.Values | Where-Object { $_ -isnot [string] }).Count -or
+        $RuntimeVersions.python -cnotmatch '^3\.14\.[0-9]+$' -or $identity.python -cne $RuntimeVersions.python -or
+        $identity.normalization -cne 'native-core-v2-linux-release-modes' -or $identity.provider -cne 'actions/python-versions' -or
+        $identity.provider_build -cnotmatch ('^' + [regex]::Escape($identity.python) + '-[0-9]+$') -or
+        $identity.implementation -cne 'cpython' -or $identity.gil -cne 'enabled' -or $identity.image_family -cne 'ubuntu-24.04' -or
+        $identity.architecture -cne 'x64' -or $identity.asset -cne "python-$($identity.python)-linux-24.04-x64.tar.gz" -or
+        $identity.archive_sha256 -cnotmatch '^[0-9a-f]{64}$') {
+        throw 'Pinned Linux release identity required.'
+    }
+    $loaded = Read-CiPythonReferenceJson $ReferencePath $DeadlineUtc $Cancelled
+    if ($loaded.sha256 -cne $spec.reference_sha256) {
+        throw 'Release reference file hash differs.'
+    }
+    $reference = $loaded.value
+    Assert-CiPythonReferenceFields $reference @('contract', 'schema_version', 'identity', 'inventory')
+    Assert-CiPythonReferenceFields $reference.identity @($identity.Keys)
+    if ($reference.contract -isnot [string] -or $reference.contract -cne 'ci-python-linux-release-reference' -or
+        ($reference.schema_version -isnot [long] -and $reference.schema_version -isnot [int]) -or $reference.schema_version -ne 1 -or
+        @($reference.identity.Values | Where-Object { $_ -isnot [string] }).Count -or
+        @($identity.Keys | Where-Object { $reference.identity[$_] -cne $identity[$_] }).Count) {
+        throw 'Release reference identity differs.'
+    }
+    $inventory = $reference.inventory
+    Assert-CiPythonReferenceFields $inventory @('schema_version', 'root_unix_mode', 'entries', 'sha256')
+    if (($inventory.schema_version -isnot [long] -and $inventory.schema_version -isnot [int]) -or $inventory.schema_version -ne 3 -or
+        ($inventory.root_unix_mode -isnot [long] -and $inventory.root_unix_mode -isnot [int]) -or $inventory.root_unix_mode -ne 493 -or
+        $inventory.sha256 -isnot [string] -or $inventory.sha256 -cne $spec.expected_inventory_sha256 -or
+        $inventory.entries -isnot [array] -or $inventory.entries.Count -eq 0 -or $inventory.entries.Count -gt 200000) {
+        throw 'Complete typed mode-aware release reference required.'
+    }
+    $paths = [Collections.Generic.Dictionary[string, object]]::new([StringComparer]::Ordinal)
+    $entries = [Collections.Generic.List[object]]::new()
+    $previous = $null
+    $dummyRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot 'Data'))
+    foreach ($row in $inventory.entries) {
+        Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+        if ($row -isnot [Collections.IDictionary] -or $row.path -isnot [string] -or -not $row.path -or
+            $row.kind -isnot [string] -or $row.kind -cnotin 'file', 'directory', 'symlink' -or ($null -ne $previous -and
+                [StringComparer]::Ordinal.Compare($previous, $row.path) -ge 0)) {
+            throw 'Unique ordinal typed reference paths required.'
+        }
+        # These are metadata paths, not filesystem owners. The reference file's
+        # real ancestry was verified once; avoid thousands of redundant stat calls.
+        if ($row.path -match '[\\:\x00-\x1f]' -or @($row.path.Split('/') | Where-Object { $_ -in '', '.', '..' }).Count) {
+            throw 'Canonical relative reference metadata path required.'
+        }
+        $previous = $row.path
+        $copy = [ordered]@{ path = $row.path
+            kind = $row.kind
+        }
+        if ($row.kind -ceq 'file') {
+            Assert-CiPythonReferenceFields $row @('path', 'kind', 'bytes', 'sha256', 'unix_mode')
+            if (($row.bytes -isnot [long] -and $row.bytes -isnot [int]) -or $row.bytes -lt 0 -or $row.bytes -gt 256MB -or
+                $row.sha256 -isnot [string] -or $row.sha256 -cnotmatch '^[0-9a-f]{64}$') {
+                throw 'Typed bounded reference file required.'
+            }
+            $copy.bytes = $row.bytes
+            $copy.sha256 = $row.sha256
+        }
+        elseif ($row.kind -ceq 'directory') {
+            Assert-CiPythonReferenceFields $row @('path', 'kind', 'unix_mode')
+        }
+        else {
+            Assert-CiPythonReferenceFields $row @('path', 'kind', 'target')
+            if ($row.target -isnot [string] -or -not $row.target -or [IO.Path]::IsPathRooted($row.target) -or
+                $row.target -match '[\\:\x00-\x1f]' -or '..' -cin $row.target.Split('/')) {
+                throw 'Relative reference file link required.'
+            }
+            $copy.target = $row.target
+        }
+        if ($row.kind -cne 'symlink') {
+            if (($row.unix_mode -isnot [long] -and $row.unix_mode -isnot [int]) -or $row.unix_mode -notin 420, 493 -or
+                ($row.kind -ceq 'directory' -and $row.unix_mode -ne 493)) {
+                throw 'Canonical reference mode required.'
+            }
+            $copy.unix_mode = $row.unix_mode
+        }
+        $paths.Add($row.path, $copy)
+        $entries.Add($copy)
+    }
+    foreach ($row in $entries) {
+        Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+        $parent = [IO.Path]::GetDirectoryName($row.path).Replace('\', '/')
+        if ($parent -and (-not $paths.ContainsKey($parent) -or $paths[$parent].kind -cne 'directory')) {
+            throw 'Complete reference parent directories required.'
+        }
+        if ($row.kind -ceq 'symlink') {
+            $target = [IO.Path]::GetFullPath((Join-Path (Join-Path $dummyRoot $parent) $row.target))
+            $relative = [IO.Path]::GetRelativePath($dummyRoot, $target).Replace('\', '/')
+            $null = Get-CiPythonCachePath $dummyRoot $relative
+            if (-not $paths.ContainsKey($relative) -or $paths[$relative].kind -cne 'file') {
+                throw 'Reference links require direct retained file targets.'
+            }
+        }
+    }
+    $frame = [ordered]@{ root_unix_mode = 493
+        entries = @($entries.ToArray())
+    }
+    $encoded = [Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $frame -Depth 7 -Compress))
+    $digest = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($encoded)).ToLowerInvariant()
+    if ($digest -cne $inventory.sha256) {
+        throw 'Release reference inventory digest differs.'
+    }
+    [pscustomobject]@{ identity = $identity
+        reference_sha256 = $loaded.sha256
+        inventory = $inventory
+    }
+}
+
+function Get-CiPythonLinuxReleaseReference {
+    param([Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue, [scriptblock]$Cancelled = { $false })
+    $data = Join-Path $PSScriptRoot 'Data'
+    Read-CiPythonLinuxReleaseReference (Join-Path $data 'python-linux-release-reference-spec.json') `
+    (Join-Path $data "python-linux-$($RuntimeVersions.python)-reference.json") $RuntimeVersions $DeadlineUtc $Cancelled
+}
+
 function Get-CiPythonCandidateProjection {
     param(
         [Parameter(Mandatory)]$Inventory,

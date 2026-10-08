@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "reference_file": "python-linux-3.14.8-reference.json",
+  "reference_sha256": "95e112863137211040344814033dca6a6c0156bc51546022643108f78ee165c6",
+  "expected_inventory_sha256": "5e88f33c1f23523d9099daf29854fb12536ec3d0e6e5b3b7e212993503ec8794",
+  "identity": {
+    "normalization": "native-core-v2-linux-release-modes",
+    "provider": "actions/python-versions",
+    "provider_build": "3.14.8-36806082737",
+    "python": "3.14.8",
+    "implementation": "cpython",
+    "gil": "enabled",
+    "image_family": "ubuntu-24.04",
+    "architecture": "x64",
+    "asset": "python-3.14.8-linux-24.04-x64.tar.gz",
+    "archive_sha256": "fa74abc70a55c10f6631967784878704eef81bbde9b8ec27469534f6ba997cb3"
+  }
+}

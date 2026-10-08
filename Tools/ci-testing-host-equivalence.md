@@ -782,11 +782,22 @@ reference modes or observed 0777 with matching bytes/types/paths/links, reducing
 a fresh private owner. Root/source preservation, strict external reference identity, explicit Linux
 v2 normalization, receipt stamping and failure/meta-regression gates precede hosted retry.
 
-This is read-only design proof, not active normalization or restored-runtime qualification. Three
-concrete-policy documents remain uncommitted; implementation, Linux repeatability, trusted seals,
+The concrete policy is confirmed and dual-published as `68470c2`, with four-ref parity. Its first
+implementation checkpoint prepares the reproducible Python deriver, exact repository release
+specification/full reference, LF byte-stability rule and strict PS7 admission reader. Both OSs
+regenerate the same 703,313-byte reference and digest from the real pinned archive. Existing v1
+builder/driver, production adapter and manual pipeline behavior remain unchanged.
+
+All 69 focused Python and 105 registered Pester cases pass per OS with zero errors/skips. Final
+Pester group costs are 11.082s Windows/20.528s Linux; the initial 71.420s WSL sample exposed redundant
+per-row filesystem stats, removed without weakening actual owner or metadata validation. Tests retain
+deadline/cancellation, typed identity, complete paths/links/modes, duplicate/malformed/corrupt inputs,
+read-only derivation and fresh-owned-output refusal. No new group, deadline, host run or cache is added.
+
+Ten implementation/data/test/evidence files await review. Explicit Linux v2 projection/copy and
+Python receipt binding follow this reference foundation; Linux repeatability, trusted seals,
 fixed-prefix restoration and benefit measurement remain open. See the acquisition design's concrete
-policy for exact admission/rollback and test sequence. Phase 6.5 and paused PRs remain unchanged;
-no additional hosted run is queued.
+policy and implementation record for exact evidence/rollback. Phase 6.5 and paused PRs remain unchanged.
 
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare

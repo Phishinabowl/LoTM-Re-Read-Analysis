@@ -2623,11 +2623,25 @@ modes sealed. Add focused reference/mutation/mode/failure/cancellation regressio
 registered groups, then qualify exact committed source through the bounded manual pilot. Keep
 Windows/v1/default acquisition unchanged and isolate later trusted-seal/cache/restore gates.
 
-Three concrete-policy documents await confirmation. Production reference/normalization implementation,
-repeated Linux mode-aware payloads, external seals, fixed-prefix restoration, faults/recovery, cache
-benefit, broader profile handoffs and defaults remain open. See the acquisition design for exact
-rules and rollback. No production implementation or additional hosted run is introduced by this
-read-only checkpoint. Phase 6.5 stays open; PRs remain paused.
+The maintainer confirms the concrete policy, dual-published as `68470c2` with four-ref parity. The
+first focused implementation prepares the exact repository release reference/specification, a
+reproducible no-extraction/no-execution Python deriver and strict PS7 admission reader. A scoped LF
+attribute protects the reference-file checksum. Both OSs regenerate its exact 703,313 bytes from
+the pinned archive; the complete expected inventory digest remains the independently reviewed value.
+
+All 69 focused pytest and 105 registered dependency/reference Pester cases pass per OS with zero
+errors/skips. Malformed/corrupt/duplicate/incomplete/unsafe inputs, exact identity and modes,
+deadline/cancellation, sourceless/empty-cache retention and fresh-owned output are covered. Removing
+redundant per-row filesystem stats reduces the full WSL Pester group from 71.420s to 20.528s; final
+Windows group cost is 11.082s. Existing registrations/deadlines remain unchanged.
+
+Ten source/data/test/evidence files await confirmation. Next connect the loaded reference to explicit
+Linux v2 projection/private copying, source-root/mode-change receipts and Python driver admission,
+then prove both captured variants before bounded hosted requalification. Current v1/default/pipeline
+behavior remains unchanged. Repeated Linux mode-aware payloads, external seals, fixed-prefix restore,
+fault/recovery, cache benefit, broader handoffs and defaults remain open. No additional hosted run is
+introduced by the reference foundation. See the acquisition design for exact evidence and rollback.
+Phase 6.5 stays open; PRs remain paused.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain

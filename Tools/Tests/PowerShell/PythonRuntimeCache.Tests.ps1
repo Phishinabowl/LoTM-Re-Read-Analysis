@@ -5,6 +5,159 @@ BeforeAll {
         ConvertFrom-Json -AsHashtable
 }
 
+Describe 'External Linux release reference admission without execution' -Tag Unit {
+    BeforeEach {
+        $owner = Join-Path $TestDrive ([guid]::NewGuid().ToString('N'))
+        $null = [IO.Directory]::CreateDirectory($owner)
+        $specPath = Join-Path $owner 'spec.json'
+        $referencePath = Join-Path $owner 'python-linux-3.14.8-reference.json'
+        $spec = Get-Content (Join-Path $repoRoot 'Tools/CI/Data/python-linux-release-reference-spec.json') -Raw | ConvertFrom-Json -AsHashtable
+        $rows = @([ordered]@{ path = 'bin'
+                kind = 'directory'
+                unix_mode = 493
+            },
+            [ordered]@{ path = 'bin/python3.14'
+                kind = 'file'
+                bytes = 3
+                sha256 = ('a' * 64)
+                unix_mode = 493
+            },
+            [ordered]@{ path = 'python'
+                kind = 'symlink'
+                target = './bin/python3.14'
+            })
+        $reference = [ordered]@{ contract = 'ci-python-linux-release-reference'
+            schema_version = 1
+            identity = $spec.identity.Clone()
+            inventory = [ordered]@{ schema_version = 3
+                root_unix_mode = 493
+                entries = $rows
+                sha256 = ''
+            }
+        }
+        function Write-ReferenceFixture {
+            $frame = [ordered]@{ root_unix_mode = $reference.inventory.root_unix_mode
+                entries = $reference.inventory.entries
+            }
+            $bytes = [Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $frame -Depth 8 -Compress))
+            $reference.inventory.sha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant()
+            $spec.expected_inventory_sha256 = $reference.inventory.sha256
+            [IO.File]::WriteAllText($referencePath, (ConvertTo-Json -InputObject $reference -Depth 10), [Text.UTF8Encoding]::new($false))
+            $spec.reference_sha256 = (Get-FileHash $referencePath).Hash.ToLowerInvariant()
+            [IO.File]::WriteAllText($specPath, (ConvertTo-Json -InputObject $spec -Depth 10), [Text.UTF8Encoding]::new($false))
+        }
+        Write-ReferenceFixture
+    }
+
+    It 'admits the independently derived production reference on either implementation-test host' {
+        $actual = Get-CiPythonLinuxReleaseReference $pins
+        $actual.inventory.entries.Count | Should -Be 3040
+        $actual.inventory.sha256 | Should -BeExactly '5e88f33c1f23523d9099daf29854fb12536ec3d0e6e5b3b7e212993503ec8794'
+        $actual.reference_sha256 | Should -BeExactly '95e112863137211040344814033dca6a6c0156bc51546022643108f78ee165c6'
+    }
+
+    It 'admits a complete fixture and keeps exact declared identity' {
+        $actual = Read-CiPythonLinuxReleaseReference $specPath $referencePath $pins
+        $actual.inventory.entries.Count | Should -Be 3
+        $actual.identity.normalization | Should -BeExactly 'native-core-v2-linux-release-modes'
+    }
+
+    It 'rejects <mutation> before any runtime operation' -ForEach @(
+        @{ mutation = 'file-hash' }, @{ mutation = 'identity' }, @{ mutation = 'bool-schema' },
+        @{ mutation = 'bool-size' }, @{ mutation = 'mode' }, @{ mutation = 'extra-field' },
+        @{ mutation = 'missing-parent' }, @{ mutation = 'duplicate-path' }, @{ mutation = 'unordered' },
+        @{ mutation = 'escape' }, @{ mutation = 'directory-link' }, @{ mutation = 'duplicate-json' },
+        @{ mutation = 'inventory-hash' }, @{ mutation = 'version' }) {
+        switch ($mutation) {
+            'file-hash' {
+                $spec.reference_sha256 = '0' * 64
+            }
+            'identity' {
+                $reference.identity.gil = 'disabled'
+                Write-ReferenceFixture
+            }
+            'bool-schema' {
+                $reference.schema_version = $true
+                Write-ReferenceFixture
+            }
+            'bool-size' {
+                $reference.inventory.entries[1].bytes = $true
+                Write-ReferenceFixture
+            }
+            'mode' {
+                $reference.inventory.entries[1].unix_mode = 511
+                Write-ReferenceFixture
+            }
+            'extra-field' {
+                $reference.inventory.entries[1].unknown = 0
+                Write-ReferenceFixture
+            }
+            'missing-parent' {
+                $reference.inventory.entries = @($reference.inventory.entries | Select-Object -Skip 1)
+                Write-ReferenceFixture
+            }
+            'duplicate-path' {
+                $reference.inventory.entries[1].path = 'bin'
+                Write-ReferenceFixture
+            }
+            'unordered' {
+                [Array]::Reverse($reference.inventory.entries)
+                Write-ReferenceFixture
+            }
+            'escape' {
+                $reference.inventory.entries[2].target = '../outside'
+                Write-ReferenceFixture
+            }
+            'directory-link' {
+                $reference.inventory.entries[2].target = 'bin'
+                Write-ReferenceFixture
+            }
+            'duplicate-json' {
+                $text = [IO.File]::ReadAllText($referencePath).Replace('"contract":', '"schema_version": 1, "contract":')
+                [IO.File]::WriteAllText($referencePath, $text, [Text.UTF8Encoding]::new($false))
+                $spec.reference_sha256 = (Get-FileHash $referencePath).Hash.ToLowerInvariant()
+            }
+            'inventory-hash' {
+                $spec.expected_inventory_sha256 = '0' * 64
+            }
+            'version' {
+                $spec.identity.python = '3.14.7'
+            }
+        }
+        [IO.File]::WriteAllText($specPath, (ConvertTo-Json -InputObject $spec -Depth 10), [Text.UTF8Encoding]::new($false))
+        { Read-CiPythonLinuxReleaseReference $specPath $referencePath $pins } | Should -Throw
+    }
+
+    It 'retains cancellation and expired-deadline refusal' {
+        { Read-CiPythonLinuxReleaseReference $specPath $referencePath $pins -Cancelled { $true } } | Should -Throw '*cancelled*'
+        { Read-CiPythonLinuxReleaseReference $specPath $referencePath $pins -DeadlineUtc ([datetime]::UtcNow.AddSeconds(-1)) } | Should -Throw '*expired*'
+    }
+
+    It 'rejects a linked reference parent before reading its bytes' {
+        $link = Join-Path $TestDrive ('linked-' + [guid]::NewGuid().ToString('N'))
+        $null = [IO.Directory]::CreateSymbolicLink($link, $owner)
+        { Read-CiPythonLinuxReleaseReference $specPath (Join-Path $link $spec.reference_file) $pins } | Should -Throw '*link*'
+    }
+
+    It 'rejects invalid UTF-8 bytes' {
+        [IO.File]::WriteAllBytes($referencePath, [byte[]]@(255, 254, 255))
+        { Read-CiPythonLinuxReleaseReference $specPath $referencePath $pins } | Should -Throw
+    }
+
+    It 'rejects oversized reference input before JSON parsing' {
+        [IO.File]::WriteAllBytes($referencePath, [byte[]]::new(2MB + 1))
+        { Read-CiPythonLinuxReleaseReference $specPath $referencePath $pins } | Should -Throw '*bounded*'
+    }
+
+    It 'observes cancellation during nested reference parsing' {
+        $state = @{ calls = 0 }
+        $cancel = { $state.calls++
+            $state.calls -gt 5 }.GetNewClosure()
+        { Read-CiPythonLinuxReleaseReference $specPath $referencePath $pins -Cancelled $cancel } | Should -Throw '*cancelled*'
+        $state.calls | Should -BeGreaterThan 5
+    }
+}
+
 Describe 'Private normalized runtime candidates without execution' -Tag Unit {
     BeforeEach {
         $workspace = Join-Path $TestDrive ('candidate workspace ' + [guid]::NewGuid().ToString('N'))
