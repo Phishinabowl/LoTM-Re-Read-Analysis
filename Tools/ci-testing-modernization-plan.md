@@ -2677,7 +2677,8 @@ are covered within existing group registrations/deadlines. Windows reference pro
 qualified native output plus service audit, distinct from Linux's archive-member derivation. Preserve
 that distinction and leave schema-1 scaffold retirement until replacement lifecycle coverage is proved.
 
-Ten source/data/test/evidence files await confirmation. Next implement/qualify a separate hosted
+The maintainer confirms the ten-file checkpoint, published as `c9be93a` with four-ref parity.
+Next implement/qualify a separate hosted
 fixed-prefix ownership lease: actual tools-root validation, absent exact destination, fresh owned
 copy, no host overwrite or other-patch cleanup, complete verification before probes and honest partial/
 failure/cancellation receipts. Classify occupied prefixes explicitly; do not remove image runtimes to
@@ -2685,6 +2686,19 @@ manufacture absence. Cache YAML and ordinary acquisition remain unchanged until 
 Cold/warm restore/save benefit, fault/recovery, original profile equivalence and planning/worker/cohort/
 collector handoffs remain open. See the acquisition design for exact evidence and limits. Phase 6.5
 stays open; PRs remain paused; no further hosted run is queued.
+
+The next five-file increment implements fresh private target/external receipt ownership, read-only
+actual tools-root versus declared fixed-prefix checking and a complete sealed private copy. It
+preserves occupied/linked owners and other patches, refuses native-prefix writes, retains partial
+cancellation/timeout/I/O failure receipts, and verifies unchanged staging plus copied bytes/links/
+modes before any possible execution. Synthetic fixtures exercise these contracts on Windows/WSL;
+actual runtime installations remain untouched. This increment awaits review. It does not complete
+the real restoration lease/probe/handoff gate: a guarded manual hosted driver must capture agent
+context, own an absent exact prefix and qualify the full receipt lifecycle before cache YAML or
+restored executable use. Native version-parent ownership remains a driver gate. Final registered
+Pester verification passes 152/152 cases per OS in 14.699s Windows/25.370s Linux, zero errors/skips,
+within the existing 120-second deadline; scoped formatting/policy/22 fixtures and 66 doc links pass.
+No hosted run is queued and phase 6.5 remains open.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain

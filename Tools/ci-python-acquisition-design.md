@@ -904,7 +904,8 @@ Both metadata-test hosts produce identical Windows/Linux plan keys. Real Windows
 byte-identical across Windows/Linux. Ruff/formatting, annotation policy/22 fixtures, generated reference
 checksum/line-ending checks, documentation links and diff checks pass.
 
-This ten-file source/data/test/evidence increment is uncommitted for review. No hosted experiment is
+The maintainer confirms this ten-file source/data/test/evidence increment, published as `c9be93a`
+with four-ref parity. No hosted experiment is
 needed to accept read-only plan/admission behavior. Next implement the separate owned-restoration lease:
 validate actual hosted tools root against the declared prefix, require an absent exact destination,
 create only a fresh owned target, preserve existing installations/other patches, copy and reverify sealed
@@ -914,3 +915,53 @@ blocked disposition separately. Missing-interpreter behavior must be demonstrate
 appropriate agent, not manufactured by removing image runtimes. Keep the destination and cache YAML
 disabled until local lease/receipt regressions and bounded hosted acceptance pass. Restore/save costs,
 fault/recovery, broader handoffs and adoption remain open. Phase 6.5 stays open; PRs remain paused.
+
+## Fresh Ownership and Nonexecuting Private Copy Implemented for Review
+
+The next focused increment adds a shared fresh-owner check, a read-only fixed-prefix destination
+check and a nonexecuting private copy helper. No pipeline invokes these helpers yet. The complete
+external seal is revalidated before either destination admission or copying; a caller's earlier
+decision object cannot promote itself into write authority.
+
+`Resolve-CiPythonFreshCopyOwner` requires an existing plain workspace, a contained target below that
+owner, disjoint staging and an absent target/external `.copy.json` receipt. Existing files, directories,
+receipts, linked ancestors and dangling destination links are refused and preserved. The receipt stays
+outside the payload so it cannot change the sealed runtime or serve as its source of trust.
+
+`Get-CiPythonRestorationDestination` compares the supplied actual tools-root-derived exact Python/x64
+path with the repository plan's declared native prefix, then checks fresh ownership. It is read-only:
+even a successful result retains restoration/execution/handoff false. The future hosted driver must
+capture the actual agent tools root and manual hosted context; passing a synthetic root to this helper
+alone is not proof of a real hosted allocation. An occupied host prefix is blocked here, preserving
+native selection as the separate default route. No host installation or other patch is removed.
+
+`New-CiPythonSealedPrivateCopy` explicitly refuses the declared native runtime owner or overlapping
+paths. It claims an external receipt with `CreateNew`, records incomplete state before payload writes,
+copies files without overwrite and recreates safe relative file links. Linux applies exact sealed
+file/directory/root modes. Final complete schema-3 inventories must match both copied bytes and the
+unchanged staging source. Only `private-copy-verified` can result; execution, restoration, handoff and
+save remain false. Cancellation, expiration, I/O failure or changed bytes retain incomplete evidence
+and any partial target; neither is silently cleaned up or reused. This uses copying rather than a
+cross-volume move, anticipating Windows staging and native-prefix volumes that may differ.
+
+Verification uses synthetic private fixtures only, including preserved empty directories and Linux
+relative links. It covers complete immutable copying, occupied files/directories/receipts, containment/
+overlap, dangling owners, tools-root mismatch, refusal to write the declared native owner, corrupted
+staging, source mutation during copying and retained cancellation/timeout/I/O failure evidence. The
+first run found a test-fixture name collision; each parameterized owner now has a distinct path.
+Final registered group verification passes 152/152 Pester cases on Windows in 14.699s and on Linux
+in 25.370s, with zero errors/skips and the existing 120-second group deadline. This adds twelve cases
+to the prior 140-case group. Timeout and I/O failures are deliberately injected; successful copying
+and cancellation/source-mutation paths use real private filesystem fixtures. Scoped formatting and
+annotation policy pass (two files, zero findings, all 22 policy fixtures); 66 relative documentation
+links resolve, trailing-whitespace and diff checks pass. Python source is unchanged, so the previously
+passing 94-case reference/bootstrap evidence is retained rather than rerun.
+
+This five-file increment remains uncommitted for review. Actual fixed-prefix writes, tool-cache
+registration/complete markers, interpreter probes and fresh locked-environment handoff still require
+the hosted driver/receipt qualification. The private writer requires the receipt's parent to exist;
+creating/owning missing native version-parent directories is a separate driver responsibility, not
+implicitly authorized by the read-only destination result. No cache YAML, real host runtime mutation, hosted run or PR
+reopening occurs here. Next bind the owned restoration lifecycle to that guarded manual driver, then
+qualify bounded cache hit/miss/fault/recovery and measure restore/save costs before adoption. Phase 6.5
+stays open and native acquisition remains default/rollback.

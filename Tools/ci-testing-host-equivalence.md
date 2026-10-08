@@ -838,11 +838,25 @@ mode-altered bytes, metadata/key/schema/promoted-state refusal and bounded cance
 reference provenance is qualified native output plus the independent service audit, not installed
 bytes extracted from its installer archive. Linux derivation/proofs remain unchanged.
 
-Ten source/data/test/evidence files await review. Next qualify actual hosted prefix/absent-target
+The maintainer confirms the ten-file checkpoint, published as `c9be93a` with four-ref parity.
+Next qualify actual hosted prefix/absent-target
 ownership, no-overwrite leases and complete copy/probe/receipt behavior. Current v1 cache scaffold
 stays unadopted until lifecycle replacement coverage permits retirement; it cannot admit v2 plans.
 Restore/save benefit, fault/recovery and ordinary handoffs remain open. See the acquisition design
 for complete boundaries/rollback. Phase 6.5 and paused PRs remain unchanged; no new hosted run is queued.
+
+The following private-copy increment adds fresh target/external receipt ownership, read-only exact
+tools-root/prefix checks and nonexecuting immutable file/link/mode copying. Existing occupied or linked
+owners are preserved; an incomplete lease/target cannot be reused. Private copying expressly refuses
+the declared native owner. Cancellation/timeout/I/O failure and source mutation remain incomplete,
+without execution/restoration/handoff/save promotion. Tests use only synthetic private fixtures on
+Windows/WSL; no installed runtime, tool-cache registration or agent prefix is modified. Five files
+await review. The actual guarded hosted driver, fixed-prefix writes/probes, warm cache economics and
+ordinary role/profile handoffs remain later qualification gates, not claims of this private proof.
+Final registered Pester group results are 152/152 on each OS, zero errors/skips, in 14.699s Windows
+and 25.370s Linux within the unchanged 120-second deadline. Twelve added cases cover private copying
+and ownership/failure refusal; scoped static policy/22 fixtures, formatting and all 66 documentation
+links pass. No Python implementation changes require repeating its prior focused verification.
 
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare

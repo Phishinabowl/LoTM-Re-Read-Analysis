@@ -969,6 +969,158 @@ function Get-CiPythonSealedCacheDecision {
     }
 }
 
+function Resolve-CiPythonFreshCopyOwner {
+    param([Parameter(Mandatory)][string]$WorkspaceRoot,
+        [Parameter(Mandatory)][string]$Destination, [Parameter(Mandatory)][string]$SourceRoot)
+    $workspace = Get-CiPythonCachePath $WorkspaceRoot
+    if (-not (Test-Path -LiteralPath $workspace -PathType Container)) {
+        throw 'Copy workspace must already exist.'
+    }
+    $relative = [IO.Path]::GetRelativePath($workspace, [IO.Path]::GetFullPath($Destination)).Replace('\', '/')
+    if ($relative -eq '.') {
+        throw 'Copy target must be below its owner.'
+    }
+    $target = Get-CiPythonCachePath $workspace $relative
+    $source = Get-CiPythonCachePath $SourceRoot
+    $receipt = Get-CiPythonCachePath $workspace ($relative + '.copy.json')
+    $comparison = if ($IsWindows) {
+        [StringComparison]::OrdinalIgnoreCase
+    }
+    else {
+        [StringComparison]::Ordinal
+    }
+    if ($target.Equals($source, $comparison) -or
+        $target.StartsWith($source + [IO.Path]::DirectorySeparatorChar, $comparison) -or
+        $source.StartsWith($target + [IO.Path]::DirectorySeparatorChar, $comparison)) {
+        throw 'Copy source and destination must not overlap.'
+    }
+    if ((Get-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue) -or
+        (Get-Item -LiteralPath $receipt -Force -ErrorAction SilentlyContinue)) {
+        throw 'Copy target and external receipt must be fresh; existing owners are preserved.'
+    }
+    [pscustomobject]@{ target = $target
+        receipt = $receipt
+        workspace = $workspace
+    }
+}
+
+function Get-CiPythonRestorationDestination {
+    param([Parameter(Mandatory)]$Plan, [Parameter(Mandatory)][string]$ToolsRoot,
+        [Parameter(Mandatory)][string]$StagingRoot,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue, [scriptblock]$Cancelled = { $false })
+    # Read-only admission rebinds the complete plan before examining a host destination.
+    $null = Get-CiPythonSealedCacheDecision $Plan $StagingRoot true -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    $tools = Get-CiPythonCachePath $ToolsRoot
+    $expected = Get-CiPythonCachePath $tools "Python/$($Plan.identity.python_version)/x64"
+    $declared = [IO.Path]::GetFullPath($Plan.identity.prefix)
+    $comparison = if ($IsWindows) {
+        [StringComparison]::OrdinalIgnoreCase
+    }
+    else {
+        [StringComparison]::Ordinal
+    }
+    if (-not $expected.Equals($declared, $comparison)) {
+        throw 'Actual hosted tools root differs from the declared native fixed prefix.'
+    }
+    $owner = Resolve-CiPythonFreshCopyOwner $tools $expected $StagingRoot
+    [pscustomobject]@{ contract = 'ci-python-runtime-restoration-destination'
+        schema_version = 1
+        target = $owner.target
+        receipt = $owner.receipt
+        cache_key = $Plan.cache_key
+        status = 'fresh-destination'
+        executed = $false
+        restoration_qualified = $false
+        handoff_admitted = $false
+    }
+}
+
+function New-CiPythonSealedPrivateCopy {
+    param([Parameter(Mandatory)]$Plan, [Parameter(Mandatory)][string]$StagingRoot,
+        [Parameter(Mandatory)][string]$WorkspaceRoot, [Parameter(Mandatory)][string]$Destination,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue, [scriptblock]$Cancelled = { $false })
+    $decision = Get-CiPythonSealedCacheDecision $Plan $StagingRoot true -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    $owner = Resolve-CiPythonFreshCopyOwner $WorkspaceRoot $Destination $StagingRoot
+    $fixed = [IO.Path]::GetFullPath($Plan.identity.prefix)
+    $comparison = if ($IsWindows) {
+        [StringComparison]::OrdinalIgnoreCase
+    }
+    else {
+        [StringComparison]::Ordinal
+    }
+    if ($owner.target.Equals($fixed, $comparison) -or
+        $owner.target.StartsWith($fixed + [IO.Path]::DirectorySeparatorChar, $comparison) -or
+        $fixed.StartsWith($owner.target + [IO.Path]::DirectorySeparatorChar, $comparison)) {
+        throw 'Private copying cannot write the declared native runtime owner.'
+    }
+    $inventory = Get-CiPythonRuntimeInventory $StagingRoot -SealModes -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    if ($inventory.sha256 -cne $decision.inventory_sha256) {
+        throw 'Staging changed before copying.'
+    }
+    $result = [ordered]@{ contract = 'ci-python-runtime-private-copy'
+        schema_version = 1
+        status = 'copy-incomplete'
+        cache_key = $Plan.cache_key
+        target = $owner.target
+        inventory_sha256 = $null
+        source_unchanged = $false
+        integrity_verified = $false
+        executed = $false
+        restoration_qualified = $false
+        handoff_admitted = $false
+        saved = $false
+    }
+    # CreateNew claims the external lease before any payload write, including cancellation.
+    $stream = [IO.File]::Open($owner.receipt, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
+    $stream.Dispose()
+    try {
+        $result | ConvertTo-Json | Set-Content -LiteralPath $owner.receipt -Encoding utf8
+        Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+        $null = New-Item -ItemType Directory -Path $owner.target -ErrorAction Stop
+        foreach ($row in $inventory.entries | Where-Object kind -ne 'symlink') {
+            Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+            $to = Get-CiPythonCachePath $owner.target $row.path
+            if ($row.kind -eq 'directory') {
+                $null = [IO.Directory]::CreateDirectory($to)
+            }
+            else {
+                [IO.File]::Copy((Get-CiPythonCachePath $StagingRoot $row.path), $to, $false)
+            }
+        }
+        foreach ($row in $inventory.entries | Where-Object kind -eq 'symlink') {
+            Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+            $null = [IO.File]::CreateSymbolicLink((Get-CiPythonCachePath $owner.target $row.path), $row.target)
+        }
+        if ($IsLinux) {
+            [object[]]$rows = @($inventory.entries | Where-Object kind -ne 'symlink')
+            [Array]::Reverse($rows)
+            foreach ($row in $rows) {
+                Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+                [IO.File]::SetUnixFileMode((Get-CiPythonCachePath $owner.target $row.path), [IO.UnixFileMode]$row.unix_mode)
+            }
+            [IO.File]::SetUnixFileMode($owner.target, [IO.UnixFileMode]$inventory.root_unix_mode)
+        }
+        $copied = Get-CiPythonRuntimeInventory $owner.target -SealModes -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+        $after = Get-CiPythonRuntimeInventory $StagingRoot -SealModes -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+        if ($copied.sha256 -cne $inventory.sha256 -or $after.sha256 -cne $inventory.sha256) {
+            throw 'Copied payload or original staging changed during copying.'
+        }
+        $result.status = 'private-copy-verified'
+        $result.inventory_sha256 = $copied.sha256
+        $result.source_unchanged = $true
+        $result.integrity_verified = $true
+        $result | ConvertTo-Json | Set-Content -LiteralPath $owner.receipt -Encoding utf8
+        [pscustomobject]$result
+    }
+    catch {
+        $result.status = 'copy-incomplete'
+        $result.integrity_verified = $false
+        $result.failure_type = $_.Exception.GetType().Name
+        $result | ConvertTo-Json | Set-Content -LiteralPath $owner.receipt -Encoding utf8
+        throw
+    }
+}
+
 function Get-CiPythonCachePlan {
     param(
         [Parameter(Mandatory)][Collections.IDictionary]$Context,

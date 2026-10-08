@@ -606,6 +606,10 @@ Describe 'Mode-aware external seals and nonexecuting staged cache admission' -Ta
             'bin/python3.14'
         }
         [IO.File]::WriteAllText((Join-Path $stage $exe), 'fixture only; never execute')
+        $null = [IO.Directory]::CreateDirectory((Join-Path $stage 'empty-retained'))
+        if ($IsLinux) {
+            $null = [IO.File]::CreateSymbolicLink((Join-Path $stage 'python'), 'bin/python3.14')
+        }
         $inventory = Get-CiPythonRuntimeInventory $stage -SealModes
         $identity = (Get-Content (Join-Path $repoRoot "Tools/CI/Data/python-$osName-$(if ($IsWindows) { 'native' } else { 'release' })-reference-spec.json") -Raw |
                 ConvertFrom-Json -AsHashtable).identity
@@ -719,6 +723,123 @@ Describe 'Mode-aware external seals and nonexecuting staged cache admission' -Ta
 
     It 'never allows schema-1 decision logic to admit a schema-2 plan' {
         { Get-CiPythonCacheDecision $plan $stage true } | Should -Throw '*plan*'
+    }
+
+    It 'copies sealed fixtures to a fresh private owner without execution or promotion' {
+        $target = Join-Path $TestDrive 'private-runtime'
+        $before = (Get-CiPythonRuntimeInventory $stage -SealModes).sha256
+        $result = New-CiPythonSealedPrivateCopy $plan $stage $TestDrive $target
+        $result.status | Should -BeExactly 'private-copy-verified'
+        $result.integrity_verified | Should -BeTrue
+        $result.source_unchanged | Should -BeTrue
+        $result.executed | Should -BeFalse
+        $result.restoration_qualified | Should -BeFalse
+        $result.handoff_admitted | Should -BeFalse
+        $result.saved | Should -BeFalse
+        (Get-CiPythonRuntimeInventory $stage -SealModes).sha256 | Should -BeExactly $before
+        (Get-CiPythonRuntimeInventory $target -SealModes).sha256 | Should -BeExactly $before
+        (Get-Content ($target + '.copy.json') -Raw | ConvertFrom-Json).status | Should -BeExactly 'private-copy-verified'
+        { New-CiPythonSealedPrivateCopy $plan $stage $TestDrive $target } | Should -Throw '*fresh*'
+    }
+
+    It 'preserves an occupied <kind> and refuses copying' -ForEach @(@{ kind = 'file' }, @{ kind = 'directory' }, @{ kind = 'receipt' }) {
+        $target = Join-Path $TestDrive "occupied-runtime-$kind"
+        $sentinel = $target
+        if ($kind -eq 'directory') {
+            $null = [IO.Directory]::CreateDirectory($target)
+            $sentinel = Join-Path $target 'keep.txt'
+        }
+        elseif ($kind -eq 'receipt') {
+            $sentinel += '.copy.json'
+        }
+        [IO.File]::WriteAllText($sentinel, 'existing owner')
+        { New-CiPythonSealedPrivateCopy $plan $stage $TestDrive $target } | Should -Throw '*fresh*'
+        [IO.File]::ReadAllText($sentinel) | Should -BeExactly 'existing owner'
+    }
+
+    It 'refuses source overlap, owner root and escaped destinations' {
+        foreach ($target in @($stage, (Join-Path $stage 'nested'), $TestDrive, (Join-Path $TestDrive '../outside'))) {
+            { New-CiPythonSealedPrivateCopy $plan $stage $TestDrive $target } | Should -Throw
+        }
+    }
+
+    It 'retains incomplete <failure> evidence and refuses partial reuse' -ForEach @(
+        @{ failure = 'OperationCanceledException' }, @{ failure = 'TimeoutException' }, @{ failure = 'IOException' }) {
+        $target = Join-Path $TestDrive "incomplete-runtime-$failure"
+        $cancel = {
+            if (Test-Path -LiteralPath $target) {
+                if ($failure -eq 'TimeoutException') {
+                    throw [TimeoutException]::new('Injected expired lease')
+                }
+                if ($failure -eq 'IOException') {
+                    throw [IO.IOException]::new('Injected copy failure')
+                }
+                return $true
+            }
+            $false
+        }.GetNewClosure()
+        { New-CiPythonSealedPrivateCopy $plan $stage $TestDrive $target -Cancelled $cancel } | Should -Throw
+        $receipt = Get-Content ($target + '.copy.json') -Raw | ConvertFrom-Json
+        $receipt.status | Should -BeExactly 'copy-incomplete'
+        $receipt.failure_type | Should -BeExactly $failure
+        $receipt.integrity_verified | Should -BeFalse
+        $receipt.handoff_admitted | Should -BeFalse
+        { New-CiPythonSealedPrivateCopy $plan $stage $TestDrive $target } | Should -Throw '*fresh*'
+    }
+
+    It 'rejects source mutation during copying instead of promoting the result' {
+        $target = Join-Path $TestDrive 'mutated-source-copy'
+        $state = @{ changed = $false }
+        $observe = {
+            if ((Test-Path -LiteralPath $target) -and -not $state.changed) {
+                [IO.File]::WriteAllText((Join-Path $stage $exe), 'changed while copying')
+                $state.changed = $true
+            }
+            $false
+        }.GetNewClosure()
+        { New-CiPythonSealedPrivateCopy $plan $stage $TestDrive $target -Cancelled $observe } | Should -Throw '*changed*'
+        (Get-Content ($target + '.copy.json') -Raw | ConvertFrom-Json).integrity_verified | Should -BeFalse
+    }
+
+    It 'rejects linked private owners including dangling links on Linux' {
+        if ($IsLinux) {
+            $target = Join-Path $TestDrive 'dangling-copy-owner'
+            $null = [IO.File]::CreateSymbolicLink($target, 'missing-target')
+            { New-CiPythonSealedPrivateCopy $plan $stage $TestDrive $target } | Should -Throw '*fresh*'
+            (Get-Item -LiteralPath $target -Force).LinkTarget | Should -BeExactly 'missing-target'
+        }
+        else {
+            # Existing Windows junction/linked-ancestor inventory cases remain active without elevation.
+            { Resolve-CiPythonFreshCopyOwner $TestDrive (Join-Path $TestDrive '../escape') $stage } | Should -Throw
+        }
+    }
+
+    It 'refuses bad staging before creating either target or receipt' {
+        $target = Join-Path $TestDrive 'bad-stage-copy'
+        [IO.File]::WriteAllText((Join-Path $stage $exe), 'corrupted')
+        { New-CiPythonSealedPrivateCopy $plan $stage $TestDrive $target } | Should -Throw '*reference*'
+        Test-Path $target | Should -BeFalse
+        Test-Path ($target + '.copy.json') | Should -BeFalse
+    }
+
+    It 'checks exact tools-root binding without writing a restoration destination' {
+        $tools = Join-Path $TestDrive 'host-tools-fixture'
+        $null = [IO.Directory]::CreateDirectory($tools)
+        $target = Join-Path $tools 'Python/3.14.8/x64'
+        # Production still reconstructs the repository plan; only the fixture prefix is substituted here.
+        $plan.identity.prefix = $target
+        Mock Get-CiPythonSealedCachePlan { $plan }
+        $result = Get-CiPythonRestorationDestination $plan $tools $stage
+        $result.status | Should -BeExactly 'fresh-destination'
+        $result.restoration_qualified | Should -BeFalse
+        Test-Path $target | Should -BeFalse
+        Test-Path ($target + '.copy.json') | Should -BeFalse
+        { Get-CiPythonRestorationDestination $plan $TestDrive $stage } | Should -Throw '*tools root*'
+        { New-CiPythonSealedPrivateCopy $plan $stage $tools $target } | Should -Throw '*native runtime owner*'
+        $null = [IO.Directory]::CreateDirectory($target)
+        [IO.File]::WriteAllText((Join-Path $target 'keep.txt'), 'host-owned')
+        { Get-CiPythonRestorationDestination $plan $tools $stage } | Should -Throw '*fresh*'
+        [IO.File]::ReadAllText((Join-Path $target 'keep.txt')) | Should -BeExactly 'host-owned'
     }
 }
 
