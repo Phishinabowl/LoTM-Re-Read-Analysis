@@ -484,7 +484,61 @@ under `.tmp/ci-phase65/candidate-bytecode-correction/evidence`. Trust/restore/sa
 false. This local copy proves the correction's bytecode boundary, not hosted provider repeatability
 or Linux release compatibility. Corrected hosted retry remains open.
 
-The correction and evidence updates remain uncommitted pending review. Repeated normalized payloads,
-positive Linux release execution, external seals, fixed-prefix restoration, faults/recovery and
-measured cache benefit remain open. Phase 6.5 stays open; both PRs and ordinary CI/default acquisition
-remain unchanged.
+The maintainer confirms the five-file correction, dual-published as `1f7b1b3`, with four-ref parity.
+The actual committed-source preview passes before the bounded retry below. Ordinary CI/default
+acquisition and both paused PRs remain unchanged.
+
+## Corrected Hosted Qualification and Permission Repeatability Gate
+
+Manual [run 73](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=73)
+executes exact commit `1f7b1b3a98a9fca94cc009e0f130b8b2b7f9a11d` and succeeds in all four jobs.
+Queue-to-finish is 457.665s (7m37.665s). Each copied runtime passes actual base/core-library ownership,
+fresh hash-locked pip 26.2/PyYAML 6.0.3 bootstrap, fresh-environment ownership and unchanged payload
+verification. All twelve owned children exit zero with verified cleanup. Final PS checks confirm
+both candidate and native source are unchanged. All provider/trusted-seal/restore/save/handoff
+admission flags remain false. Only diagnostic evidence is uploaded; no runtime binaries or cache.
+
+| Allocation | Native acquisition | Candidate copy/probes/bootstrap/verification task | Locked bootstrap | Retained entries |
+| --- | --- | --- | --- | --- |
+| Windows 1, preinstalled native | 0.310s | 76.577s | 8.717s | 3,878 |
+| Windows 2, downloaded native | 41.770s | 53.647s | 9.005s | 3,878 |
+| Linux 1, preinstalled native | 0.253s | 106.303s | 7.249s | 3,040 |
+| Linux 2, downloaded native | 9.657s | 53.260s | 8.342s | 3,040 |
+
+These costs describe temporary capture/copy/qualification work, not warm cache restore or ordinary
+profile feedback. Fast native selection means an image-provided interpreter, not our owned cache.
+
+Independent Windows schema-3 inventories match completely and match the prior projection:
+`9dc6d79241cd40fe80e6b8476055f2d7d4d2184ce5099aca2509238d68ef85ec`.
+Linux's retained bytes, paths, sizes, types and links also match between allocations, but **3,029
+file/directory permission entries differ**. Linux 1 uses image `20261004.327.1`, whose preinstalled
+native tree already has 0777 modes; its candidate correctly preserves them, yielding
+`badb07773d9121bdc756970fa538727fce617274f13d8dbd90fdac01362cb391`.
+Linux 2 uses image `20260927.320.1` and downloads release `3.14.8-36806082737`; its 0644/0755 modes
+yield the prior projection fingerprint
+`5e88f33c1f23523d9099daf29854fb12536ec3d0e6e5b3b7e212993503ec8794`.
+The candidate root remains 0755 in both. This is observed native-provider variance, not copy corruption.
+
+The independent evidence audit verifies all four execution receipts, package pins, native-source
+provenance, complete inventory digests, process cleanup and absence of runtime binaries in artifacts.
+It records Windows repeatability as passed and Linux repeatability as blocked, with exit 1. A green
+runtime-qualification pipeline does not override this stricter cross-allocation seal gate. Exact
+differences, all four receipts, task/image logs and audit are retained under
+`.tmp/ci-phase65/runtime-candidate-73` and adjacent log snapshots.
+
+Read-only archive comparison rechecks the pinned Linux asset's SHA-256 and reads tar metadata without
+extracting or executing anything. Every one of the downloaded candidate's 3,029 mode-bearing retained
+entries matches that verified release archive. All 3,029 preinstalled candidate entries differ only
+in mode. `linux-mode-comparison.json` preserves that review evidence, not an adopted permission ledger.
+
+**Next scoped design checkpoint:** review a canonical Linux permission ledger derived from the exact
+hash-verified release archive, retaining modes in the eventual trusted seal. Define its provenance,
+path/type completeness, executable bits, allowable native-mode variance, rejection rules and versioned
+normalization boundary before implementation. Prefer the verified release modes over accepting the
+observed 0777 image modes or excluding permissions from integrity. Preserve current native trees and
+require private-copy regression plus hosted requalification of any changed normalization. This is a
+recommendation for review; `native-core-v1` still preserves native modes and no new seal is adopted.
+
+This three-document outcome/disposition increment is uncommitted for review. Repeated Linux seals,
+external provider/seal admission, fixed-prefix restoration, faults/recovery, warm/cold benefit and
+ordinary profile handoffs remain open. Phase 6.5 stays open; no additional hosted run is queued.

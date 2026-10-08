@@ -2590,10 +2590,30 @@ existing locked install/check. All 55 focused pytest cases pass per OS, includin
 reproduction and real fresh offline installation. A complete private Windows copy passes real base
 and fresh-environment/core-library probes plus locked bootstrap, with candidate/source unchanged,
 all owned child cleanup verified and cache/trust/restore/handoff withheld. This is local correction
-proof; hosted Linux/provider repeatability remains open. Five correction/evidence files await review before
-publishing and retrying the bounded four-job experiment. External seals, repeated executable copies,
-positive Linux release proof, fixed-prefix restoration, faults/recovery, cache benefit and defaults
-remain open; see the acquisition design for exact evidence/limits. Phase 6.5 stays open.
+proof; hosted Linux/provider repeatability requires the bounded retry. The maintainer confirms and
+dual-publishes this correction as `1f7b1b3`, with four-ref parity and passing committed-source preview.
+
+Corrected manual run 73 passes all four Windows/Linux copy qualifications at exact source `1f7b1b3`,
+in 7m37.665s queue-to-finish. Actual base/fresh-environment/core-library ownership, locked dependencies,
+source/payload immutability and all twelve owned child cleanup checks pass. Windows independent
+inventories match completely. Linux runtime execution passes, but independent mode-aware seal
+repeatability remains **blocked**: newer-image preinstalled native modes are 0777; older-image
+downloaded modes are 0644/0755. Exactly 3,029 retained mode entries differ, with bytes/paths/types/links
+matching. The independent evidence audit returns exit 1 for this gate and withholds all cache/trust/
+restore/handoff admission; a green pilot does not close it.
+
+Read-only verification of the pinned release tar confirms all 3,029 downloaded modes match archive
+metadata. Before wiring external seals/restoration, review archive-derived canonical Linux permission
+normalization with explicit provenance, complete path/type/mode validation, executable-bit handling,
+versioned policy and fail-closed variance rules. Do not accept 0777 as a new trusted baseline or omit
+modes from the seal by default. This is the next scoped design recommendation, not implemented policy;
+current native-mode preservation and ordinary native acquisition remain unchanged. Require private-copy
+regressions and hosted requalification after any normalization change.
+
+Three outcome/disposition documents await confirmation. External seals, repeated Linux mode-aware
+payloads, fixed-prefix restoration, faults/recovery, cache benefit, broader profile handoffs and defaults
+remain open; see the acquisition design for exact evidence/limits. No additional hosted run is queued.
+Phase 6.5 stays open; PRs remain paused.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain

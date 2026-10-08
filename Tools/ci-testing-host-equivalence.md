@@ -756,9 +756,25 @@ pytest cases pass per OS, including the upstream nested-flag reproduction and ac
 bundled-wheel bootstrap. A complete private copy of the existing Windows runtime also passes all
 three real owned children and fresh locked bootstrap (11.757s), with candidate/source fingerprints
 unchanged and trust/restore/save/handoff withheld. This is local correction proof, not hosted Linux
-or provider-repeatability evidence. Five correction/evidence files remain uncommitted; corrected hosted retry,
-external seals, fixed-prefix restoration and benefit measurement remain open. See the acquisition
-design for exact evidence/limits. Phase 6.5 and both paused PR states remain unchanged.
+or provider-repeatability evidence. The maintainer confirms and dual-publishes this correction as
+`1f7b1b3`, with four-ref parity and passing committed-source preview.
+
+Corrected manual run 73 succeeds in all four jobs at that exact commit, queue-to-finish 7m37.665s.
+All copied bases and fresh environments pass real module/core-library ownership, locked pip 26.2/
+PyYAML 6.0.3 and unchanged-payload/source verification; all twelve owned children exit zero with
+verified cleanup. Windows independent inventories match completely. Linux execution also passes,
+but repeatability is blocked by 3,029 mode differences only: image `20261004.327.1` preinstalls the
+native tree at 0777, while image `20260927.320.1` downloads the same pinned release with 0644/0755.
+Retained bytes, paths/types/links match. The independent seal audit explicitly exits 1 for that
+Linux mismatch; pipeline success does not imply cache/trusted-seal/restore/handoff acceptance.
+
+Read-only comparison against the rehashed pinned tar archive confirms all 3,029 downloaded modes
+match release metadata. The next recommended design checkpoint reviews archive-derived canonical
+permissions and fail-closed provenance/type/mode rules before changing normalization. Current native
+mode preservation remains in force; no seal or cache backend is adopted. Three evidence/disposition
+documents remain uncommitted; permission policy, external seals, fixed-prefix restoration and benefit
+measurement remain open. See the acquisition design for full tables/digests/evidence. Phase 6.5 and
+both paused PR states remain unchanged; no additional hosted run is queued.
 
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
