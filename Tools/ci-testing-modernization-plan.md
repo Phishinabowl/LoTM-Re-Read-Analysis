@@ -2562,6 +2562,16 @@ native selection is preinstalled; do not claim an owned warm hit or controlled c
 The acquisition design records all timings/counts and open gates. This evidence update is uncommitted;
 ordinary CI, paused PRs and default acquisition remain unchanged. Phase 6.5 stays open.
 
+The reviewed normalization boundary is confirmed/published as `38fddb3`. Its private candidate-builder
+increment now implements fresh-owner materialization, explicit omissions, source preservation and
+strict mode-aware inventory verification, with incomplete failure/cancellation receipts and no
+execution/restore/cache admission. Fifteen added cases remain in the original dependency group;
+all 84 registered cases pass per OS. Concrete capture-record projections match, with preexisting
+empty caches retained conservatively. This five-file increment is uncommitted for review. Actual
+normalized hosted payloads/ensurepip/locked bootstrap, external seals, fixed-prefix restore and
+cold/warm/corruption/recovery/cache-benefit gates remain open; see the acquisition design. No new
+hosted run or default/required-check/PR change is introduced. Phase 6.5 remains open.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during

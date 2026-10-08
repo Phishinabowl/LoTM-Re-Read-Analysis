@@ -1,5 +1,5 @@
 #Requires -Version 7.4
-# Read-only admission foundation. No installer, network, restoration or cached execution occurs here.
+# Admission/inventory and private candidate construction. No installer, network, restoration or runtime execution.
 
 function Test-CiPythonCacheLease {
     param([datetime]$DeadlineUtc, [scriptblock]$Cancelled)
@@ -41,7 +41,7 @@ function Get-CiPythonCachePath {
         [IO.DirectoryInfo]::new($owner)
     }
     while ($ancestor) {
-        if ($ancestor.Exists -and ($ancestor.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        if ($ancestor.LinkTarget -or ($ancestor.Exists -and ($ancestor.Attributes -band [IO.FileAttributes]::ReparsePoint))) {
             throw 'Python runtime owner or parent is a link.'
         }
         $ancestor = $ancestor.Parent
@@ -54,9 +54,13 @@ function Get-CiPythonRuntimeInventory {
         [Parameter(Mandatory)][string]$Root,
         [datetime]$DeadlineUtc = [datetime]::MaxValue,
         [scriptblock]$Cancelled = { $false },
-        [switch]$CaptureOnly
+        [switch]$CaptureOnly,
+        [switch]$SealModes
     )
     Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+    if ($CaptureOnly -and $SealModes) {
+        throw 'Capture and strict mode sealing are separate inventory contracts.'
+    }
     $owner = Get-CiPythonCachePath $Root
     if (-not (Test-Path -LiteralPath $owner -PathType Container)) {
         throw 'Python runtime payload directory missing.'
@@ -127,7 +131,7 @@ function Get-CiPythonRuntimeInventory {
                     throw 'Python runtime file changed during inventory.'
                 }
             }
-            if ($CaptureOnly -and $IsLinux -and $record.kind -ne 'symlink') {
+            if (($CaptureOnly -or $SealModes) -and $IsLinux -and $record.kind -ne 'symlink') {
                 $record.unix_mode = [int][IO.File]::GetUnixFileMode($item.FullName)
             }
             $records.Add($relative, $record)
@@ -138,8 +142,22 @@ function Get-CiPythonRuntimeInventory {
     [Array]::Sort($names, [StringComparer]::Ordinal)
     $entries = @($names | ForEach-Object { $records[$_] })
     $json = ConvertTo-Json -InputObject $entries -Depth 6 -Compress
+    $rootMode = if ($SealModes -and $IsLinux) {
+        [int][IO.File]::GetUnixFileMode($owner)
+    }
+    else {
+        $null
+    }
+    if ($SealModes) {
+        $json = ConvertTo-Json -InputObject ([ordered]@{ root_unix_mode = $rootMode
+                entries = $entries
+            }) -Depth 7 -Compress
+    }
     $hash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($json))).ToLowerInvariant()
-    [pscustomobject]@{ schema_version = $(if ($CaptureOnly) {
+    [pscustomobject]@{ schema_version = $(if ($SealModes) {
+                3
+            }
+            elseif ($CaptureOnly) {
                 2
             }
             else {
@@ -147,6 +165,216 @@ function Get-CiPythonRuntimeInventory {
             })
         entries = $entries
         sha256 = $hash
+        root_unix_mode = $rootMode
+    }
+}
+
+function Get-CiPythonCandidateProjection {
+    param(
+        [Parameter(Mandatory)]$Inventory,
+        [Parameter(Mandatory)][string]$SourceRoot,
+        [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue,
+        [scriptblock]$Cancelled = { $false }
+    )
+    Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+    if (-not ($IsWindows -or $IsLinux) -or $Inventory.schema_version -ne 2 -or $RuntimeVersions.python -cnotmatch '^3\.14\.[0-9]+$') {
+        throw 'Candidate projection requires raw schema 2 and the adopted Python 3.14 pin.'
+    }
+    $library = if ($IsWindows) {
+        'Lib'
+    }
+    else {
+        'lib/python3.14'
+    }
+    $package = "$library/site-packages/pip"
+    $paths = [Collections.Generic.Dictionary[string, object]]::new([StringComparer]::Ordinal)
+    foreach ($row in $Inventory.entries) {
+        Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+        $paths.Add($row.path, $row)
+    }
+    $metadata = @($Inventory.entries | Where-Object {
+            $_.kind -eq 'directory' -and $_.path -match ('^' + [regex]::Escape($library) + '/site-packages/pip-[^/]+\.dist-info$')
+        })
+    if ($metadata.Count -ne 1 -or $metadata[0].path -cnotmatch
+        ('^' + [regex]::Escape($library) + '/site-packages/pip-[0-9]+\.[0-9]+(?:\.[0-9]+)?\.dist-info$') -or
+        -not $paths.ContainsKey("$package/__init__.py") -or
+        $paths["$package/__init__.py"].kind -ne 'file' -or -not $paths.ContainsKey($metadata[0].path + '/RECORD') -or
+        $paths[$metadata[0].path + '/RECORD'].kind -ne 'file') {
+        throw 'Candidate requires one complete observed native base-pip distribution.'
+    }
+    $launchers = if ($IsWindows) {
+        @('Scripts/pip.exe', 'Scripts/pip3.exe', 'Scripts/pip3.14.exe')
+    }
+    else {
+        @('bin/pip', 'bin/pip3', 'bin/pip3.14')
+    }
+    $omitted = [Collections.Generic.Dictionary[string, string]]::new([StringComparer]::Ordinal)
+    foreach ($row in $Inventory.entries) {
+        Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+        if ($row.path -eq $package -or $row.path.StartsWith($package + '/', [StringComparison]::Ordinal) -or
+            $row.path -eq $metadata[0].path -or $row.path.StartsWith($metadata[0].path + '/', [StringComparison]::Ordinal) -or
+            $row.path -cin $launchers) {
+            $omitted.Add($row.path, 'native-base-pip')
+        }
+        elseif ($row.kind -eq 'file' -and $row.path -match ('^(' + [regex]::Escape($library) +
+                '(?:/.*)?)/__pycache__/([^/]+)\.cpython-314(?:\.opt-[12])?\.pyc$')) {
+            $source = $Matches[1] + '/' + $Matches[2] + '.py'
+            if ($paths.ContainsKey($source) -and $paths[$source].kind -eq 'file') {
+                $omitted.Add($row.path, 'source-backed-bytecode')
+            }
+        }
+    }
+    $retained = [Collections.Generic.List[object]]::new()
+    foreach ($row in $Inventory.entries) {
+        Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+        if ($omitted.ContainsKey($row.path)) {
+            continue
+        }
+        if ($row.kind -eq 'directory' -and $row.path.EndsWith('/__pycache__', [StringComparison]::Ordinal)) {
+            $children = @($Inventory.entries | Where-Object { $_.path.StartsWith($row.path + '/', [StringComparison]::Ordinal) })
+            if ($children.Count -and -not @($children | Where-Object { -not $omitted.ContainsKey($_.path) }).Count) {
+                $omitted.Add($row.path, 'empty-generated-cache-directory')
+                continue
+            }
+        }
+        $copy = [ordered]@{}
+        foreach ($key in $row.Keys) {
+            $copy[$key] = $row[$key]
+        }
+        if ($IsWindows -and $row.path -ceq 'python3.exe' -and $row.kind -eq 'symlink') {
+            if ($row.target -cne (Join-Path $SourceRoot 'python.exe').Replace('\', '/') -and $row.target -cne 'python.exe') {
+                throw 'Candidate Windows alias differs from its exact native target.'
+            }
+            $copy.target = 'python.exe'
+        }
+        $retained.Add($copy)
+    }
+    $exe = if ($IsWindows) {
+        'python.exe'
+    }
+    else {
+        'bin/python3.14'
+    }
+    if (-not @($retained | Where-Object { $_.path -ceq $exe -and $_.kind -eq 'file' }).Count -or
+        -not @($retained | Where-Object { $_.kind -eq 'file' -and
+                $_.path.StartsWith("$library/ensurepip/_bundled/", [StringComparison]::Ordinal) -and $_.path.EndsWith('.whl') }).Count) {
+        throw 'Candidate must retain the interpreter and bundled ensurepip wheels.'
+    }
+    $rootMode = if ($IsLinux) {
+        493
+    }
+    else {
+        $null
+    }
+    $entries = @($retained.ToArray())
+    $json = ConvertTo-Json -InputObject ([ordered]@{ root_unix_mode = $rootMode
+            entries = $entries
+        }) -Depth 7 -Compress
+    $hash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($json))).ToLowerInvariant()
+    [pscustomobject]@{ normalization = 'native-core-v1'
+        schema_version = 3
+        entries = $entries
+        root_unix_mode = $rootMode
+        sha256 = $hash
+        omitted = @($Inventory.entries | Where-Object { $omitted.ContainsKey($_.path) } |
+                ForEach-Object { [ordered]@{ path = $_.path
+                        reason = $omitted[$_.path]
+                    } })
+    }
+}
+
+function New-CiPythonRuntimeCandidate {
+    param(
+        [Parameter(Mandatory)][string]$SourceRoot,
+        [Parameter(Mandatory)][string]$WorkspaceRoot,
+        [Parameter(Mandatory)][string]$Destination,
+        [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue,
+        [scriptblock]$Cancelled = { $false }
+    )
+    Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+    $source = Get-CiPythonCachePath $SourceRoot
+    $workspace = Get-CiPythonCachePath $WorkspaceRoot
+    if (-not (Test-Path -LiteralPath $workspace -PathType Container)) {
+        throw 'Candidate workspace must already exist.'
+    }
+    $relative = [IO.Path]::GetRelativePath($workspace, [IO.Path]::GetFullPath($Destination)).Replace('\', '/')
+    $target = Get-CiPythonCachePath $workspace $relative
+    $comparison = if ($IsWindows) {
+        [StringComparison]::OrdinalIgnoreCase
+    }
+    else {
+        [StringComparison]::Ordinal
+    }
+    if ($target.Equals($source, $comparison) -or $target.StartsWith($source + [IO.Path]::DirectorySeparatorChar, $comparison) -or
+        $source.StartsWith($target + [IO.Path]::DirectorySeparatorChar, $comparison)) {
+        throw 'Candidate owners must not overlap.'
+    }
+    $receipt = Get-CiPythonCachePath $workspace ($relative + '.candidate.json')
+    if ((Test-Path -LiteralPath $target) -or (Test-Path -LiteralPath $receipt)) {
+        throw 'Candidate and receipt owners must be fresh.'
+    }
+    $raw = Get-CiPythonRuntimeInventory $source -CaptureOnly -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    $projection = Get-CiPythonCandidateProjection $raw $source $RuntimeVersions -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    $null = New-Item -ItemType Directory -Path $target
+    try {
+        foreach ($row in $projection.entries | Where-Object { $_.kind -ne 'symlink' }) {
+            Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+            $from = Get-CiPythonCachePath $source $row.path
+            $to = Get-CiPythonCachePath $target $row.path
+            if ($row.kind -eq 'directory') {
+                $null = [IO.Directory]::CreateDirectory($to)
+            }
+            else {
+                [IO.File]::Copy($from, $to, $false)
+            }
+        }
+        foreach ($row in $projection.entries | Where-Object kind -eq 'symlink') {
+            Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+            $to = Get-CiPythonCachePath $target $row.path
+            $null = [IO.File]::CreateSymbolicLink($to, $row.target)
+        }
+        if ($IsLinux) {
+            [object[]]$modeEntries = @($projection.entries | Where-Object { $_.kind -ne 'symlink' })
+            [Array]::Reverse($modeEntries)
+            foreach ($row in $modeEntries) {
+                Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+                [IO.File]::SetUnixFileMode((Get-CiPythonCachePath $target $row.path), [IO.UnixFileMode]$row.unix_mode)
+            }
+            [IO.File]::SetUnixFileMode($target, [IO.UnixFileMode]$projection.root_unix_mode)
+        }
+        $complete = Get-CiPythonRuntimeInventory $target -SealModes -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+        if ($complete.sha256 -cne $projection.sha256 -or
+            (Get-CiPythonRuntimeInventory $source -CaptureOnly -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled).sha256 -cne $raw.sha256) {
+            throw 'Candidate or source differs from its pre-copy inventory.'
+        }
+        $result = [ordered]@{ contract = 'ci-python-runtime-candidate'
+            schema_version = 1
+            normalization = $projection.normalization
+            status = 'candidate-complete'
+            source_sha256 = $raw.sha256
+            inventory = $complete
+            omitted = $projection.omitted
+            runtime_probe_verified = $false
+            trusted_seal = $false
+            handoff_admitted = $false
+            saved = $false
+        }
+        $result | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $receipt -Encoding utf8
+        [pscustomobject]$result
+    }
+    catch {
+        $failure = [ordered]@{ contract = 'ci-python-runtime-candidate'
+            schema_version = 1
+            status = 'candidate-incomplete'
+            failure_type = $_.Exception.GetType().Name
+            trusted_seal = $false
+            handoff_admitted = $false
+            saved = $false
+        }
+        $failure | ConvertTo-Json | Set-Content -LiteralPath $receipt -Encoding utf8
+        throw
     }
 }
 

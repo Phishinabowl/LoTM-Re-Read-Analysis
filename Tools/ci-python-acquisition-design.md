@@ -342,10 +342,59 @@ environment. It does not need the native base-pip installation for those steps. 
 supports the proposed omission, but is not runtime evidence for a stripped candidate. Next review
 this normalization contract, implement/test a private-owner candidate builder and mode-aware seal
 admission, then prove real candidate execution, ensurepip/venv and locked project bootstrap on both
-hosts. Retain no-bytecode execution/write controls as an explicit post-seal requirement. Repeated
+OSs. Retain no-bytecode execution/write controls as an explicit post-seal requirement. Repeated
 normalized hosted payloads and independent trusted seals, corruption/missing-receipt recovery and
 fixed-prefix restoration still precede any default change. If that proof fails, use the specified
 immutable-artifact/archive-import review fallback; do not widen integrity exemptions.
 
 Only this evidence/design update is uncommitted. No additional hosted run is queued, both PRs stay
 paused and ordinary acquisition/CI remain unchanged. Phase 6.5 remains open.
+
+## Private Candidate Builder Increment
+
+The capture findings and normalization boundary are confirmed and dual-published as `38fddb3`;
+HEAD/upstream/GitHub/Azure agree. The next local increment implements the reviewed projection and
+`New-CiPythonRuntimeCandidate` in the existing CI helper, with no new workflow or machine setup.
+It inventories the native source, validates one coherent base-pip distribution, builds only into
+a fresh owner beneath an explicitly supplied existing scratch workspace, and writes its receipt
+beside the payload. Existing/overlapping/escaping/linked owners are rejected before construction.
+The source tree is never edited. Every omitted path has a reason in the receipt.
+
+The builder preserves interpreter/stdlib/ensurepip and sourceless bytecode, omits only qualified
+source-backed generated caches and the complete native base-pip installation, and recreates the
+exact Windows alias as a relative file link. Copying avoids recursive source traversal. Linux file
+and directory modes are preserved, with a canonical candidate-root mode of 0755. Strict inventory
+schema 3 hashes those modes and the root mode together with the complete retained file/link inventory.
+Capture-only and strict mode sealing cannot be combined. The original schema 1 admission behavior
+remains separate; no trusted runtime seal is adopted or newly connected to cache execution here.
+
+Candidate completion requires the materialized payload to match its projection and the source's
+post-copy inventory to match its original inventory. Failed/canceled construction retains its own
+partial owner and a `candidate-incomplete` receipt; no recursive cleanup or owner reuse occurs.
+Successful receipts say `candidate-complete` but still withhold runtime probe, trusted seal, cache
+save and handoff admission. No candidate interpreter, archived installer or copied script is executed.
+
+Fifteen added cases cover actual private materialization and file links on both OSs, exact relative
+Windows alias conversion, source preservation, retention of sourceless inputs/ensurepip/preexisting
+empty caches, repeatability across generated-file changes, retained-source sensitivity, fresh-owner
+containment, required-input/ambiguous-metadata rejection, actual retained-file corruption, pre-build
+and mid-copy cancellation, incomplete receipt/reuse rejection, and Unix file/root mode sensitivity.
+They remain in the existing dependency group with its original deadline and aggregate membership.
+All 84 registered cases pass through native JUnit admission per OS (79 cache/capture/builder and five
+dependency cases), zero skips/errors. Final verification takes 9.629s on Windows and 17.926s on Linux.
+Formatting, annotation policy/22 fixtures and documentation checks pass.
+
+The actual implementation also projects both retained run-71 inventories per OS as data only; each
+pair has matching schema-3 digests. Linux retains 3,040 entries and omits 6,749, as the exploratory view
+did. Windows retains 3,878 and omits 1,210: it preserves 120 directories that were already empty in the
+native source, instead of treating them as directories made empty by omission. Its omission ledger
+contains 1,012 native base-pip entries, 171 source-backed bytecode files and 27 newly empty cache
+directories. This is a conservative refinement of the initial hypothetical count, consistent with
+the approved rule to omit only generated directories that become empty. Captured records are not
+copied runtime bytes; matching projections are not provider, executable or restoration qualification.
+
+This five-file code/test/evidence increment is uncommitted for review. No hosted jobs are queued.
+Next qualify actual normalized hosted payloads and ensurepip/venv/locked bootstrap, then connect
+reviewed mode-aware external seals and fixed-prefix restore admission. Keep post-seal no-bytecode
+controls, source/provider identity, corruption/recovery, measured cache benefit and the native rollback
+as open gates. Phase 6.5 stays open; ordinary CI, defaults and paused PRs are unchanged.

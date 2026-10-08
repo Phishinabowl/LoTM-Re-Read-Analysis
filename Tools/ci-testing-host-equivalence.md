@@ -722,6 +722,17 @@ analysis. Candidate construction, execution, ensurepip/locked bootstrap, mode-aw
 cold/warm/corruption/recovery and default adoption remain open. Three evidence docs are uncommitted;
 see the acquisition design for full counts, timings, provenance limits and the proposed next gate.
 
+The capture findings/design are confirmed and dual-published as `38fddb3`. A subsequent local
+candidate builder now materializes only private fixture owners, preserves the native source and
+retained source/ensurepip inputs, records omissions, normalizes the exact Windows alias and hashes
+Linux file/directory/root modes under strict schema 3. Copy/source verification and incomplete
+failure receipts pass; no candidate runtime is executed or restored. All 84 registered dependency
+cases pass through native admission on both OSs with zero skips/errors. Actual capture-record
+projections match per OS; Windows preserves 120 preexisting empty cache directories beyond the
+exploratory projection. Hosted candidate execution, locked bootstrap, external seal/restore wiring,
+corruption/recovery and benefit measurement remain open. Five files are uncommitted for review;
+no new hosted jobs, defaults or PR state changes. Details are in the acquisition design.
+
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
 complete local/hosted portfolio identity and failure/cancellation behavior. Restore the same PRs
