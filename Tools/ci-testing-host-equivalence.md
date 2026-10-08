@@ -741,9 +741,24 @@ cache or fixed-prefix restore. The bootstrap's no-base-bytecode path is explicit
 ordinary behavior stays unchanged. All 53 focused pytest and 84 Pester cases pass per OS; real fresh
 runtime-profile bootstrap succeeds locally on both OSs. The custom WSL static-SSL build is correctly
 rejected by the Actions-specific file-backed-module probe; positive Linux candidate proof is hosted
-and still open. Azure's candidate override preview passes without allocation. Eight files are
-uncommitted for review; no hosted job is queued. The acquisition design records exact limits,
-local-proof boundaries and remaining source/seal/restoration/benefit gates.
+and still open. Azure's candidate override preview passes without allocation. This increment is
+confirmed and published as `b5d04bb`, with four-ref parity and a passing committed-source preview.
+Run 72's first Windows copy passes base/core-library ownership and fresh locked bootstrap, but its
+post-bootstrap inventory correctly rejects newly generated `Lib/__pycache__`. CPython ensurepip's
+nested interpreter preserves isolation but drops `-B`; the no-bytecode environment is ignored under
+isolation. Child cleanup is verified, qualification remains failed and no trust/save/handoff is
+admitted. The remaining three jobs are cancelled; queue-to-finish is 3m06.900s. No Linux candidate
+execution or repeated-copy success is claimed.
+
+The scoped opt-in correction runs the retained bundled pip wheel directly under isolated `-B`,
+then performs the existing locked install/check. Ordinary behavior remains unchanged. All 55 focused
+pytest cases pass per OS, including the upstream nested-flag reproduction and actual fresh offline
+bundled-wheel bootstrap. A complete private copy of the existing Windows runtime also passes all
+three real owned children and fresh locked bootstrap (11.757s), with candidate/source fingerprints
+unchanged and trust/restore/save/handoff withheld. This is local correction proof, not hosted Linux
+or provider-repeatability evidence. Five correction/evidence files remain uncommitted; corrected hosted retry,
+external seals, fixed-prefix restoration and benefit measurement remain open. See the acquisition
+design for exact evidence/limits. Phase 6.5 and both paused PR states remain unchanged.
 
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare

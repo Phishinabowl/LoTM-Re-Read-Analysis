@@ -26,6 +26,22 @@ from dependency_requirements import IMPORT_NAMES, normalize, read_requirements  
 
 DATA = ROOT / "Tools/CI/Data"
 
+# ensurepip's nested interpreter preserves -I but drops -B. Run its bundled wheel
+# in the explicitly isolated no-bytecode process instead of starting that child.
+IMMUTABLE_PIP_BOOTSTRAP = """
+import ensurepip, importlib.resources, runpy, sys
+if not sys.flags.isolated or not sys.flags.dont_write_bytecode:
+    raise ValueError('Bundled pip bootstrap requires an isolated -B interpreter')
+wheel = importlib.resources.files('ensurepip').joinpath(
+    '_bundled', f'pip-{ensurepip.version()}-py3-none-any.whl')
+if not wheel.is_file():
+    raise ValueError('Expected the retained ensurepip bundled wheel')
+sys.path.insert(0, str(wheel))
+sys.argv = ['pip', '--isolated', 'install', '--no-index', '--no-cache-dir',
+            '--no-compile', '--no-deps', str(wheel)]
+runpy.run_module('pip', run_name='__main__', alter_sys=True)
+"""
+
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -272,7 +288,7 @@ def bootstrap_python(args, versions):
         (environment_root / "bootstrap-owner.json").write_text(json.dumps(identity, sort_keys=True), encoding="utf-8")
         venv.EnvBuilder(with_pip=not immutable).create(environment_root)
         if immutable:
-            run([executable, *flags, "-m", "ensurepip", "--upgrade", "--default-pip"])
+            run([executable, *flags, "-c", IMMUTABLE_PIP_BOOTSTRAP])
         requirements = owned_path(environment_root / "locked-requirements.txt")
         requirements.write_text("\n".join(rows) + "\n", encoding="utf-8")
         run(

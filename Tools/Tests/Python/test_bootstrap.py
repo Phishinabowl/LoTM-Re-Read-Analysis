@@ -559,9 +559,48 @@ def test_immutable_base_bootstrap_uses_explicit_no_bytecode_ensurepip_and_keeps_
         if immutable
         else all("-B" not in command for command in calls)
     )
-    ensurepip = [command for command in calls if "ensurepip" in command]
-    assert len(ensurepip) == int(immutable)
+    bundled = [command for command in calls if bootstrap.IMMUTABLE_PIP_BOOTSTRAP in command]
+    assert len(bundled) == int(immutable)
+    assert not any(command[3:5] == ["-m", "ensurepip"] for command in calls)
     assert result["probe_flags"] == ({"no_base_bytecode": True} if immutable else {})
+
+
+def test_upstream_ensurepip_drops_no_bytecode_in_its_nested_interpreter():
+    script = """
+import ensurepip, json, subprocess
+commands = []
+class Result:
+    returncode = 0
+def capture(command, **kwargs):
+    commands.append(command)
+    return Result()
+subprocess.run = capture
+ensurepip.bootstrap(default_pip=True)
+print(json.dumps(commands))
+"""
+    commands = json.loads(bootstrap.run([sys.executable, "-I", "-B", "-c", script]))
+    assert len(commands) == 1 and "-I" in commands[0] and "-B" not in commands[0]
+
+
+def test_bundled_pip_bootstrap_runs_offline_in_a_real_fresh_environment(tmp_path):
+    import ensurepip
+    import venv
+
+    environment = tmp_path / "fresh"
+    venv.EnvBuilder(with_pip=False).create(environment)
+    executable = environment / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
+    bootstrap.run([executable, "-I", "-B", "-c", bootstrap.IMMUTABLE_PIP_BOOTSTRAP], timeout=60)
+    script = """
+import importlib.metadata, json, pathlib, pip, sys
+print(json.dumps({'version': importlib.metadata.version('pip'),
+                  'origin': pip.__file__, 'prefix': sys.prefix,
+                  'isolated': bool(sys.flags.isolated), 'no_bytecode': sys.dont_write_bytecode}))
+"""
+    proof = json.loads(bootstrap.run([executable, "-I", "-B", "-c", script], timeout=30))
+    assert proof["version"] == ensurepip.version()
+    assert Path(proof["prefix"]).resolve() == environment.resolve()
+    assert Path(proof["origin"]).resolve().is_relative_to(environment.resolve())
+    assert proof["isolated"] and proof["no_bytecode"]
 
 
 @pytest.mark.parametrize("mutation", ["none", "prefix", "core", "flags", "version"])

@@ -2578,10 +2578,22 @@ plus an opt-in source-only no-base-bytecode bootstrap path. Ordinary behavior an
 manual allocations remain unchanged; only receipts/process evidence are uploaded. All 53 focused
 pytest and 84 Pester cases pass per OS, and real fresh local bootstrap succeeds on Windows/WSL.
 The WSL static-SSL build supplies fail-closed probe evidence, not positive Actions-distribution proof.
-Azure's no-agent override preview passes. This eight-file increment remains uncommitted; publish
-only after confirmation, then preview committed source and qualify the four jobs. External seals,
-fixed-prefix restoration, faults/recovery, cache benefit and defaults remain open; see the acquisition
-design for exact evidence/limits. No additional hosted run is queued. Phase 6.5 stays open.
+Azure's no-agent override preview passes. The increment is confirmed and dual-published as `b5d04bb`,
+with four-ref parity and passing committed-source preview. Bounded run 72 proves the first Windows
+copy's runtime/core-library ownership and fresh locked bootstrap, then correctly fails its immutable
+payload check: ensurepip's nested isolated process drops `-B` and creates base bytecode. Remaining
+jobs are cancelled, diagnostics retained, and no cache/trust/handoff admitted. Queue-to-finish is
+3m06.900s; this is failed qualification, not a cache timing baseline or Linux proof.
+
+The scoped correction runs the retained bundled pip wheel directly under isolated `-B` before the
+existing locked install/check. All 55 focused pytest cases pass per OS, including upstream flag-loss
+reproduction and real fresh offline installation. A complete private Windows copy passes real base
+and fresh-environment/core-library probes plus locked bootstrap, with candidate/source unchanged,
+all owned child cleanup verified and cache/trust/restore/handoff withheld. This is local correction
+proof; hosted Linux/provider repeatability remains open. Five correction/evidence files await review before
+publishing and retrying the bounded four-job experiment. External seals, repeated executable copies,
+positive Linux release proof, fixed-prefix restoration, faults/recovery, cache benefit and defaults
+remain open; see the acquisition design for exact evidence/limits. Phase 6.5 stays open.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
