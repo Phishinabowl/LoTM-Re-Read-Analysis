@@ -868,6 +868,69 @@ def test_candidate_cli_rejects_local_execution_before_opening_candidate(tmp_path
         module.main()
 
 
+@pytest.mark.parametrize(
+    "mutation", [None, "marker", "tools", "image", "build", "prefix", "output", "receipt", "source"]
+)
+def test_restored_cli_requires_exact_hosted_owners_before_qualification(tmp_path, monkeypatch, mutation):
+    module = load_candidate_qualification()
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    tools = Path("C:/hostedtoolcache/windows" if sys.platform == "win32" else "/opt/hostedtoolcache")
+    candidate = tools / "Python/3.14.8/x64"
+    output = tmp_path / ".tmp/ci-runtime-restore"
+    receipt = output / "candidate.json"
+    values = {
+        "TF_BUILD": "True",
+        "BUILD_REASON": "Manual",
+        "LOTM_RUNTIME_RESTORE": "hosted-restore-qualification-only",
+        "BUILD_SOURCESDIRECTORY": str(tmp_path),
+        "BUILD_SOURCEVERSION": "a" * 40,
+        "BUILD_BUILDID": "75",
+        "AGENT_TOOLSDIRECTORY": str(tools),
+        "RESTORE_IMAGE": "windows-2022" if sys.platform == "win32" else "ubuntu-24.04",
+    }
+    if mutation == "marker":
+        values["LOTM_RUNTIME_RESTORE"] = "local"
+    elif mutation == "tools":
+        values["AGENT_TOOLSDIRECTORY"] = str(tmp_path)
+    elif mutation == "image":
+        values["RESTORE_IMAGE"] = "unqualified"
+    elif mutation == "build":
+        values["BUILD_BUILDID"] = "0"
+    elif mutation == "source":
+        values["BUILD_SOURCEVERSION"] = "not-a-commit"
+    elif mutation == "prefix":
+        candidate = tmp_path / "runtime"
+    elif mutation == "output":
+        output = tmp_path / "unexpected"
+        receipt = output / "candidate.json"
+    elif mutation == "receipt":
+        receipt = output / "unexpected.json"
+    for name, value in values.items():
+        monkeypatch.setenv(name, value)
+    # Virtual owners only: never touch a real tool cache or run its interpreter.
+    monkeypatch.setattr(module, "plain_directory", lambda path: Path(path))
+    monkeypatch.setattr(module.bootstrap, "read_json", lambda path: {"python": "3.14.8"})
+    calls = []
+
+    def qualify(*args):
+        calls.append(args)
+        return {"status": "qualification-passed", "exit_code": 0}
+
+    monkeypatch.setattr(module, "qualify", qualify)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["qualifier", "--candidate", str(candidate), "--receipt", str(receipt), "--output", str(output), "--restored"],
+    )
+    if mutation is None:
+        assert module.main() == 0
+        assert len(calls) == 1 and calls[0][-1] == "runtime-restored-75"
+    else:
+        with pytest.raises(ValueError):
+            module.main()
+        assert not calls
+
+
 @pytest.mark.parametrize("immutable", [False, True])
 def test_immutable_base_bootstrap_uses_explicit_no_bytecode_ensurepip_and_keeps_default(
     tmp_path, monkeypatch, immutable

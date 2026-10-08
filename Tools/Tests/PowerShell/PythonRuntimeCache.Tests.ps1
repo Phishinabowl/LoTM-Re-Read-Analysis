@@ -841,6 +841,197 @@ Describe 'Mode-aware external seals and nonexecuting staged cache admission' -Ta
         { Get-CiPythonRestorationDestination $plan $tools $stage } | Should -Throw '*fresh*'
         [IO.File]::ReadAllText((Join-Path $target 'keep.txt')) | Should -BeExactly 'host-owned'
     }
+
+    It 'refuses restoration outside explicit hosted context before creating owners' {
+        $target = Join-Path $TestDrive 'unguarded-restoration'
+        { Copy-CiPythonSealedRuntime $plan $stage $TestDrive $target -Restoration } | Should -Throw '*hosted*'
+        Test-Path $target | Should -BeFalse
+        Test-Path ($target + '.copy.json') | Should -BeFalse
+    }
+
+    It 'requires captured restoration context with <mutation> refusal' -ForEach @(
+        @{ mutation = 'none' }, @{ mutation = 'TF_BUILD' }, @{ mutation = 'BUILD_REASON' },
+        @{ mutation = 'LOTM_RUNTIME_RESTORE' }, @{ mutation = 'BUILD_SOURCESDIRECTORY' },
+        @{ mutation = 'BUILD_SOURCEVERSION' }, @{ mutation = 'BUILD_BUILDID' },
+        @{ mutation = 'AGENT_TOOLSDIRECTORY' }, @{ mutation = 'RESTORE_IMAGE' }) {
+        $values = @{ TF_BUILD = 'True'
+            BUILD_REASON = 'Manual'
+            LOTM_RUNTIME_RESTORE = 'hosted-restore-qualification-only'
+            BUILD_SOURCESDIRECTORY = $repoRoot
+            BUILD_SOURCEVERSION = ('a' * 40)
+            BUILD_BUILDID = '75'
+            AGENT_TOOLSDIRECTORY = $TestDrive
+            RESTORE_IMAGE = $image
+        }
+        $previous = @{}
+        foreach ($name in $values.Keys) {
+            $previous[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
+        }
+        try {
+            foreach ($name in $values.Keys) {
+                [Environment]::SetEnvironmentVariable($name, $values[$name], 'Process')
+            }
+            if ($mutation -ne 'none') {
+                [Environment]::SetEnvironmentVariable($mutation, 'invalid', 'Process')
+            }
+            if ($mutation -eq 'none') {
+                (Get-CiPythonHostedRestorationContext).executed_commit | Should -BeExactly ('a' * 40)
+            }
+            else {
+                { Get-CiPythonHostedRestorationContext } | Should -Throw
+            }
+        }
+        finally {
+            foreach ($name in $previous.Keys) {
+                [Environment]::SetEnvironmentVariable($name, $previous[$name], 'Process')
+            }
+        }
+    }
+
+    It 'restores only a simulated absent native prefix, preserving other patches and registration' {
+        $tools = Join-Path $TestDrive 'simulated-host-tools'
+        $null = [IO.Directory]::CreateDirectory((Join-Path $tools 'Python/3.14.7/x64'))
+        $keep = Join-Path $tools 'Python/3.14.7/x64/keep.txt'
+        [IO.File]::WriteAllText($keep, 'other patch')
+        $target = Join-Path $tools 'Python/3.14.8/x64'
+        $plan.identity.prefix = $target
+        Mock Get-CiPythonSealedCachePlan { $plan }
+        Mock Get-CiPythonHostedRestorationContext { $context }
+        $previous = $env:AGENT_TOOLSDIRECTORY
+        try {
+            $env:AGENT_TOOLSDIRECTORY = $tools
+            $copy = Copy-CiPythonSealedRuntime $plan $stage $tools $target -Restoration
+            $copy.status | Should -BeExactly 'restored-copy-verified'
+            $copy.integrity_verified | Should -BeTrue
+            $copy.restoration_qualified | Should -BeFalse
+            $copy.executed | Should -BeFalse
+            (Get-CiPythonRuntimeInventory $target -SealModes).sha256 | Should -BeExactly $inventory.sha256
+            [IO.File]::ReadAllText($keep) | Should -BeExactly 'other patch'
+            Test-Path ($target + '.complete') | Should -BeFalse
+            Test-Path (Join-Path $tools 'Python/3.14.8.restore.json') | Should -BeTrue
+            { Copy-CiPythonSealedRuntime $plan $stage $tools $target -Restoration } | Should -Throw '*fresh*'
+        }
+        finally {
+            $env:AGENT_TOOLSDIRECTORY = $previous
+        }
+    }
+
+    It 'blocks stale native markers and restores only an exactly admitted destination' {
+        $tools = Join-Path $TestDrive 'simulated-marker-tools'
+        $null = [IO.Directory]::CreateDirectory((Join-Path $tools 'Python/3.14.8'))
+        $target = Join-Path $tools 'Python/3.14.8/x64'
+        $plan.identity.prefix = $target
+        Mock Get-CiPythonSealedCachePlan { $plan }
+        Mock Get-CiPythonHostedRestorationContext { $context }
+        $previous = $env:AGENT_TOOLSDIRECTORY
+        try {
+            $env:AGENT_TOOLSDIRECTORY = $tools
+            { Copy-CiPythonSealedRuntime $plan $stage $tools (Join-Path $tools 'other') -Restoration } | Should -Throw '*write owner*'
+            [IO.File]::WriteAllText(($target + '.complete'), 'native-owned marker')
+            { Copy-CiPythonSealedRuntime $plan $stage $tools $target -Restoration } | Should -Throw '*completion marker*'
+            [IO.File]::ReadAllText(($target + '.complete')) | Should -BeExactly 'native-owned marker'
+            Test-Path $target | Should -BeFalse
+        }
+        finally {
+            $env:AGENT_TOOLSDIRECTORY = $previous
+        }
+    }
+
+    It 'retains a simulated restoration lease on cancellation and refuses reuse' {
+        $tools = Join-Path $TestDrive 'simulated-cancel-tools'
+        $null = [IO.Directory]::CreateDirectory((Join-Path $tools 'Python'))
+        $target = Join-Path $tools 'Python/3.14.8/x64'
+        $plan.identity.prefix = $target
+        Mock Get-CiPythonSealedCachePlan { $plan }
+        Mock Get-CiPythonHostedRestorationContext { $context }
+        $previous = $env:AGENT_TOOLSDIRECTORY
+        try {
+            $env:AGENT_TOOLSDIRECTORY = $tools
+            $cancel = { Test-Path -LiteralPath $target }.GetNewClosure()
+            { Copy-CiPythonSealedRuntime $plan $stage $tools $target -Restoration -Cancelled $cancel } | Should -Throw '*cancelled*'
+            $receipt = Get-Content (Join-Path $tools 'Python/3.14.8.restore.json') -Raw | ConvertFrom-Json
+            $receipt.status | Should -BeExactly 'copy-incomplete'
+            $receipt.failure_type | Should -BeExactly 'OperationCanceledException'
+            $receipt.handoff_admitted | Should -BeFalse
+            { Copy-CiPythonSealedRuntime $plan $stage $tools $target -Restoration } | Should -Throw '*fresh*'
+        }
+        finally {
+            $env:AGENT_TOOLSDIRECTORY = $previous
+        }
+    }
+}
+
+Describe 'Completed restoration probe evidence admission' -Tag Unit {
+    BeforeEach {
+        $qualified = @{ contract = 'ci-python-candidate-qualification'
+            schema_version = 1
+            executed_commit = ('a' * 40)
+            status = 'qualification-passed'
+            exit_code = 0
+            payload_unchanged = $true
+            runtime_probe_verified = $true
+            environment_verified = $true
+            trusted_seal = $false
+            provider_build_verified = $false
+            restoration_verified = $false
+            handoff_admitted = $false
+            saved = $false
+            processes = @(
+                @{ status = 'exited'
+                    child_exit_code = 0
+                    cleanup = @{ verified = $true }
+                }
+                @{ status = 'exited'
+                    child_exit_code = 0
+                    cleanup = @{ verified = $true }
+                }
+                @{ status = 'exited'
+                    child_exit_code = 0
+                    cleanup = @{ verified = $true }
+                })
+        }
+    }
+    It 'accepts all completed owned children without promoting cache or handoff' {
+        { Test-CiPythonCompletedQualification $qualified ('a' * 40) } | Should -Not -Throw
+    }
+    It 'rejects incomplete or promoted <mutation> evidence' -ForEach @(
+        @{ mutation = 'schema' }, @{ mutation = 'revision' }, @{ mutation = 'status' }, @{ mutation = 'exit' }
+        @{ mutation = 'payload' }, @{ mutation = 'environment' }, @{ mutation = 'promoted' }
+        @{ mutation = 'missing-child' }, @{ mutation = 'failed-child' }, @{ mutation = 'cleanup' }) {
+        switch ($mutation) {
+            'schema' {
+                $qualified.schema_version = 1.0
+            }
+            'revision' {
+                $qualified.executed_commit = 'b' * 40
+            }
+            'status' {
+                $qualified.status = 'failed'
+            }
+            'exit' {
+                $qualified.exit_code = 130
+            }
+            'payload' {
+                $qualified.payload_unchanged = $false
+            }
+            'environment' {
+                $qualified.environment_verified = 'true'
+            }
+            'promoted' {
+                $qualified.handoff_admitted = $true
+            }
+            'missing-child' {
+                $qualified.processes = @($qualified.processes[0])
+            }
+            'failed-child' {
+                $qualified.processes[2].child_exit_code = 1
+            }
+            'cleanup' {
+                $qualified.processes[0].cleanup.verified = $false
+            }
+        }
+        { Test-CiPythonCompletedQualification $qualified ('a' * 40) } | Should -Throw
+    }
 }
 
 Describe 'Pre-Python cache admission without cached execution' -Tag Unit {

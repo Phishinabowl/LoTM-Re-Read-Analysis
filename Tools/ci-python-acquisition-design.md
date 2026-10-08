@@ -957,7 +957,8 @@ annotation policy pass (two files, zero findings, all 22 policy fixtures); 66 re
 links resolve, trailing-whitespace and diff checks pass. Python source is unchanged, so the previously
 passing 94-case reference/bootstrap evidence is retained rather than rerun.
 
-This five-file increment remains uncommitted for review. Actual fixed-prefix writes, tool-cache
+The maintainer confirms this five-file increment, published as `af91478` with four-ref parity.
+Actual fixed-prefix writes, tool-cache
 registration/complete markers, interpreter probes and fresh locked-environment handoff still require
 the hosted driver/receipt qualification. The private writer requires the receipt's parent to exist;
 creating/owning missing native version-parent directories is a separate driver responsibility, not
@@ -965,3 +966,65 @@ implicitly authorized by the read-only destination result. No cache YAML, real h
 reopening occurs here. Next bind the owned restoration lifecycle to that guarded manual driver, then
 qualify bounded cache hit/miss/fault/recovery and measure restore/save costs before adoption. Phase 6.5
 stays open and native acquisition remains default/rollback.
+
+## Guarded Restoration Driver and Probe Protocol Implemented for Review
+
+The next eight-file increment adds [Restore-PythonRuntime.ps1](CI/Restore-PythonRuntime.ps1), guarded
+hosted copying and the existing Python qualifier's explicit `--restored` entry. Pipeline YAML remains
+unchanged: nothing invokes this route yet and no hosted experiment is queued. Native acquisition is
+still the default. Publication of these sources alone does not adopt the cache backend.
+
+The PowerShell driver requires exact manual Azure flags, an explicit restoration-only marker, current
+checkout/source identity, a positive build ID, platform/image and an absolute actual agent tools root.
+It reads current source-owned pins/reference/key declarations itself. Fixed staging and diagnostic
+owners are `.tmp/ci-runtime-staging` and `.tmp/ci-runtime-restore`. The runtime destination must equal
+the declared native tools-root/Python/exact-version/x64 prefix. Occupied targets, stale completion
+markers and existing lease receipts are blocked, without removing installations or other patches.
+
+The shared copy engine preserves private-copy behavior. Its restoration route additionally checks
+captured context/source and exactly admitted tools-root/destination before writing. A plain existing
+`Python` parent is required. `Python/<version>.restore.json` is exclusively claimed before any missing
+version-parent/target creation; this is separate from the runtime inventory and blocks partial reuse.
+The copying result proves only restored bytes/modes and unchanged staging, with execution, probe/
+restoration qualification, save and handoff still false. No registry or `.complete` marker is created.
+
+The driver adapts the repository reference into the existing candidate-qualification protocol and
+rechecks the full external seal immediately before launching the exact restored executable with
+`-I -B`. Linux's adapted stamp declares the already-canonical source root and no new mode reductions;
+it is not relabelled as another native capture. The Python `--restored` entry independently checks
+the same manual marker/source, native tools root/fixed prefix, image and diagnostic/receipt owners.
+It uses `runtime-restored-<build-id>` for a fresh source-mode locked project environment. Ordinary
+candidate entry guards and prior qualification behavior are retained.
+
+Existing owned-process qualification supplies the 600-second lease and bounded 60/360/60-second
+base probe/bootstrap/environment probe steps, cancellation, process diagnostics and cleanup evidence.
+The PowerShell copy/initial seal budget is five minutes and final source/destination recheck budget is
+two minutes. These are safety ceilings, not expected costs or relaxed timing goals. The forthcoming
+manual job must explicitly bound the outer driver and publish diagnostics on failure/cancellation;
+its pipeline orchestration has not been implemented or qualified in this increment.
+
+`Test-CiPythonCompletedQualification` refuses malformed or premature success: typed contract/schema/
+exit/source declarations, true immutable payload/runtime/environment flags, false cache/save/handoff
+promotion and all three cleanly exited owned children with verified cleanup are required. The driver
+rechecks both restored payload and unchanged staging after probes before `restoration-qualified`.
+This qualification receipt still sets ordinary handoff/save false. Attempted launch is distinguished
+from a returned executable launch; child cancellation/timeout preserve 130/124 and retained reports.
+Copy/probe/final-seal failures cannot qualify the runtime or save it.
+
+Local verification uses simulated tool roots and virtual Python owner paths only. No actual Windows
+or WSL tool cache is modified and no restored interpreter is launched locally. The actual driver
+refuses local invocation on both OSs with exit 1 before diagnostic owner creation. New tests exercise
+manual context/owner/marker/source refusal, exact absent-prefix copying, missing version-parent
+ownership, preservation of other patches, completion-marker refusal, retained cancellation leases,
+and completed three-child evidence admission/refusal. Final focused pytest results are 103/103 per
+OS (Windows 5.48s; Linux 7.86s); registered Pester group results are 176/176 per OS (Windows 15.881s;
+Linux 27.754s), zero errors/skips within the unchanged 120-second deadline. Scoped Ruff/PowerShell
+formatting, five-file annotation policy/all 22 fixtures, 67 documentation links and diff checks pass.
+The new protocol/guard/copy evidence adds nine Python and 24 Pester cases to the prior checkpoint.
+
+Eight source/test/evidence files remain uncommitted for review. Next prepare the opt-in manual cache
+pilot and its occupied-prefix/native-route disposition, exact hit/miss/fault/recovery reporting and
+outer cancellation/timeout/artifact handling before executing a bounded hosted qualification. Do not
+remove image runtimes to force an absent prefix. Real fixed-prefix restoration, warm restore/save
+costs, original role/profile handoffs and legacy scaffold retirement remain open. Keep existing
+checks/defaults and paused PRs unchanged. Phase 6.5 stays open.

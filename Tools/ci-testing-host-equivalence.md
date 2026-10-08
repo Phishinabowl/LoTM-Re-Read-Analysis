@@ -850,13 +850,30 @@ tools-root/prefix checks and nonexecuting immutable file/link/mode copying. Exis
 owners are preserved; an incomplete lease/target cannot be reused. Private copying expressly refuses
 the declared native owner. Cancellation/timeout/I/O failure and source mutation remain incomplete,
 without execution/restoration/handoff/save promotion. Tests use only synthetic private fixtures on
-Windows/WSL; no installed runtime, tool-cache registration or agent prefix is modified. Five files
-await review. The actual guarded hosted driver, fixed-prefix writes/probes, warm cache economics and
+Windows/WSL; no installed runtime, tool-cache registration or agent prefix is modified. The maintainer
+confirms the five-file increment, published as `af91478` with four-ref parity. The actual guarded
+hosted driver, fixed-prefix writes/probes, warm cache economics and
 ordinary role/profile handoffs remain later qualification gates, not claims of this private proof.
 Final registered Pester group results are 152/152 on each OS, zero errors/skips, in 14.699s Windows
 and 25.370s Linux within the unchanged 120-second deadline. Twelve added cases cover private copying
 and ownership/failure refusal; scoped static policy/22 fixtures, formatting and all 66 documentation
 links pass. No Python implementation changes require repeating its prior focused verification.
+
+The next eight-file increment implements a disconnected manual Azure restoration driver, fresh
+version-level ownership lease, exact-prefix copying and an explicit restored Python qualification
+entry. Full external seals precede executable launch and are rechecked after the existing bounded
+base/environment probes and fresh locked bootstrap. Completed evidence requires all three child
+exit/cleanup proofs, immutable payload and no premature cache/handoff/save promotion. Actual local
+entry refuses on Windows/WSL before output creation; successful restoration tests use private
+simulated roots and Python entry tests virtualize owner paths without launching an interpreter.
+Real fixed-prefix execution/outer job cancellation/artifact behavior are not yet hosted proof.
+No pipeline YAML/cache task, registration or ordinary handoff changes occur. This source checkpoint
+awaits review; next wire a bounded opt-in manual pilot with explicit native route for occupied image
+prefixes, then measure real restoration and cold/warm cost/fault/recovery. Phase 6.5 stays open.
+Verification passes 103 focused pytest cases per OS (5.48s Windows/7.86s Linux) and 176 registered
+Pester cases per OS (15.881s Windows/27.754s Linux), zero errors/skips. Ruff/PowerShell formatting,
+five-file annotation policy/all 22 fixtures, 67 doc links and diff checks pass. These are local protocol/
+ownership checks, not warm-cache performance or real fixed-prefix hosted proof.
 
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare

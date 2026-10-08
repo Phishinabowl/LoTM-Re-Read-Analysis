@@ -2692,13 +2692,30 @@ actual tools-root versus declared fixed-prefix checking and a complete sealed pr
 preserves occupied/linked owners and other patches, refuses native-prefix writes, retains partial
 cancellation/timeout/I/O failure receipts, and verifies unchanged staging plus copied bytes/links/
 modes before any possible execution. Synthetic fixtures exercise these contracts on Windows/WSL;
-actual runtime installations remain untouched. This increment awaits review. It does not complete
+actual runtime installations remain untouched. The maintainer confirms this checkpoint, published
+as `af91478` with four-ref parity. It does not complete
 the real restoration lease/probe/handoff gate: a guarded manual hosted driver must capture agent
 context, own an absent exact prefix and qualify the full receipt lifecycle before cache YAML or
 restored executable use. Native version-parent ownership remains a driver gate. Final registered
 Pester verification passes 152/152 cases per OS in 14.699s Windows/25.370s Linux, zero errors/skips,
 within the existing 120-second deadline; scoped formatting/policy/22 fixtures and 66 doc links pass.
 No hosted run is queued and phase 6.5 remains open.
+
+The following eight-file checkpoint implements the guarded manual restoration driver/probe protocol:
+explicit captured Azure/manual/source/tools-root context; absent exact prefix and no completion marker;
+exclusive version-level external lease before parent/target creation; complete immutable copying;
+full source-owned seal before the first restored launch; shared bounded base/fresh locked-environment
+qualification; typed three-child success/cleanup evidence; final staging/destination rechecks; honest
+failure/cancellation/timeout receipts and exits. Existing private/candidate routes remain active.
+No pipeline invokes it yet, no real host prefix is modified locally and no hosted run is queued.
+Actual local driver refusal is checked on both OSs; positive tests use simulated/virtual owners only.
+This checkpoint awaits review. Next wire and review the opt-in manual cache pilot's exact hit/miss,
+occupied-prefix native route, outer timeout/cancellation/diagnostic publication and bounded fault/
+recovery experiments before real hosted restoration. Warm cache economics, original portfolio/role
+handoffs, legacy scaffold retirement and adoption remain acceptance gates. Phase 6.5 stays open.
+Final local results: 103/103 focused pytest cases per OS in 5.48s Windows/7.86s Linux; 176/176
+registered Pester cases per OS in 15.881s Windows/27.754s Linux, zero errors/skips within the existing
+deadline. Scoped formatting/static policy/22 fixtures, 67 documentation links and diff checks pass.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain

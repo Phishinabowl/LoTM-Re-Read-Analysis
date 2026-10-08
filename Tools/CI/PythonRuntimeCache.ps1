@@ -1,5 +1,5 @@
 #Requires -Version 7.4
-# Admission/inventory and private candidate construction. No installer, network, restoration or runtime execution.
+# Admission, inventories and guarded copying; no installer, network or executable launch.
 
 function Test-CiPythonCacheLease {
     param([datetime]$DeadlineUtc, [scriptblock]$Cancelled)
@@ -1023,6 +1023,9 @@ function Get-CiPythonRestorationDestination {
         throw 'Actual hosted tools root differs from the declared native fixed prefix.'
     }
     $owner = Resolve-CiPythonFreshCopyOwner $tools $expected $StagingRoot
+    if (Get-Item -LiteralPath ($expected + '.complete') -Force -ErrorAction SilentlyContinue) {
+        throw 'Existing native completion marker blocks restoration.'
+    }
     [pscustomobject]@{ contract = 'ci-python-runtime-restoration-destination'
         schema_version = 1
         target = $owner.target
@@ -1039,6 +1042,60 @@ function New-CiPythonSealedPrivateCopy {
     param([Parameter(Mandatory)]$Plan, [Parameter(Mandatory)][string]$StagingRoot,
         [Parameter(Mandatory)][string]$WorkspaceRoot, [Parameter(Mandatory)][string]$Destination,
         [datetime]$DeadlineUtc = [datetime]::MaxValue, [scriptblock]$Cancelled = { $false })
+    Copy-CiPythonSealedRuntime $Plan $StagingRoot $WorkspaceRoot $Destination -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+}
+
+function Get-CiPythonHostedRestorationContext {
+    $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+    if ($env:TF_BUILD -cne 'True' -or $env:BUILD_REASON -cne 'Manual' -or
+        $env:LOTM_RUNTIME_RESTORE -cne 'hosted-restore-qualification-only' -or
+        $env:BUILD_SOURCESDIRECTORY -cne $repo -or $env:BUILD_SOURCEVERSION -cnotmatch '^[0-9a-f]{40}$' -or
+        $env:BUILD_BUILDID -cnotmatch '^[1-9][0-9]*$' -or
+        [string]::IsNullOrWhiteSpace($env:AGENT_TOOLSDIRECTORY) -or
+        -not [IO.Path]::IsPathRooted($env:AGENT_TOOLSDIRECTORY)) {
+        throw 'Restoration requires explicit manual Azure hosted pilot context.'
+    }
+    $osName = if ($IsWindows) {
+        'windows'
+    }
+    elseif ($IsLinux) {
+        'linux'
+    }
+    else {
+        ''
+    }
+    $image = if ($IsWindows) {
+        'windows-2022'
+    }
+    else {
+        'ubuntu-24.04'
+    }
+    if (-not $osName -or $env:RESTORE_IMAGE -cne $image) {
+        throw 'Restoration image differs from the qualified platform.'
+    }
+    @{ host = 'ado'
+        event = 'Manual'
+        hosted = $true
+        os = $osName
+        image_family = $image
+        architecture = 'x64'
+        executed_commit = $env:BUILD_SOURCEVERSION
+    }
+}
+
+function Copy-CiPythonSealedRuntime {
+    param([Parameter(Mandatory)]$Plan, [Parameter(Mandatory)][string]$StagingRoot,
+        [Parameter(Mandatory)][string]$WorkspaceRoot, [Parameter(Mandatory)][string]$Destination,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue, [scriptblock]$Cancelled = { $false },
+        [switch]$Restoration)
+    if ($Restoration) {
+        $context = Get-CiPythonHostedRestorationContext
+        if ($Plan.executed_commit -cne $context.executed_commit) {
+            throw 'Restoration source revision differs.'
+        }
+        $admitted = Get-CiPythonRestorationDestination $Plan $env:AGENT_TOOLSDIRECTORY $StagingRoot `
+            -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    }
     $decision = Get-CiPythonSealedCacheDecision $Plan $StagingRoot true -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
     $owner = Resolve-CiPythonFreshCopyOwner $WorkspaceRoot $Destination $StagingRoot
     $fixed = [IO.Path]::GetFullPath($Plan.identity.prefix)
@@ -1048,16 +1105,35 @@ function New-CiPythonSealedPrivateCopy {
     else {
         [StringComparison]::Ordinal
     }
-    if ($owner.target.Equals($fixed, $comparison) -or
-        $owner.target.StartsWith($fixed + [IO.Path]::DirectorySeparatorChar, $comparison) -or
-        $fixed.StartsWith($owner.target + [IO.Path]::DirectorySeparatorChar, $comparison)) {
+    if (-not $Restoration -and ($owner.target.Equals($fixed, $comparison) -or
+            $owner.target.StartsWith($fixed + [IO.Path]::DirectorySeparatorChar, $comparison) -or
+            $fixed.StartsWith($owner.target + [IO.Path]::DirectorySeparatorChar, $comparison))) {
         throw 'Private copying cannot write the declared native runtime owner.'
+    }
+    if ($Restoration) {
+        if (-not $owner.target.Equals($admitted.target, $comparison) -or
+            -not $owner.workspace.Equals((Get-CiPythonCachePath $env:AGENT_TOOLSDIRECTORY), $comparison)) {
+            throw 'Restoration write owner differs from the admitted native prefix.'
+        }
+        $pythonOwner = Get-CiPythonCachePath $owner.workspace 'Python'
+        if (-not (Test-Path -LiteralPath $pythonOwner -PathType Container)) {
+            throw 'Existing plain native Python parent required.'
+        }
+        $owner.receipt = Get-CiPythonCachePath $pythonOwner ($Plan.identity.python_version + '.restore.json')
+        if (Get-Item -LiteralPath $owner.receipt -Force -ErrorAction SilentlyContinue) {
+            throw 'Restoration lease must be fresh; incomplete owners cannot be reused.'
+        }
     }
     $inventory = Get-CiPythonRuntimeInventory $StagingRoot -SealModes -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
     if ($inventory.sha256 -cne $decision.inventory_sha256) {
         throw 'Staging changed before copying.'
     }
-    $result = [ordered]@{ contract = 'ci-python-runtime-private-copy'
+    $result = [ordered]@{ contract = $(if ($Restoration) {
+                'ci-python-runtime-restored-copy'
+            }
+            else {
+                'ci-python-runtime-private-copy'
+            })
         schema_version = 1
         status = 'copy-incomplete'
         cache_key = $Plan.cache_key
@@ -1105,7 +1181,12 @@ function New-CiPythonSealedPrivateCopy {
         if ($copied.sha256 -cne $inventory.sha256 -or $after.sha256 -cne $inventory.sha256) {
             throw 'Copied payload or original staging changed during copying.'
         }
-        $result.status = 'private-copy-verified'
+        $result.status = if ($Restoration) {
+            'restored-copy-verified'
+        }
+        else {
+            'private-copy-verified'
+        }
         $result.inventory_sha256 = $copied.sha256
         $result.source_unchanged = $true
         $result.integrity_verified = $true
@@ -1118,6 +1199,29 @@ function New-CiPythonSealedPrivateCopy {
         $result.failure_type = $_.Exception.GetType().Name
         $result | ConvertTo-Json | Set-Content -LiteralPath $owner.receipt -Encoding utf8
         throw
+    }
+}
+
+function Test-CiPythonCompletedQualification {
+    param([Parameter(Mandatory)][Collections.IDictionary]$Qualified, [Parameter(Mandatory)][string]$Revision)
+    if ($Qualified.contract -cne 'ci-python-candidate-qualification' -or
+        ($Qualified.schema_version -isnot [int] -and $Qualified.schema_version -isnot [long]) -or
+        $Qualified.schema_version -ne 1 -or $Qualified.status -cne 'qualification-passed' -or
+        ($Qualified.exit_code -isnot [int] -and $Qualified.exit_code -isnot [long]) -or $Qualified.exit_code -ne 0 -or
+        $Qualified.executed_commit -cne $Revision -or
+        @('payload_unchanged', 'runtime_probe_verified', 'environment_verified' |
+                Where-Object { $Qualified[$_] -isnot [bool] -or -not $Qualified[$_] }).Count -or
+        @('trusted_seal', 'provider_build_verified', 'restoration_verified', 'handoff_admitted', 'saved' |
+                Where-Object { $Qualified[$_] -isnot [bool] -or $Qualified[$_] }).Count -or
+        $Qualified.processes -isnot [array] -or $Qualified.processes.Count -ne 3) {
+        throw 'Completed immutable qualification without premature cache promotion required.'
+    }
+    foreach ($process in $Qualified.processes) {
+        if ($process.status -cne 'exited' -or
+            ($process.child_exit_code -isnot [int] -and $process.child_exit_code -isnot [long]) -or $process.child_exit_code -ne 0 -or
+            $process.cleanup.verified -isnot [bool] -or -not $process.cleanup.verified) {
+            throw 'All three qualification children require successful exits and verified cleanup.'
+        }
     }
 }
 

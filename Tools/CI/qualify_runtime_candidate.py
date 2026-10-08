@@ -1,4 +1,4 @@
-"""Manual hosted candidate qualification; no cached-runtime or external-seal admission."""
+"""Manual hosted private/restored qualification; external cache seals are admitted by the PS driver."""
 
 import argparse
 import hashlib
@@ -529,11 +529,16 @@ def main():
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--restored", action="store_true", help="Guarded owned-prefix restoration pilot only")
     args = parser.parse_args()
     if (
         os.environ.get("TF_BUILD") != "True"
         or os.environ.get("BUILD_REASON") != "Manual"
-        or os.environ.get("CAPTURE_MODE") != "candidate"
+        or (
+            os.environ.get("LOTM_RUNTIME_RESTORE") != "hosted-restore-qualification-only"
+            if args.restored
+            else os.environ.get("CAPTURE_MODE") != "candidate"
+        )
     ):
         raise ValueError("Candidate execution requires the explicit manual hosted pilot")
     if Path(os.environ["BUILD_SOURCESDIRECTORY"]).resolve() != ROOT or not re.fullmatch(
@@ -542,12 +547,32 @@ def main():
         raise ValueError("Hosted checkout/source ownership differs")
     candidate = plain_directory(args.candidate)
     output = plain_directory(args.output)
-    if not candidate.is_relative_to(ROOT / ".tmp/ci-runtime-candidates") or output != ROOT / ".tmp/ci-runtime-capture":
+    if args.restored:
+        versions = bootstrap.read_json(bootstrap.DATA / "runtime-versions.json")
+        tools = plain_directory(Path(os.environ["AGENT_TOOLSDIRECTORY"]))
+        fixed = Path("C:/hostedtoolcache/windows" if sys.platform == "win32" else "/opt/hostedtoolcache")
+        image = "windows-2022" if sys.platform == "win32" else "ubuntu-24.04"
+        if (
+            sys.platform not in ("win32", "linux")
+            or tools != fixed
+            or os.environ.get("RESTORE_IMAGE") != image
+            or not re.fullmatch("[1-9][0-9]*", os.environ.get("BUILD_BUILDID", ""))
+            or candidate != tools / "Python" / versions["python"] / "x64"
+            or output != ROOT / ".tmp/ci-runtime-restore"
+        ):
+            raise ValueError("Restored runtime requires the declared native prefix and diagnostic owner")
+    elif (
+        not candidate.is_relative_to(ROOT / ".tmp/ci-runtime-candidates") or output != ROOT / ".tmp/ci-runtime-capture"
+    ):
         raise ValueError("Hosted candidate/output owner differs")
     receipt_path = args.receipt.resolve()
     if receipt_path != output / "candidate.json" or args.receipt.is_symlink():
         raise ValueError("Hosted candidate receipt owner differs")
-    identity = "runtime-candidate-" + os.environ["BUILD_BUILDID"] + "-" + os.environ["CAPTURE_ID"]
+    identity = (
+        "runtime-restored-" + os.environ["BUILD_BUILDID"]
+        if args.restored
+        else "runtime-candidate-" + os.environ["BUILD_BUILDID"] + "-" + os.environ["CAPTURE_ID"]
+    )
     result = qualify(candidate, bootstrap.read_json(receipt_path), output, os.environ["BUILD_SOURCEVERSION"], identity)
     print("Candidate qualification: " + result["status"])
     return result["exit_code"]
