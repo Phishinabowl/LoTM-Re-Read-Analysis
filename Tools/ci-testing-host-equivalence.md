@@ -794,10 +794,25 @@ per-row filesystem stats, removed without weakening actual owner or metadata val
 deadline/cancellation, typed identity, complete paths/links/modes, duplicate/malformed/corrupt inputs,
 read-only derivation and fresh-owned-output refusal. No new group, deadline, host run or cache is added.
 
-Ten implementation/data/test/evidence files await review. Explicit Linux v2 projection/copy and
-Python receipt binding follow this reference foundation; Linux repeatability, trusted seals,
-fixed-prefix restoration and benefit measurement remain open. See the acquisition design's concrete
-policy and implementation record for exact evidence/rollback. Phase 6.5 and paused PRs remain unchanged.
+The maintainer confirms the reference foundation, published as `1e9dd30` with four-ref parity.
+The next explicit Linux v2 builder/driver increment is implemented locally: exact external reference
+matching, restricted permission reductions, private-only copying, source-root preservation and
+schema-2 mode/reference provenance. The Python receiver independently binds external declarations
+and typed inventory before any executable launch. Raw/Windows v1/ordinary defaults remain unchanged.
+
+All 87 focused Python and 124 registered Pester cases pass per OS with zero errors/skips; final
+Pester costs are 13.023s Windows/22.535s Linux. Actual Linux fixtures prove copying, reduction,
+source/root preservation, cancellation/partial refusal and root-mutation detection; Windows cases
+verify the host restriction. Real captured Linux inventories now normalize identically at 3,040
+entries and the reviewed digest, reducing 3,029 modes/zero respectively. Their native root mode was
+not captured, so that data-only comparison explicitly uses a synthetic root and does not close
+actual hosted root/execution qualification.
+
+Eight source/test/evidence files remain uncommitted. After publication, preview exact source and
+qualify four bounded Windows/Linux allocations; preserve the distinction between actual scheduled
+image variants and captured/synthetic variance proof. Cache-plan/seal/restore integration and benefit
+remain open. See the acquisition design for exact limits/evidence/rollback. Phase 6.5 and paused PRs
+remain unchanged; no new hosted run is queued.
 
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare

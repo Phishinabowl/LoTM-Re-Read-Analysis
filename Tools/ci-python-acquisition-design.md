@@ -720,9 +720,67 @@ reference bytes from the pinned real archive. Evidence is retained under
 Ruff/formatting, work-annotation policy/22 fixtures, generated-data/line-ending checks, documentation
 links and diff checks pass.
 
-This ten-file source/data/test/evidence increment is uncommitted for review. After publication,
-connect the loaded reference to the explicit Linux v2 projection/private-copy path, record source-root
-and mode-change provenance, enforce stamped reference identity in the Python driver, and qualify
-existing fixtures plus both captured source variants before the next bounded hosted run. No additional
-hosted experiment is needed to accept the standalone reference foundation. Phase 6.5 stays open;
-trusted-seal/restoration/fault/recovery/benefit and ordinary handoff/adoption gates remain open.
+The maintainer confirms this ten-file foundation, dual-published as `1e9dd30` with four-ref parity.
+No additional hosted experiment is needed to accept its standalone reference proof. The explicit v2
+copy/driver implementation below is the next separate increment. Phase 6.5 stays open;
+cache-plan/seal/restoration/fault/recovery/benefit and ordinary handoff/adoption gates remain open.
+
+## Explicit Linux V2 Copy and Driver Binding Implemented for Review
+
+The private builder now exposes an explicit `-LinuxReleaseModes` option. Without it, v1 behavior
+and schema-1 receipts remain unchanged. Windows refuses the Linux option before creating a candidate.
+On Linux, the option loads only the repository-bound reference, captures the original native root
+mode before inventory, derives the existing v1 retained projection and requires its complete
+path/type/size/hash/link set to match the external reference. Qualified source modes are only exact
+reference modes or 0777; root modes are only 0755/0777. Missing executable bits, privileged modes,
+different binaries, extra/missing rows or changed link targets fail before copy acceptance.
+
+The normalizer changes metadata in a fresh projection without altering its input. Existing private
+copy/link creation then applies exact reference file/directory modes and a 0755 root. Its complete
+schema-3 fingerprint must match the independently derived reference. Original native inventory and
+root mode must remain unchanged. Success receipts use schema 2 and
+`native-core-v2-linux-release-modes`, with external reference identity/file/inventory checksums,
+original source-root mode and an ordinal list of exact mode reductions. Incomplete receipts retain
+that provenance with bounded JSON depth, never promote the partial owner and never allow its reuse.
+
+The Python qualifier independently reloads the repository-owned specification/reference through
+plain bounded input with duplicate-key rejection. Before executing any child, it binds v2 receipt
+identity and the entire typed inventory to that external reference, validates the source-root mode
+and exact ordinal change records, then performs the existing physical byte/path/link/mode checks.
+Canonical serialized comparison distinguishes integers from floating/Boolean lookalikes. A matching
+manifest supplied by the runtime alone cannot substitute for the source-controlled reference.
+V2 execution remains Linux-only; a namespace/revision mismatch or failed binding yields retained
+failure evidence with zero child launches. The existing owned-process/deadline/cancellation logic
+and real base/fresh-environment probes are retained. Reports identify normalization, reference binding,
+source-root mode and reduction count; cache/provider/restore/save/handoff admission remains withheld.
+
+The temporary capture entry point selects v2 only for its explicit Linux `candidate` mode and checks
+native root permissions again after executable qualification. Raw mode, Windows candidate v1,
+production adapters, profile membership, four allocations, job limits, artifact-only evidence and
+all ordinary acquisition defaults remain unchanged. No Cache task or hosted run is added by this diff.
+
+Focused verification passes all 87 bootstrap/reference/qualification pytest cases per OS (Windows
+4.58s; Linux 6.39s) and all 124 registered dependency/reference/copy Pester cases per OS (Windows
+13.023s; Linux 22.535s), with zero errors/skips. New portable metadata tests cover exact, all-0777
+and mixed sources, unchanged inputs, altered bytes/types/links/modes/version/digest, root restrictions,
+lease refusal and exact receiver binding. Actual private Linux file copies prove reduction, source/root
+preservation, partial-owner refusal, source-root mutation detection and mid-copy cancellation with
+schema-2 provenance. The corresponding Windows cases verify explicit host refusal; they do not claim
+positive Linux copying on Windows. No new registered group or deadline is introduced.
+
+Read-only projection of both real run-73 Linux captures produces the same complete 3,040-entry
+fingerprint `5e88f33c1f23523d9099daf29854fb12536ec3d0e6e5b3b7e212993503ec8794`: first capture reduces
+3,029 modes; second reduces zero. Projection costs are 8.073s/7.485s, including the existing omission
+step. Evidence is `.tmp/ci-phase65/release-mode-projections.json`. Because old raw captures did not
+record native root mode, this data-only proof explicitly supplies synthetic 0755 and claims neither
+real root-mode qualification nor executable release qualification. New hosted receipts must supply
+and preserve the actual root; the local source-built WSL interpreter remains outside release proof.
+
+Ruff/formatting, annotation policy/22 fixtures, documentation links and diff checks pass. Eight
+source/test/evidence files remain uncommitted for review. After publication approval, preview actual
+committed source and run one bounded four-job candidate experiment. Require real root/byte/mode
+preservation, external binding, copied base/fresh locked environment ownership, cleanup and equal
+Linux inventories. If the hosted images provide only one source variant, distinguish fresh execution
+proof from the already verified captured/synthetic variance proof; do not remove image runtimes.
+Cache-plan/seal/restore integration, fault/recovery, cold/warm benefit and ordinary handoffs remain
+separate open gates. Phase 6.5 stays open; PRs remain paused.

@@ -158,6 +158,127 @@ Describe 'External Linux release reference admission without execution' -Tag Uni
     }
 }
 
+Describe 'Release-mode projection from complete admitted metadata' -Tag Unit {
+    BeforeEach {
+        $rows = @([ordered]@{ path = 'bin'
+                kind = 'directory'
+                unix_mode = 493
+            },
+            [ordered]@{ path = 'bin/python3.14'
+                kind = 'file'
+                bytes = 3
+                sha256 = ('a' * 64)
+                unix_mode = 493
+            },
+            [ordered]@{ path = 'python'
+                kind = 'symlink'
+                target = './bin/python3.14'
+            })
+        $frame = [ordered]@{ root_unix_mode = 493
+            entries = $rows
+        }
+        $encoded = [Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $frame -Depth 7 -Compress))
+        $digest = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($encoded)).ToLowerInvariant()
+        $reference = [pscustomobject]@{ identity = @{ python = $pins.python
+                normalization = 'native-core-v2-linux-release-modes'
+            }
+            reference_sha256 = ('b' * 64)
+            inventory = [ordered]@{ schema_version = 3
+                root_unix_mode = 493
+                entries = $rows
+                sha256 = $digest
+            }
+        }
+        $projection = [pscustomobject]@{ normalization = 'native-core-v1'
+            schema_version = 3
+            entries = @(
+                $rows | ForEach-Object { $copy = [ordered]@{}
+                    foreach ($key in $_.Keys) {
+                        $copy[$key] = $_[$key]
+                    }
+                    $copy })
+            omitted = @()
+            root_unix_mode = 493
+            sha256 = $digest
+        }
+    }
+
+    It 'normalizes <variant> permissions without modifying input metadata' -ForEach @(
+        @{ variant = 'exact'
+            changes = 0
+        }, @{ variant = 'world-writable'
+            changes = 2
+        }, @{ variant = 'mixed'
+            changes = 1
+        }) {
+        if ($variant -eq 'world-writable') {
+            $projection.entries[0].unix_mode = 511
+            $projection.entries[1].unix_mode = 511
+        }
+        if ($variant -eq 'mixed') {
+            $projection.entries[1].unix_mode = 511
+        }
+        $before = ConvertTo-Json -InputObject $projection -Depth 8 -Compress
+        $result = ConvertTo-CiPythonReleaseModeProjection $projection $reference 511 $pins
+        $result.sha256 | Should -BeExactly $digest
+        $result.mode_changes.Count | Should -Be $changes
+        $result.source_root_mode | Should -Be 511
+        $result.root_unix_mode | Should -Be 493
+        (ConvertTo-Json -InputObject $projection -Depth 8 -Compress) | Should -BeExactly $before
+    }
+
+    It 'refuses <mutation> retained metadata' -ForEach @(
+        @{ mutation = 'bytes' }, @{ mutation = 'size' }, @{ mutation = 'kind' }, @{ mutation = 'extra' },
+        @{ mutation = 'missing' }, @{ mutation = 'link' }, @{ mutation = 'mode' }, @{ mutation = 'privileged' },
+        @{ mutation = 'bool-mode' }, @{ mutation = 'root' }, @{ mutation = 'version' }, @{ mutation = 'digest' }) {
+        $rootMode = 493
+        switch ($mutation) {
+            'bytes' {
+                $projection.entries[1].sha256 = 'c' * 64
+            }
+            'size' {
+                $projection.entries[1].bytes = 4
+            }
+            'kind' {
+                $projection.entries[1].kind = 'symlink'
+            }
+            'extra' {
+                $projection.entries[1].unexpected = 0
+            }
+            'missing' {
+                $projection.entries = @($projection.entries | Select-Object -Skip 1)
+            }
+            'link' {
+                $projection.entries[2].target = 'bin/other'
+            }
+            'mode' {
+                $projection.entries[1].unix_mode = 420
+            }
+            'privileged' {
+                $projection.entries[1].unix_mode = 2541
+            }
+            'bool-mode' {
+                $projection.entries[1].unix_mode = $true
+            }
+            'root' {
+                $rootMode = 448
+            }
+            'version' {
+                $reference.identity.python = '3.14.7'
+            }
+            'digest' {
+                $reference.inventory.sha256 = '0' * 64
+            }
+        }
+        { ConvertTo-CiPythonReleaseModeProjection $projection $reference $rootMode $pins } | Should -Throw
+    }
+
+    It 'honors projection cancellation and deadline without producing metadata' {
+        { ConvertTo-CiPythonReleaseModeProjection $projection $reference 493 $pins -Cancelled { $true } } | Should -Throw '*cancelled*'
+        { ConvertTo-CiPythonReleaseModeProjection $projection $reference 493 $pins -DeadlineUtc ([datetime]::UtcNow.AddSeconds(-1)) } | Should -Throw '*expired*'
+    }
+}
+
 Describe 'Private normalized runtime candidates without execution' -Tag Unit {
     BeforeEach {
         $workspace = Join-Path $TestDrive ('candidate workspace ' + [guid]::NewGuid().ToString('N'))
@@ -364,6 +485,101 @@ Describe 'Private normalized runtime candidates without execution' -Tag Unit {
         $receipt.status | Should -BeExactly 'candidate-incomplete'
         $receipt.handoff_admitted | Should -BeFalse
         (Get-CiPythonRuntimeInventory $source -CaptureOnly).sha256 | Should -BeExactly $original.sha256
+    }
+
+    It 'copies qualified release modes on Linux and refuses that flag on Windows' {
+        if (-not $IsLinux) {
+            { New-CiPythonRuntimeCandidate $source $workspace $destination $pins -LinuxReleaseModes } | Should -Throw '*Linux-only*'
+            Test-Path $destination | Should -BeFalse
+            return
+        }
+        $native = Get-CiPythonRuntimeInventory $source -CaptureOnly
+        $expected = Get-CiPythonCandidateProjection $native $source $pins
+        $fixtureReference = [pscustomobject]@{ identity = @{ python = $pins.python
+                normalization = 'native-core-v2-linux-release-modes'
+            }
+            reference_sha256 = ('b' * 64)
+            inventory = [ordered]@{ schema_version = 3
+                root_unix_mode = 493
+                entries = $expected.entries
+                sha256 = $expected.sha256
+            }
+        }
+        Mock Get-CiPythonLinuxReleaseReference { $fixtureReference }
+        foreach ($row in $native.entries | Where-Object kind -NE 'symlink') {
+            [IO.File]::SetUnixFileMode((Join-Path $source $row.path), [IO.UnixFileMode]511)
+        }
+        [IO.File]::SetUnixFileMode($source, [IO.UnixFileMode]511)
+        $before = Get-CiPythonRuntimeInventory $source -CaptureOnly
+        $result = New-CiPythonRuntimeCandidate $source $workspace $destination $pins -LinuxReleaseModes
+        $result.schema_version | Should -Be 2
+        $result.inventory.sha256 | Should -BeExactly $expected.sha256
+        $result.mode_changes.Count | Should -BeGreaterThan 0
+        $result.source_root_mode | Should -Be 511
+        $result.reference.sha256 | Should -BeExactly ('b' * 64)
+        $result.saved | Should -BeFalse
+        $result.handoff_admitted | Should -BeFalse
+        (Get-CiPythonRuntimeInventory $source -CaptureOnly).sha256 | Should -BeExactly $before.sha256
+        [int][IO.File]::GetUnixFileMode($source) | Should -Be 511
+        { New-CiPythonRuntimeCandidate $source $workspace $destination $pins -LinuxReleaseModes } | Should -Throw '*fresh*'
+    }
+
+    It 'retains Linux v2 cancellation evidence or rejects the flag on Windows' {
+        if (-not $IsLinux) {
+            { New-CiPythonRuntimeCandidate $source $workspace $destination $pins -LinuxReleaseModes } | Should -Throw '*Linux-only*'
+            return
+        }
+        $expected = Get-CiPythonCandidateProjection $original $source $pins
+        $fixtureReference = [pscustomobject]@{ identity = @{ python = $pins.python
+                normalization = 'native-core-v2-linux-release-modes'
+            }
+            reference_sha256 = ('b' * 64)
+            inventory = [ordered]@{ schema_version = 3
+                root_unix_mode = 493
+                entries = $expected.entries
+                sha256 = $expected.sha256
+            }
+        }
+        Mock Get-CiPythonLinuxReleaseReference { $fixtureReference }
+        { New-CiPythonRuntimeCandidate $source $workspace $destination $pins -LinuxReleaseModes -Cancelled { Test-Path $destination } } |
+            Should -Throw '*cancelled*'
+        $failure = Get-Content ($destination + '.candidate.json') -Raw | ConvertFrom-Json
+        $failure.schema_version | Should -Be 2
+        $failure.normalization | Should -BeExactly 'native-core-v2-linux-release-modes'
+        $failure.reference.identity.normalization | Should -BeExactly 'native-core-v2-linux-release-modes'
+        $failure.status | Should -BeExactly 'candidate-incomplete'
+        $failure.saved | Should -BeFalse
+        (Get-CiPythonRuntimeInventory $source -CaptureOnly).sha256 | Should -BeExactly $original.sha256
+    }
+
+    It 'detects source-root mutation during Linux release copying or refuses the flag on Windows' {
+        if (-not $IsLinux) {
+            { New-CiPythonRuntimeCandidate $source $workspace $destination $pins -LinuxReleaseModes } | Should -Throw '*Linux-only*'
+            return
+        }
+        $expected = Get-CiPythonCandidateProjection $original $source $pins
+        $fixtureReference = [pscustomobject]@{ identity = @{ python = $pins.python
+                normalization = 'native-core-v2-linux-release-modes'
+            }
+            reference_sha256 = ('b' * 64)
+            inventory = [ordered]@{ schema_version = 3
+                root_unix_mode = 493
+                entries = $expected.entries
+                sha256 = $expected.sha256
+            }
+        }
+        Mock Get-CiPythonLinuxReleaseReference { $fixtureReference }
+        $copiedExe = Join-Path $destination $exe
+        $callback = {
+            if (Test-Path $copiedExe) {
+                [IO.File]::SetUnixFileMode($source, [IO.UnixFileMode]448)
+            }
+            $false
+        }
+        { New-CiPythonRuntimeCandidate $source $workspace $destination $pins -LinuxReleaseModes -Cancelled $callback } | Should -Throw '*differs*'
+        $failure = Get-Content ($destination + '.candidate.json') -Raw | ConvertFrom-Json
+        $failure.status | Should -BeExactly 'candidate-incomplete'
+        $failure.handoff_admitted | Should -BeFalse
     }
 }
 

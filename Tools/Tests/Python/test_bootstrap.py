@@ -552,6 +552,113 @@ def load_candidate_qualification():
         sys.path[:] = prior
 
 
+@pytest.mark.parametrize(
+    "mutation",
+    ["none", "reference", "inventory", "float-root", "root", "bool-root", "mode", "extra-change", "duplicate-change"],
+)
+def test_linux_v2_binding_uses_external_reference_and_exact_mode_change_receipt(mutation):
+    import copy
+
+    module = load_candidate_qualification()
+    reference, inventory = module.load_linux_release_reference()
+    receipt = {
+        "reference": copy.deepcopy(reference),
+        "source_root_mode": 0o777,
+        "mode_changes": [{"path": "bin", "from": 0o777, "to": 0o755}],
+    }
+    candidate = copy.deepcopy(inventory)
+    if mutation == "reference":
+        receipt["reference"]["sha256"] = "0" * 64
+    elif mutation == "inventory":
+        candidate["entries"][2]["bytes"] = 0
+    elif mutation == "float-root":
+        candidate["root_unix_mode"] = float(candidate["root_unix_mode"])
+    elif mutation == "root":
+        receipt["source_root_mode"] = 0o700
+    elif mutation == "bool-root":
+        receipt["source_root_mode"] = True
+    elif mutation == "mode":
+        receipt["mode_changes"][0]["to"] = 0o644
+    elif mutation == "extra-change":
+        receipt["mode_changes"][0]["unknown"] = 0
+    elif mutation == "duplicate-change":
+        receipt["mode_changes"] *= 2
+    if mutation == "none":
+        module.validate_release_binding(receipt, candidate)
+    else:
+        with pytest.raises(ValueError):
+            module.validate_release_binding(receipt, candidate)
+
+
+@pytest.mark.parametrize(
+    "mutation", ["checksum", "duplicate-key", "bool-revision", "identity", "inventory", "linked-reference"]
+)
+def test_linux_external_reference_loader_rejects_tampered_repository_declarations(tmp_path, monkeypatch, mutation):
+    import hashlib
+    import shutil
+
+    module = load_candidate_qualification()
+    data = tmp_path / "Tools/CI/Data"
+    data.mkdir(parents=True)
+    for name in (
+        "runtime-versions.json",
+        "python-linux-release-reference-spec.json",
+        "python-linux-3.14.8-reference.json",
+    ):
+        shutil.copyfile(ROOT / "Tools/CI/Data" / name, data / name)
+    spec_path = data / "python-linux-release-reference-spec.json"
+    reference_path = data / "python-linux-3.14.8-reference.json"
+    spec = json.loads(spec_path.read_text())
+    reference = json.loads(reference_path.read_text())
+    if mutation == "checksum":
+        spec["reference_sha256"] = "0" * 64
+    elif mutation == "duplicate-key":
+        reference_path.write_text('{"schema_version":1,"schema_version":1}', encoding="utf-8")
+        spec["reference_sha256"] = hashlib.sha256(reference_path.read_bytes()).hexdigest()
+    elif mutation == "linked-reference":
+        moved = data / "moved-reference.json"
+        reference_path.rename(moved)
+        reference_path.symlink_to(moved)
+    else:
+        if mutation == "bool-revision":
+            reference["schema_version"] = True
+        elif mutation == "identity":
+            reference["identity"]["gil"] = "disabled"
+        elif mutation == "inventory":
+            reference["inventory"]["root_unix_mode"] = True
+        reference_path.write_text(json.dumps(reference), encoding="utf-8")
+        spec["reference_sha256"] = hashlib.sha256(reference_path.read_bytes()).hexdigest()
+    spec_path.write_text(json.dumps(spec), encoding="utf-8")
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    with pytest.raises(ValueError):
+        module.load_linux_release_reference()
+
+
+@pytest.mark.parametrize(
+    "schema,normalization",
+    [(1, "native-core-v2-linux-release-modes"), (2, "native-core-v1"), (2, "native-core-v2-linux-release-modes")],
+)
+def test_qualification_rejects_unbound_revision_or_reference_before_child_launch(
+    tmp_path, monkeypatch, schema, normalization
+):
+    module = load_candidate_qualification()
+    candidate, receipt = candidate_fixture(tmp_path)
+    receipt.update(schema_version=schema, normalization=normalization, source_root_mode=0o755, mode_changes=[])
+    reference, _ = module.load_linux_release_reference()
+    receipt["reference"] = reference
+    output = tmp_path / "evidence"
+    output.mkdir()
+
+    def forbidden(*args):
+        raise AssertionError("Unqualified candidate must never execute")
+
+    monkeypatch.setattr(module, "step", forbidden)
+    result = module.qualify(candidate, receipt, output, "a" * 40, "fixture")
+    assert result["status"] == "failed" and result["exit_code"] == 1
+    assert result["processes"] == [] and not result["runtime_probe_verified"] and not result["reference_verified"]
+    assert not result["saved"] and not result["handoff_admitted"] and not result["trusted_seal"]
+
+
 def candidate_fixture(tmp_path):
     import hashlib
     import stat

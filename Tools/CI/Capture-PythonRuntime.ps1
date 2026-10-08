@@ -42,7 +42,8 @@ try {
         }
         $null = New-Item -ItemType Directory -Path $workspace
         $destination = Join-Path $workspace 'runtime'
-        $candidate = New-CiPythonRuntimeCandidate $root $workspace $destination $pins -DeadlineUtc ([datetime]::UtcNow.AddMinutes(5))
+        $candidate = New-CiPythonRuntimeCandidate $root $workspace $destination $pins `
+            -LinuxReleaseModes:$IsLinux -DeadlineUtc ([datetime]::UtcNow.AddMinutes(5))
         $candidate | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $output 'candidate.json') -Encoding utf8
         $nativeExe = Join-Path $root $(if ($IsWindows) {
                 'python.exe'
@@ -57,6 +58,7 @@ try {
         }
         $finalDeadline = [datetime]::UtcNow.AddMinutes(2)
         if ((Get-CiPythonRuntimeInventory $destination -SealModes -DeadlineUtc $finalDeadline).sha256 -cne $candidate.inventory.sha256 -or
+            ($IsLinux -and [int][IO.File]::GetUnixFileMode($root) -ne $candidate.source_root_mode) -or
             (Get-CiPythonRuntimeInventory $root -CaptureOnly -DeadlineUtc $finalDeadline).sha256 -cne $candidate.source_sha256) {
             throw 'Candidate or native source changed during qualification.'
         }

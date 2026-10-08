@@ -2635,13 +2635,26 @@ deadline/cancellation, sourceless/empty-cache retention and fresh-owned output a
 redundant per-row filesystem stats reduces the full WSL Pester group from 71.420s to 20.528s; final
 Windows group cost is 11.082s. Existing registrations/deadlines remain unchanged.
 
-Ten source/data/test/evidence files await confirmation. Next connect the loaded reference to explicit
-Linux v2 projection/private copying, source-root/mode-change receipts and Python driver admission,
-then prove both captured variants before bounded hosted requalification. Current v1/default/pipeline
-behavior remains unchanged. Repeated Linux mode-aware payloads, external seals, fixed-prefix restore,
-fault/recovery, cache benefit, broader handoffs and defaults remain open. No additional hosted run is
-introduced by the reference foundation. See the acquisition design for exact evidence and rollback.
-Phase 6.5 stays open; PRs remain paused.
+The maintainer confirms the foundation, dual-published as `1e9dd30` with four-ref parity. The next
+explicit Linux v2 builder/driver increment is prepared locally: complete external-reference matching,
+only qualified permission reductions in private copies, native root/inventory preservation, stamped
+schema-2 receipts and independent Python binding before executable launch. Raw mode, Windows v1,
+ordinary acquisition and profile/catalog/deadline membership remain unchanged.
+
+All 87 focused pytest and 124 registered Pester cases pass per OS with zero errors/skips. Actual
+Linux fixtures prove copying/reduction, source/root preservation and root-mutation/cancellation/
+partial-owner refusal; portable metadata tests cover both permission variants, and Windows checks
+verify host refusal. Real run-73 Linux captures both project to the reviewed 3,040-entry fingerprint,
+with 3,029 reductions/zero. Because historical captures lack native root mode, this read-only
+comparison marks its synthetic root assumption and does not claim executable/root qualification.
+
+Eight source/test/evidence files await confirmation. After scoped publication, preview exact source
+and run the bounded four-job candidate experiment for external binding, real root/byte/mode
+preservation, copied runtime/fresh locked environment ownership, cleanup and inventory repeatability.
+Report actual hosted image coverage separately from captured/synthetic variance proof; do not delete
+image runtimes to force a variant. Cache-plan/seal/restore integration, fault/recovery, cold/warm benefit,
+broader handoffs and defaults remain open. See the acquisition design for exact evidence and rollback.
+Phase 6.5 stays open; PRs remain paused; no new hosted run is queued.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain

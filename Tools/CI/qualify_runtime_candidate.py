@@ -59,6 +59,143 @@ print(json.dumps({'version':version, 'prefix':str(prefix), 'base_prefix':str(bas
 """
 
 
+def load_linux_release_reference(check_budget=lambda: None):
+    """Read only repository-owned declarations; a runtime receipt cannot replace this reference."""
+    data = plain_directory(ROOT / "Tools/CI/Data")
+
+    def read(name):
+        check_budget()
+        path = data / name
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_size > 2 * 1024 * 1024:
+            raise ValueError("Plain bounded repository reference required")
+        encoded = path.read_bytes()
+        if len(encoded) > 2 * 1024 * 1024:
+            raise ValueError("Reference size limit exceeded")
+
+        def unique(pairs):
+            value = {}
+            for key, item in pairs:
+                if key in value:
+                    raise ValueError("Duplicate repository reference JSON key")
+                value[key] = item
+            return value
+
+        result = json.loads(encoded.decode("utf-8"), object_pairs_hook=unique)
+        check_budget()
+        return result, hashlib.sha256(encoded).hexdigest()
+
+    def fields(value, names):
+        if not isinstance(value, dict) or set(value) != set(names):
+            raise ValueError("Exact repository reference fields required")
+
+    versions = bootstrap.read_json(data / "runtime-versions.json")
+    if (
+        not isinstance(versions, dict)
+        or not isinstance(versions.get("python"), str)
+        or not re.fullmatch(r"3\.14\.[0-9]+", versions["python"])
+    ):
+        raise ValueError("Exact adopted Python pin required")
+    version = versions["python"]
+    spec, _ = read("python-linux-release-reference-spec.json")
+    fields(spec, ("schema_version", "reference_file", "reference_sha256", "expected_inventory_sha256", "identity"))
+    if type(spec["schema_version"]) is not int or spec["schema_version"] != 1:
+        raise ValueError("Release reference specification revision differs")
+    identity = spec["identity"]
+    fields(
+        identity,
+        (
+            "normalization",
+            "provider",
+            "provider_build",
+            "python",
+            "implementation",
+            "gil",
+            "image_family",
+            "architecture",
+            "asset",
+            "archive_sha256",
+        ),
+    )
+    expected = {
+        "normalization": "native-core-v2-linux-release-modes",
+        "provider": "actions/python-versions",
+        "python": version,
+        "implementation": "cpython",
+        "gil": "enabled",
+        "image_family": "ubuntu-24.04",
+        "architecture": "x64",
+        "asset": f"python-{version}-linux-24.04-x64.tar.gz",
+    }
+    if (
+        any(not isinstance(value, str) for value in identity.values())
+        or any(identity[key] != value for key, value in expected.items())
+        or not re.fullmatch(re.escape(version) + "-[0-9]+", identity["provider_build"])
+        or not re.fullmatch("[0-9a-f]{64}", identity["archive_sha256"])
+        or spec["reference_file"] != f"python-linux-{version}-reference.json"
+    ):
+        raise ValueError("Pinned repository release identity differs")
+    for key in ("reference_sha256", "expected_inventory_sha256"):
+        if not isinstance(spec[key], str) or not re.fullmatch("[0-9a-f]{64}", spec[key]):
+            raise ValueError("Typed release reference digest required")
+    reference, digest = read(spec["reference_file"])
+    fields(reference, ("contract", "schema_version", "identity", "inventory"))
+    if (
+        digest != spec["reference_sha256"]
+        or reference["contract"] != "ci-python-linux-release-reference"
+        or type(reference["schema_version"]) is not int
+        or reference["schema_version"] != 1
+        or reference["identity"] != identity
+    ):
+        raise ValueError("Repository release reference bytes or identity differ")
+    inventory = reference["inventory"]
+    fields(inventory, ("schema_version", "root_unix_mode", "entries", "sha256"))
+    frame = {"root_unix_mode": inventory["root_unix_mode"], "entries": inventory["entries"]}
+    if (
+        type(inventory["schema_version"]) is not int
+        or inventory["schema_version"] != 3
+        or type(inventory["root_unix_mode"]) is not int
+        or inventory["root_unix_mode"] != 0o755
+        or inventory["sha256"] != spec["expected_inventory_sha256"]
+        or hashlib.sha256(json.dumps(frame, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+        != inventory["sha256"]
+    ):
+        raise ValueError("Repository release inventory differs")
+    check_budget()
+    return {"identity": identity, "sha256": digest, "inventory_sha256": inventory["sha256"]}, inventory
+
+
+def validate_release_binding(receipt, inventory, check_budget=lambda: None):
+    reference, expected_inventory = load_linux_release_reference(check_budget)
+    if receipt.get("reference") != reference or json.dumps(
+        inventory, sort_keys=True, separators=(",", ":")
+    ) != json.dumps(expected_inventory, sort_keys=True, separators=(",", ":")):
+        raise ValueError("Candidate must match the external repository reference")
+    if type(receipt.get("source_root_mode")) is not int or receipt["source_root_mode"] not in (0o755, 0o777):
+        raise ValueError("Qualified native source-root mode required")
+    changes = receipt.get("mode_changes")
+    if not isinstance(changes, list) or len(changes) > len(inventory["entries"]):
+        raise ValueError("Bounded mode-change evidence required")
+    modes = {row["path"]: row.get("unix_mode") for row in inventory["entries"]}
+    previous = None
+    for change in changes:
+        check_budget()
+        if (
+            not isinstance(change, dict)
+            or set(change) != {"path", "from", "to"}
+            or not isinstance(change["path"], str)
+            or change["path"] not in modes
+            or type(change["from"]) is not int
+            or change["from"] != 0o777
+            or type(change["to"]) is not int
+            or change["to"] not in (0o644, 0o755)
+            or change["to"] != modes[change["path"]]
+            or (previous is not None and previous.encode("utf-16-be") >= change["path"].encode("utf-16-be"))
+        ):
+            raise ValueError("Exact ordinal qualified mode-change evidence required")
+        previous = change["path"]
+
+
 def validate_payload(candidate, receipt, *, lease=None, cancellation=None):
     """Verify the complete mode-aware copy before execution; receipt is not a cache trust anchor."""
     candidate = plain_directory(candidate)
@@ -74,14 +211,20 @@ def validate_payload(candidate, receipt, *, lease=None, cancellation=None):
         receipt.get("contract") != "ci-python-runtime-candidate"
         or receipt.get("status") != "candidate-complete"
         or type(receipt.get("schema_version")) is not int
-        or receipt["schema_version"] != 1
+        or receipt["schema_version"] not in (1, 2)
     ):
         raise ValueError("Completed fresh candidate receipt required")
-    if receipt.get("normalization") != "native-core-v1" or any(
+    v2 = receipt["schema_version"] == 2
+    expected_normalization = "native-core-v2-linux-release-modes" if v2 else "native-core-v1"
+    if receipt.get("normalization") != expected_normalization or any(
         receipt.get(key) is not False for key in ("trusted_seal", "handoff_admitted", "saved", "runtime_probe_verified")
     ):
         raise ValueError("Qualification must not promote a candidate to trusted cache admission")
     inventory = receipt["inventory"]
+    if v2:
+        if sys.platform != "linux":
+            raise ValueError("Release-mode qualification is Linux-only")
+        validate_release_binding(receipt, inventory, check_budget)
     if type(inventory["schema_version"]) is not int or inventory["schema_version"] != 3:
         raise ValueError("Strict mode-aware candidate inventory required")
     entries = inventory["entries"]
@@ -265,6 +408,7 @@ def qualify(candidate, receipt, output, revision, identity):
         "executed_commit": revision,
         "status": "failed",
         "runtime_probe_verified": False,
+        "reference_verified": False,
         "environment_verified": False,
         "provider_build_verified": False,
         "trusted_seal": False,
@@ -275,6 +419,14 @@ def qualify(candidate, receipt, output, revision, identity):
     }
     try:
         validate_payload(candidate, receipt, lease=lease, cancellation=cancel)
+        report["normalization"] = receipt["normalization"]
+        if receipt["schema_version"] == 2:
+            report.update(
+                reference_verified=True,
+                reference=receipt["reference"],
+                source_root_mode=receipt["source_root_mode"],
+                mode_changes=len(receipt["mode_changes"]),
+            )
         arguments = [
             str(executable),
             "-I",

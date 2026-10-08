@@ -479,6 +479,80 @@ function Get-CiPythonCandidateProjection {
     }
 }
 
+function ConvertTo-CiPythonReleaseModeProjection {
+    param([Parameter(Mandatory)]$Projection, [Parameter(Mandatory)]$Reference,
+        [Parameter(Mandatory)]$SourceRootMode, [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue, [scriptblock]$Cancelled = { $false })
+    Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+    if (($SourceRootMode -isnot [int] -and $SourceRootMode -isnot [long]) -or $SourceRootMode -notin 493, 511 -or
+        $Projection.normalization -cne 'native-core-v1' -or $Projection.schema_version -ne 3 -or
+        $Reference.identity.python -cne $RuntimeVersions.python -or
+        $Reference.identity.normalization -cne 'native-core-v2-linux-release-modes' -or
+        $Reference.reference_sha256 -cnotmatch '^[0-9a-f]{64}$' -or
+        $Reference.inventory.schema_version -ne 3 -or $Reference.inventory.root_unix_mode -ne 493 -or
+        $Projection.entries.Count -ne $Reference.inventory.entries.Count) {
+        throw 'Complete admitted Linux reference and qualified source root required.'
+    }
+    $changes = [Collections.Generic.List[object]]::new()
+    $entries = [Collections.Generic.List[object]]::new()
+    for ($index = 0; $index -lt $Projection.entries.Count; $index++) {
+        Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+        $actual = $Projection.entries[$index]
+        $expected = $Reference.inventory.entries[$index]
+        if ($actual.path -isnot [string] -or $actual.kind -isnot [string] -or $actual.path -cne $expected.path -or
+            $actual.kind -cne $expected.kind -or $actual.Count -ne $expected.Count -or
+            @($actual.Keys | Where-Object { $_ -cnotin @($expected.Keys) }).Count) {
+            throw 'Retained reference paths or types differ.'
+        }
+        if ($actual.kind -ceq 'file' -and
+            (($actual.bytes -isnot [int] -and $actual.bytes -isnot [long]) -or $actual.bytes -ne $expected.bytes -or
+            $actual.sha256 -isnot [string] -or $actual.sha256 -cne $expected.sha256)) {
+            throw 'Retained release bytes differ.'
+        }
+        if ($actual.kind -ceq 'symlink') {
+            if ($actual.target -isnot [string] -or $actual.target -cne $expected.target) {
+                throw 'Retained release link differs.'
+            }
+        }
+        elseif (($actual.unix_mode -isnot [int] -and $actual.unix_mode -isnot [long]) -or
+            ($actual.unix_mode -ne $expected.unix_mode -and $actual.unix_mode -ne 511)) {
+            throw 'Unqualified native release mode.'
+        }
+        elseif ($actual.unix_mode -ne $expected.unix_mode) {
+            $changes.Add([ordered]@{ path = $actual.path
+                    from = $actual.unix_mode
+                    to = $expected.unix_mode
+                })
+        }
+        $copy = [ordered]@{}
+        foreach ($key in $expected.Keys) {
+            $copy[$key] = $expected[$key]
+        }
+        $entries.Add($copy)
+    }
+    $frame = [ordered]@{ root_unix_mode = 493
+        entries = @($entries.ToArray())
+    }
+    $encoded = [Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $frame -Depth 7 -Compress))
+    $digest = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($encoded)).ToLowerInvariant()
+    if ($digest -cne $Reference.inventory.sha256) {
+        throw 'Normalized release reference digest differs.'
+    }
+    [pscustomobject]@{ normalization = 'native-core-v2-linux-release-modes'
+        schema_version = 3
+        entries = $frame.entries
+        root_unix_mode = 493
+        sha256 = $digest
+        omitted = $Projection.omitted
+        source_root_mode = $SourceRootMode
+        mode_changes = @($changes.ToArray())
+        reference = [ordered]@{ identity = $Reference.identity
+            sha256 = $Reference.reference_sha256
+            inventory_sha256 = $Reference.inventory.sha256
+        }
+    }
+}
+
 function New-CiPythonRuntimeCandidate {
     param(
         [Parameter(Mandatory)][string]$SourceRoot,
@@ -486,9 +560,13 @@ function New-CiPythonRuntimeCandidate {
         [Parameter(Mandatory)][string]$Destination,
         [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
         [datetime]$DeadlineUtc = [datetime]::MaxValue,
-        [scriptblock]$Cancelled = { $false }
+        [scriptblock]$Cancelled = { $false },
+        [switch]$LinuxReleaseModes
     )
     Test-CiPythonCacheLease $DeadlineUtc $Cancelled
+    if ($LinuxReleaseModes -and -not $IsLinux) {
+        throw 'Release-mode copying is explicitly Linux-only.'
+    }
     $source = Get-CiPythonCachePath $SourceRoot
     $workspace = Get-CiPythonCachePath $WorkspaceRoot
     if (-not (Test-Path -LiteralPath $workspace -PathType Container)) {
@@ -510,8 +588,16 @@ function New-CiPythonRuntimeCandidate {
     if ((Test-Path -LiteralPath $target) -or (Test-Path -LiteralPath $receipt)) {
         throw 'Candidate and receipt owners must be fresh.'
     }
+    if ($LinuxReleaseModes) {
+        $sourceMode = [int][IO.File]::GetUnixFileMode($source)
+    }
     $raw = Get-CiPythonRuntimeInventory $source -CaptureOnly -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
     $projection = Get-CiPythonCandidateProjection $raw $source $RuntimeVersions -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    if ($LinuxReleaseModes) {
+        $reference = Get-CiPythonLinuxReleaseReference $RuntimeVersions -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+        $projection = ConvertTo-CiPythonReleaseModeProjection $projection $reference $sourceMode $RuntimeVersions `
+            -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
+    }
     $null = New-Item -ItemType Directory -Path $target
     try {
         foreach ($row in $projection.entries | Where-Object { $_.kind -ne 'symlink' }) {
@@ -541,11 +627,17 @@ function New-CiPythonRuntimeCandidate {
         }
         $complete = Get-CiPythonRuntimeInventory $target -SealModes -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled
         if ($complete.sha256 -cne $projection.sha256 -or
+            ($LinuxReleaseModes -and [int][IO.File]::GetUnixFileMode($source) -ne $sourceMode) -or
             (Get-CiPythonRuntimeInventory $source -CaptureOnly -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled).sha256 -cne $raw.sha256) {
             throw 'Candidate or source differs from its pre-copy inventory.'
         }
         $result = [ordered]@{ contract = 'ci-python-runtime-candidate'
-            schema_version = 1
+            schema_version = $(if ($LinuxReleaseModes) {
+                    2
+                }
+                else {
+                    1
+                })
             normalization = $projection.normalization
             status = 'candidate-complete'
             source_sha256 = $raw.sha256
@@ -556,19 +648,34 @@ function New-CiPythonRuntimeCandidate {
             handoff_admitted = $false
             saved = $false
         }
+        if ($LinuxReleaseModes) {
+            $result.reference = $projection.reference
+            $result.source_root_mode = $sourceMode
+            $result.mode_changes = $projection.mode_changes
+        }
         $result | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $receipt -Encoding utf8
         [pscustomobject]$result
     }
     catch {
         $failure = [ordered]@{ contract = 'ci-python-runtime-candidate'
-            schema_version = 1
+            schema_version = $(if ($LinuxReleaseModes) {
+                    2
+                }
+                else {
+                    1
+                })
             status = 'candidate-incomplete'
             failure_type = $_.Exception.GetType().Name
             trusted_seal = $false
             handoff_admitted = $false
             saved = $false
         }
-        $failure | ConvertTo-Json | Set-Content -LiteralPath $receipt -Encoding utf8
+        if ($LinuxReleaseModes) {
+            $failure.normalization = $projection.normalization
+            $failure.reference = $projection.reference
+            $failure.source_root_mode = $sourceMode
+        }
+        $failure | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $receipt -Encoding utf8
         throw
     }
 }
