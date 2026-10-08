@@ -2648,13 +2648,28 @@ verify host refusal. Real run-73 Linux captures both project to the reviewed 3,0
 with 3,029 reductions/zero. Because historical captures lack native root mode, this read-only
 comparison marks its synthetic root assumption and does not claim executable/root qualification.
 
-Eight source/test/evidence files await confirmation. After scoped publication, preview exact source
-and run the bounded four-job candidate experiment for external binding, real root/byte/mode
-preservation, copied runtime/fresh locked environment ownership, cleanup and inventory repeatability.
-Report actual hosted image coverage separately from captured/synthetic variance proof; do not delete
-image runtimes to force a variant. Cache-plan/seal/restore integration, fault/recovery, cold/warm benefit,
-broader handoffs and defaults remain open. See the acquisition design for exact evidence and rollback.
-Phase 6.5 stays open; PRs remain paused; no new hosted run is queued.
+The maintainer confirms this increment, published as `f5705d3` with four-ref parity and passing
+committed-source preview. Bounded manual run 74 passes all four Windows/Linux qualifications at exact
+source in 7m38.869s queue-to-finish. Both complete inventory pairs match; Linux v2 matches the external
+mode-aware reference. Real native 0777 roots are preserved while candidate roots become 0755. All
+twelve owned children exit zero with cleanup verified; copied bases/fresh locked environments pass
+module/core/prefix ownership and unchanged-byte/mode/source checks. The independent artifact audit
+exits zero and corroborates full stamps/reduction records/source guards with no runtime-binary upload.
+
+All scheduled agents use the older image and download the pinned release, whose retained modes
+already match the reference; entry reductions are zero while root normalization still occurs. Fresh
+hosted execution of the newer image's all-0777 retained files is not claimed. Its complete captured
+projection and real synthetic copy coverage are retained separately, consistent with the approved
+bounded sequence. Do not force image variance by removing host installations or treat native download
+timings as owned warm-cache benefit.
+
+Three result/disposition documents await confirmation. Next adapt the unadopted cache-plan/admission
+scaffolding to explicit mode-aware normalization/reference identities and reviewed external Windows/
+Linux seals, then qualify owned staging/fixed-prefix restoration before cached execution. Native
+acquisition remains default/rollback. Cold/warm restore/save benefit, faults/recovery, missing-exact-
+interpreter behavior, original profile equivalence and planning/worker/cohort/collector handoffs
+remain open. See the acquisition design for exact evidence and limits. Phase 6.5 stays open;
+PRs remain paused; no further hosted run is queued.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain

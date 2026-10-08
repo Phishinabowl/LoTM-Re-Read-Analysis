@@ -776,11 +776,68 @@ record native root mode, this data-only proof explicitly supplies synthetic 0755
 real root-mode qualification nor executable release qualification. New hosted receipts must supply
 and preserve the actual root; the local source-built WSL interpreter remains outside release proof.
 
-Ruff/formatting, annotation policy/22 fixtures, documentation links and diff checks pass. Eight
-source/test/evidence files remain uncommitted for review. After publication approval, preview actual
-committed source and run one bounded four-job candidate experiment. Require real root/byte/mode
-preservation, external binding, copied base/fresh locked environment ownership, cleanup and equal
-Linux inventories. If the hosted images provide only one source variant, distinguish fresh execution
-proof from the already verified captured/synthetic variance proof; do not remove image runtimes.
-Cache-plan/seal/restore integration, fault/recovery, cold/warm benefit and ordinary handoffs remain
-separate open gates. Phase 6.5 stays open; PRs remain paused.
+Ruff/formatting, annotation policy/22 fixtures, documentation links and diff checks pass. The maintainer
+confirms this eight-file increment, dual-published as `f5705d3` with four-ref parity. Exact-source preview
+verifies the four serial bounded candidate jobs, named native output, evidence-only artifacts and no
+cache task. The completed hosted experiment below qualifies real execution/root preservation while
+distinguishing observed image coverage from historical captured/synthetic variance proof.
+
+## Hosted V2 Qualification and Bounded Repeatability Result
+
+Manual [run 74](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=74)
+executes exact source `f5705d34e7de8dafb7be4fd38a536b5f758bd93f`. All four jobs succeed; queue-to-finish
+is 458.869s (7m38.869s). All agents report image `20260927.320.1` and download the exact pinned
+Windows/Linux assets from release `3.14.8-36806082737`. This provides real cold native acquisition,
+not an owned cache hit or a claim about registry reliability under every condition.
+
+| Allocation | Native acquisition | Capture/copy/qualification task | Locked bootstrap | Native root / candidate root | Retained-entry reductions |
+| --- | --- | --- | --- | --- | --- |
+| Windows 1 | 43.040s | 52.560s | 8.642s | Windows v1 | 0 |
+| Windows 2 | 39.123s | 49.497s | 8.307s | Windows v1 | 0 |
+| Linux 1 | 8.923s | 56.223s | 8.540s | 0777 / 0755 | 0 |
+| Linux 2 | 10.313s | 53.717s | 7.317s | 0777 / 0755 | 0 |
+
+Both Windows receipts remain schema 1/v1; both complete 3,878-entry inventories match the existing
+`9dc6d79241cd40fe80e6b8476055f2d7d4d2184ce5099aca2509238d68ef85ec` fingerprint. Both Linux receipts
+use schema 2/v2 and bind the exact repository reference. Their complete 3,040-entry inventories,
+including all file/directory modes and the 0755 root, match the external reference and each other at
+`5e88f33c1f23523d9099daf29854fb12536ec3d0e6e5b3b7e212993503ec8794`.
+
+Linux's downloaded source files/directories already have reference modes, so their per-entry reduction
+lists are empty. The root is separately normalized from observed native 0777 to candidate 0755.
+The builder records actual native root mode, and final PS source checks confirm that original mode
+and raw source inventory remain unchanged after executable qualification. A zero entry-reduction count
+does not mean the root stayed at 0777. No native host installation is modified by normalization.
+
+All four copied bases and fresh hash-locked pip 26.2/PyYAML 6.0.3 environments pass actual executable,
+module/core-library and prefix ownership. All twelve owned children exit zero with verified cleanup.
+Repeated physical candidate checks remain unchanged after bootstrap. Linux reports external reference
+binding verified; both hosts still withhold provider/cache/trusted-seal/restore/save/handoff admission.
+No runtime binary is uploaded, cache saved/restored, ordinary adapter changed or PR reopened.
+
+The independent artifact audit recomputes each complete inventory digest, compares full paired rows,
+checks native-source identity, v2 reference stamps and exact reduction lists against raw modes, verifies
+real source-root receipts, locked package versions, child cleanup and loaded-library ownership, and
+refuses runtime binaries in the diagnostic bundle. It exits zero. All final task logs corroborate
+candidate/native-source checks. Evidence is `.tmp/ci-phase65/runtime-candidate-74/audit.json`, its four
+artifact folders and adjacent timeline/task/image snapshots.
+
+**Coverage boundary:** fresh hosted execution exercises only the downloaded retained-mode variant.
+The newer image's all-0777 retained files were not scheduled in this run. That variant is covered by
+the complete run-73 captured-byte/reference projection and real private synthetic mode-copy tests;
+those are not relabelled as fresh hosted execution. The approved bounded sequence permits this
+distinction rather than repeatedly spending agent minutes or deleting image runtimes to force a
+variant. A future naturally scheduled source with the qualified 0777 modes remains fail-closed against
+the same complete external reference and must pass real probes before use.
+
+This establishes bounded executable/root-preserving v2 normalization and paired repeatability. The
+7m38.869s includes native acquisition, raw capture, private copying and repeated qualification; it is
+not a warm-cache performance measurement or an ordinary-profile target result. There is no evidence
+yet that restoring/saving this cache is faster than the native path on either OS.
+
+The three-document result/disposition increment is uncommitted for review. Next adapt the unadopted
+cache-plan/admission scaffolding to explicit mode-aware normalization/reference identities and reviewed
+external Windows/Linux seals, then qualify owned staging/fixed-prefix restoration before any cache
+execution. Retain native acquisition as default/rollback. Cold/warm restore/save costs, deliberate
+corruption/failure/recovery, absent-interpreter behavior and original profile/worker/cohort/collector
+handoffs remain required before adoption. Phase 6.5 stays open; no further hosted run is queued.

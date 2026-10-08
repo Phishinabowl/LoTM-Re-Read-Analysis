@@ -808,11 +808,26 @@ entries and the reviewed digest, reducing 3,029 modes/zero respectively. Their n
 not captured, so that data-only comparison explicitly uses a synthetic root and does not close
 actual hosted root/execution qualification.
 
-Eight source/test/evidence files remain uncommitted. After publication, preview exact source and
-qualify four bounded Windows/Linux allocations; preserve the distinction between actual scheduled
-image variants and captured/synthetic variance proof. Cache-plan/seal/restore integration and benefit
-remain open. See the acquisition design for exact limits/evidence/rollback. Phase 6.5 and paused PRs
-remain unchanged; no new hosted run is queued.
+The maintainer confirms this increment, dual-published as `f5705d3` with four-ref parity. The actual
+committed-source preview passes. Manual run 74 succeeds in all four jobs at exact `f5705d3`, with
+queue-to-finish 7m38.869s. All four older-image agents download the pinned provider release; Windows
+v1 paired inventories match and Linux v2 paired inventories match the external mode-aware reference.
+Real native Linux roots are 0777, copied as 0755 and verified unchanged in their original locations.
+Retained modes already match the archive, so entry reductions are zero. All twelve owned children
+exit zero with cleanup verified; copied bases and fresh locked environments pass actual module/core/
+prefix ownership and unchanged-payload checks.
+
+The independent full artifact audit exits zero, including reference stamps, complete inventory bytes/
+modes, actual roots, reduction records, native source identity and no runtime-binary uploads. All final
+PS source checks are corroborated. Fresh execution covers only downloaded retained modes; historical
+run-73 captured projection plus synthetic real copy tests cover the all-0777 file variant, as explicitly
+allowed by the bounded plan. Do not claim that variant was freshly scheduled or any owned cache hit.
+
+Three result/disposition documents await review. Next qualify mode-aware cache plan/external seals
+and owned staging/fixed-prefix restore; restore/save benefit, faults/recovery and ordinary handoffs
+remain open. Provider/cache/trusted-seal/restore/save/handoff admission remains withheld. See
+the acquisition design for complete timing/evidence and coverage boundaries. Phase 6.5 and paused
+PRs remain unchanged; no further hosted run is queued.
 
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
