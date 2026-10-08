@@ -283,3 +283,69 @@ validates service expansion only; the queued-source retry and actual runtime han
 The fix and updated evidence remain uncommitted for confirmation. Repeat preview
 and the same four-job experiment only after publishing the corrected source; real inventories and
 reproducibility/normalization qualification remain open.
+
+## Successful Capture Retry And Bounded Normalization Candidate
+
+The correction is confirmed and dual-published as `b5378a1`; HEAD/upstream/GitHub/Azure agree.
+The published-source Azure preview confirms the qualified output, four manual allocations and no
+cache tasks. [Run 71](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=71)
+then succeeds at exact commit `b5378a16bfc8bce90f096fcca6eb1bb6e3296b35`, with all four original
+capture artifacts retained. All inventories pass independent JSON/contract/source/pin checks,
+ordinal unique-path checks and recomputation of their inventory SHA-256. Every receipt still
+withholds runtime-probe/provider verification, trusted seal, cache save and handoff admission.
+
+| Observation | Windows captures | Linux captures |
+| --- | --- | --- |
+| Entries in each raw inventory | 5,088 | 9,789 |
+| Bytecode files in each | 575 | 5,996 |
+| Different entries | 408 | 571 |
+| Difference classes | 404 pip bytecode files, three pip EXE launchers and pip's `RECORD` metadata | 404 pip bytecode files and 167 standard-library bytecode files |
+| Changed record fields | SHA-256 only; paths, kinds and sizes match | SHA-256 only; paths, kinds, sizes, link targets and recorded Unix modes match |
+| Native task seconds, repetitions 1/2 | 0.290 / 41.553 | 9.287 / 9.567 |
+| Capture-task seconds, repetitions 1/2 | 24.170 / 9.187 | 10.987 / 10.920 |
+| Total job seconds, repetitions 1/2 | 42.607 / 73.670 | 29.940 / 34.093 |
+
+Queue-to-finish is 247.377s (4m07.377s). These costs include native acquisition and read-only hashing;
+they do not measure an owned runtime cache hit/restore/save. The first Windows allocation uses image
+`20261004.326.1` with Python already present; the second uses `20260927.320.1` and downloads the inspected
+Windows release. Both Linux allocations use `20260927.320.1` and download the inspected Linux release.
+All three download logs identify `3.14.8-36806082737`. Thus this is a bounded comparison across distinct
+job allocations, not a controlled same-image-version Windows cold/cold experiment. Machine names
+are retained as context, not treated as unique allocation identities or proof of cache ownership.
+The near-instant native selection is not an owned warm-cache result. Native pip remains 26.2.1;
+fresh project environments retain their existing locked pip 26.2 policy.
+
+**Confirmed disposition:** the complete raw trees are not reproducible seals. Do not adopt their
+digests or ignore mismatches during admission. A read-only hypothetical projection of the actual
+inventories nevertheless produces identical retained entries per OS under this concrete candidate:
+
+1. Omit generated `__pycache__` bytecode only when its corresponding `.py` source is present; retain
+   sourceless/input bytecode. Omit only generated cache directories that become empty.
+2. Omit the complete observed native base-pip package, its distribution metadata and generated pip
+   launchers as one coherent boundary, rather than retaining a broken `RECORD` or merely skipping
+   failed launcher hashes. Preserve bundled `ensurepip` wheels and all other interpreter/stdlib data.
+3. Recreate only the exact Windows `python3.exe` alias as the equivalent relative `python.exe` link
+   in a new candidate owner. No native host tree is edited; all other link/type restrictions remain.
+4. Preserve and seal Linux file/directory modes in the candidate contract. Keep exact compatible
+   prefixes and provider/source identity separate from inventory equality.
+
+This projection retains 3,758 Windows entries and 3,040 Linux entries, with exact pair equality.
+It omits 1,330 Windows entries (1,012 native base-pip entries, 171 source-backed bytecode files and
+147 empty generated cache directories), and 6,749 Linux entries (1,012 native base-pip entries,
+5,592 source-backed bytecode files and 145 empty generated cache directories). It changes only
+in-memory inventory views: no runtime is copied, removed, rewritten, executed or restored, and no
+project-owned seal is generated/adopted. Raw artifacts and full difference inventories remain intact.
+
+The existing bootstrap acquires locked wheels directly with `urllib`, creates a fresh environment
+with `venv.EnvBuilder(with_pip=True)` and installs/verifies pinned pip/dependencies inside that
+environment. It does not need the native base-pip installation for those steps. That source inspection
+supports the proposed omission, but is not runtime evidence for a stripped candidate. Next review
+this normalization contract, implement/test a private-owner candidate builder and mode-aware seal
+admission, then prove real candidate execution, ensurepip/venv and locked project bootstrap on both
+hosts. Retain no-bytecode execution/write controls as an explicit post-seal requirement. Repeated
+normalized hosted payloads and independent trusted seals, corruption/missing-receipt recovery and
+fixed-prefix restoration still precede any default change. If that proof fails, use the specified
+immutable-artifact/archive-import review fallback; do not widen integrity exemptions.
+
+Only this evidence/design update is uncommitted. No additional hosted run is queued, both PRs stay
+paused and ordinary acquisition/CI remain unchanged. Phase 6.5 remains open.

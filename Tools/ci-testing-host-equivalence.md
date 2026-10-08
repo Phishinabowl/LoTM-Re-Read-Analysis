@@ -709,6 +709,19 @@ exact-prefix comparison. All 69 registered native cases pass per OS. This new di
 retry qualification and actual repeated inventories remain open. See the acquisition design for
 source references, run timing and precise outcome disposition.
 
+The handoff correction is subsequently confirmed/published as `b5378a1`, with four-ref parity.
+The published-source preview passes and run 71 succeeds for all four capture jobs (4m07.377s
+queue-to-finish). Independently recomputed inventory digests and source/contract checks pass.
+Windows captures have 5,088 entries each with 408 differing pip-generated files; Linux has 9,789
+entries each with 571 differing bytecode files. Raw trees are not repeatable trusted seals.
+The first Windows job selects preinstalled Python from a newer image while the other three native
+tasks download the inspected release; this is not a controlled same-image cold/cold Windows proof.
+A documented in-memory projection retains identical entries per OS after source-backed-bytecode,
+complete native-base-pip and exact alias normalization. No runtime is changed or restored by that
+analysis. Candidate construction, execution, ensurepip/locked bootstrap, mode-aware external seals,
+cold/warm/corruption/recovery and default adoption remain open. Three evidence docs are uncommitted;
+see the acquisition design for full counts, timings, provenance limits and the proposed next gate.
+
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
 complete local/hosted portfolio identity and failure/cancellation behavior. Restore the same PRs
