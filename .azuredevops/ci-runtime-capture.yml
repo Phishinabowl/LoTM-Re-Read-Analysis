@@ -1,0 +1,59 @@
+# Temporary capture-only Phase 6.5 experiment; no validation policy or cache restoration.
+trigger: none
+pr: none
+
+jobs:
+  - job: RuntimeCapture
+    displayName: Raw Python runtime capture
+    timeoutInMinutes: 15
+    cancelTimeoutInMinutes: 2
+    strategy:
+      maxParallel: 1
+      matrix:
+        Capture_01_Windows:
+          image: windows-2022
+          capture: '1'
+        Capture_02_Windows:
+          image: windows-2022
+          capture: '2'
+        Capture_03_Linux:
+          image: ubuntu-24.04
+          capture: '1'
+        Capture_04_Linux:
+          image: ubuntu-24.04
+          capture: '2'
+    pool:
+      vmImage: $(image)
+    variables:
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: 'false'
+    steps:
+      - checkout: self
+        fetchDepth: 1
+        persistCredentials: false
+      - pwsh: |
+          if ($env:BUILD_REASON -cne 'Manual') { throw 'Capture requires explicit manual execution.' }
+          $pins = Get-Content Tools/CI/Data/runtime-versions.json -Raw | ConvertFrom-Json
+          if ($pins.python -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+$') { throw 'Exact Python pin required.' }
+          Write-Host "##vso[task.setvariable variable=CAPTURE_PYTHON_VERSION]$($pins.python)"
+        displayName: Read authoritative exact pin before Python setup
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: $(CAPTURE_PYTHON_VERSION)
+          architecture: x64
+          addToPath: false
+      - pwsh: |
+          ./Tools/CI/Capture-PythonRuntime.ps1
+        displayName: Inventory native tree without mutation or restored execution
+        env:
+          LOTM_RUNTIME_CAPTURE: hosted-capture-only
+          NATIVE_PYTHON_LOCATION: $(pythonLocation)
+          CAPTURE_IMAGE: $(image)
+          CAPTURE_ID: $(capture)
+      - task: PublishPipelineArtifact@1
+        condition: and(always(), eq(variables['CAPTURE_OUTPUT_READY'], 'true'))
+        displayName: Retain untrusted raw inventory for comparison
+        inputs:
+          targetPath: $(Build.SourcesDirectory)/.tmp/ci-runtime-capture
+          artifact: runtime-capture-$(image)-$(capture)-$(Build.BuildId)

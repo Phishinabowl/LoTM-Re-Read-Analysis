@@ -683,6 +683,22 @@ qualification, repeatable real seals, hosted cache restoration and failure/recov
 remain open. No workflow, timeout, profile/shard membership, secret or machine runtime changes.
 The implementation/evidence is uncommitted; see the acquisition design for exact local boundaries.
 
+That admission increment is subsequently confirmed and dual-published as `8719f8d`, with all four
+branch refs matching. Read-only downloaded-byte inspection verifies both exact upstream asset sizes
+and SHA-256 values. Windows supplies an installer rather than a completed runtime; Linux supplies a
+prefix-bound tree with 5,996 bytecode files and eight relative links. Neither installer/executable is
+run. Repeated hosted capture and an explicit generated-file/pip/alias/mode contract remain required
+before trusted seals or restoration are adopted. Detailed findings are in the acquisition design;
+this inspection queues no hosted jobs and changes no default, machine installation or paused PR.
+
+The next reviewed candidate prepares a separate manual-only raw-capture YAML and guarded PS7
+collector: two independent jobs per OS, exact authoritative Python pin, no cache save/restore and
+no full portfolio. Raw retention omits nothing; Unix modes and the exact Windows native alias are
+inspection evidence only. The strict admission path remains unchanged. All 63 registered dependency
+cases pass per OS, zero skips/errors; YAML structure parses locally. Temporary definition creation,
+Azure preview and actual native provenance/repeated-capture comparison await publication approval.
+The acquisition design records the exact bounds and intentionally unverified receipt fields.
+
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
 complete local/hosted portfolio identity and failure/cancellation behavior. Restore the same PRs

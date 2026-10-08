@@ -53,7 +53,8 @@ function Get-CiPythonRuntimeInventory {
     param(
         [Parameter(Mandatory)][string]$Root,
         [datetime]$DeadlineUtc = [datetime]::MaxValue,
-        [scriptblock]$Cancelled = { $false }
+        [scriptblock]$Cancelled = { $false },
+        [switch]$CaptureOnly
     )
     Test-CiPythonCacheLease $DeadlineUtc $Cancelled
     $owner = Get-CiPythonCachePath $Root
@@ -79,10 +80,19 @@ function Get-CiPythonRuntimeInventory {
                     throw 'Directory Python runtime links are not qualified.'
                 }
                 $target = $item.LinkTarget
-                if (-not $target -or [IO.Path]::IsPathRooted($target) -or $target -match '[:\x00-\x1f]') {
+                $nativeAlias = $CaptureOnly -and $IsWindows -and $relative -ceq 'python3.exe' -and
+                [IO.Path]::IsPathRooted($target) -and
+                [IO.Path]::GetFullPath($target) -ceq (Join-Path $owner 'python.exe')
+                if (-not $target -or (-not $nativeAlias -and
+                        ([IO.Path]::IsPathRooted($target) -or $target -match '[:\x00-\x1f]'))) {
                     throw 'Python runtime link must have a relative target.'
                 }
-                $resolved = [IO.Path]::GetFullPath((Join-Path $item.DirectoryName $target))
+                $resolved = if ($nativeAlias) {
+                    [IO.Path]::GetFullPath($target)
+                }
+                else {
+                    [IO.Path]::GetFullPath((Join-Path $item.DirectoryName $target))
+                }
                 $targetRelative = [IO.Path]::GetRelativePath($owner, $resolved).Replace('\', '/')
                 $null = Get-CiPythonCachePath $owner $targetRelative
                 $leaf = Get-Item -LiteralPath $resolved -Force -ErrorAction Stop
@@ -117,6 +127,9 @@ function Get-CiPythonRuntimeInventory {
                     throw 'Python runtime file changed during inventory.'
                 }
             }
+            if ($CaptureOnly -and $IsLinux -and $record.kind -ne 'symlink') {
+                $record.unix_mode = [int][IO.File]::GetUnixFileMode($item.FullName)
+            }
             $records.Add($relative, $record)
         }
     }
@@ -126,9 +139,77 @@ function Get-CiPythonRuntimeInventory {
     $entries = @($names | ForEach-Object { $records[$_] })
     $json = ConvertTo-Json -InputObject $entries -Depth 6 -Compress
     $hash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($json))).ToLowerInvariant()
-    [pscustomobject]@{ schema_version = 1
+    [pscustomobject]@{ schema_version = $(if ($CaptureOnly) {
+                2
+            }
+            else {
+                1
+            })
         entries = $entries
         sha256 = $hash
+    }
+}
+
+function Get-CiPythonRuntimeCapture {
+    param(
+        [Parameter(Mandatory)][Collections.IDictionary]$Context,
+        [Parameter(Mandatory)][Collections.IDictionary]$RuntimeVersions,
+        [Parameter(Mandatory)][string]$Root,
+        [datetime]$DeadlineUtc = [datetime]::MaxValue,
+        [scriptblock]$Cancelled = { $false }
+    )
+    $osName = if ($IsWindows) {
+        'windows'
+    }
+    elseif ($IsLinux) {
+        'linux'
+    }
+    else {
+        ''
+    }
+    $image = if ($IsWindows) {
+        'windows-2022'
+    }
+    else {
+        'ubuntu-24.04'
+    }
+    if (-not $osName -or $Context.host -cne 'ado' -or $Context.event -cne 'Manual' -or
+        $Context.hosted -isnot [bool] -or -not $Context.hosted -or $Context.os -cne $osName -or
+        $Context.image_family -cne $image -or $Context.architecture -cne 'x64' -or
+        $Context.executed_commit -cnotmatch '^[0-9a-f]{40}$' -or
+        $Context.capture_id -cnotmatch '^[12]$' -or
+        $RuntimeVersions.python -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+$') {
+        throw 'Raw runtime capture requires exact manual hosted pilot context.'
+    }
+    $owner = Get-CiPythonCachePath $Root
+    $exe = if ($IsWindows) {
+        'python.exe'
+    }
+    else {
+        'bin/python3.14'
+    }
+    $file = Get-Item -LiteralPath (Get-CiPythonCachePath $owner $exe) -Force -ErrorAction Stop
+    if ($file.PSIsContainer -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        throw 'Raw capture requires a regular interpreter file.'
+    }
+    $inventory = Get-CiPythonRuntimeInventory $owner -DeadlineUtc $DeadlineUtc -Cancelled $Cancelled -CaptureOnly
+    [pscustomobject]@{ contract = 'ci-python-runtime-capture'
+        schema_version = 1
+        executed_commit = $Context.executed_commit
+        capture_id = $Context.capture_id
+        os = $osName
+        image_family = $image
+        architecture = 'x64'
+        requested_python = $RuntimeVersions.python
+        prefix = $owner
+        acquisition = 'native-selection'
+        provider_build_verified = $false
+        runtime_probe_verified = $false
+        trusted_seal = $false
+        handoff_admitted = $false
+        saved = $false
+        omitted_paths = @()
+        inventory = $inventory
     }
 }
 
