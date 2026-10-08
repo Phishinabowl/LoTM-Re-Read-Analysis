@@ -585,8 +585,13 @@ def test_host_full_planning_cli_in_clean_private_checkout(tmp_path, adapter):
     shutil.copy2(ROOT / "Tools/CI/ado_shadow.py", root / "Tools/CI/ado_shadow.py")
     # New display-only helper must participate in clean-checkout proof before publication.
     shutil.copy2(ROOT / "Tools/CI/presentation.py", root / "Tools/CI/presentation.py")
-    # Include registered cohort sources during review before they enter the tracked inventory.
-    for name in ("Tools/CI/ado_cohort.py", "Tools/Tests/Python/test_ci_cohort.py"):
+    # Include registered candidate sources during review before they enter the tracked inventory.
+    for name in (
+        "Tools/CI/ado_cohort.py",
+        "Tools/Tests/Python/test_ci_cohort.py",
+        "Tools/CI/PythonRuntimeCache.ps1",
+        "Tools/Tests/PowerShell/PythonRuntimeCache.Tests.ps1",
+    ):
         shutil.copy2(ROOT / name, root / name)
     git(root, "init", "--initial-branch=main")
     git(root, "config", "user.name", "CI planning fixture")

@@ -255,7 +255,7 @@
     },
     {
       "id": "powershell-dependencies",
-      "description": "powershell dependencies",
+      "description": "PowerShell dependencies and pre-Python runtime cache admission",
       "order": 7,
       "adapter": "pester",
       "runtimes": [
@@ -266,7 +266,8 @@
         "linux"
       ],
       "entry": [
-        "Tools/Tests/PowerShell/Dependencies.Tests.ps1"
+        "Tools/Tests/PowerShell/Dependencies.Tests.ps1",
+        "Tools/Tests/PowerShell/PythonRuntimeCache.Tests.ps1"
       ],
       "arguments": [],
       "fixtures": [

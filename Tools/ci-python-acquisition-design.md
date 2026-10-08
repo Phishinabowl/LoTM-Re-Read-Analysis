@@ -144,3 +144,31 @@ Sources: [upstream release](https://github.com/actions/python-versions/releases/
 [registry snapshot](https://github.com/actions/python-versions/blob/77ca8ada59c43eeb7af4c21e3bd55f6a2c65847b/versions-manifest.json),
 [Azure task documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/use-python-version-v0?view=azure-pipelines).
 Read-only source snapshots and run 68's worker acquisition log remain under ignored `.tmp/ci-phase65`.
+
+## First Local Admission Increment
+
+The approved design is dual-published as `571a488` on 2026-10-07. The first implementation prepares
+`Tools/CI/PythonRuntimeCache.ps1` as a read-only library, with no network/installer/restore/probe
+execution. It reads the adopted pin through its authoritative runtime-versions input, constructs
+exact metadata-bound cache identities, inventories files/directories and qualified relative file
+links in ordinal order, and compares the inventory digest against an external trusted seal.
+Clean misses request native acquisition; verified hits stop at `probe-required`. Receipts validate
+capability/prefix evidence but always withhold environment handoff and cache saving in this increment.
+
+The new Pester file is registered in the existing `powershell-dependencies` group; no new aggregate
+unit, profile, shard, timeout or required check is added. The group's 47 new cases and five existing
+cases pass through the original native adapter on both OSs: 52/52, zero skips/errors (Windows 6.152s,
+Linux 16.516s), including unique native identities and JUnit/phase admission. Catalog and focused
+clean-checkout planning regressions pass 89 cases per OS (Windows 48.38s, Linux 38.11s). The clean
+fixture explicitly includes the new registered source files during pre-publication review.
+Repository PowerShell formatting, Python formatting/lint, work-annotation policy/22 fixtures and
+diff checks pass. No broader suite is repeated for this isolated foundation.
+
+The filesystem proof includes actual Windows junction/Linux directory-link owners and actual
+hard-linked files. Regular Unix directory link counts are preserved; linked files are rejected.
+Absolute/chained/directory links and nonregular files remain unqualified/rejected. Relative file
+link handling also has targeted metadata fixtures. These conservative limits are not evidence
+that the actual upstream installed tree already fits the contract: Windows fixed-prefix aliases,
+mutable generated files, repeatable sealing and exact archive contents remain to be qualified.
+No actual runtime seal is adopted, no cached Python is executed and no host cache is restored.
+Changes remain uncommitted for review; native hosted setup and both paused PRs remain unchanged.

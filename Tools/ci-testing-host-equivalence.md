@@ -671,6 +671,18 @@ fixed-prefix, cold/warm, corruption/recovery and original test-publication proof
 No installer is executed locally, no runtime archive is downloaded, no secret is created and no
 new hosted run is queued by this source/proposal pass. Both PRs remain paused; 6.5 stays open.
 
+The maintainer approves the acquisition pilot design, dual-published as `571a488` on 2026-10-07
+with HEAD/upstream/GitHub/Azure parity. Its first local implementation adds a read-only PS7 admission
+library and registers its Pester fixtures in the existing dependency group. Exact cache identities,
+external-seal inventory verification, conservative link/owner/type checks and probe-checked receipts
+do not execute or restore cached runtimes; handoff and save flags remain false. The original native
+adapter admits all 52 registered dependency cases per OS (47 new, five existing), zero skips/errors;
+Windows takes 6.152s and Linux 16.516s. Catalog/clean-private planning proof passes 89 cases per OS,
+and formatter/lint/annotation/diff checks pass. Runtime archive inspection, mutable-file/fixed-prefix
+qualification, repeatable real seals, hosted cache restoration and failure/recovery measurements
+remain open. No workflow, timeout, profile/shard membership, secret or machine runtime changes.
+The implementation/evidence is uncommitted; see the acquisition design for exact local boundaries.
+
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
 complete local/hosted portfolio identity and failure/cancellation behavior. Restore the same PRs

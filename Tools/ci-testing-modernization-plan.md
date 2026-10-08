@@ -2518,6 +2518,15 @@ authentication disposition explicit, and sealed inventory/fixed-prefix qualifica
 execution. Upstream installers are inspected as text only; no local installation, secret,
 runtime download, default change or hosted qualification is introduced by the proposal.
 
+The maintainer approves the acquisition design, published as `571a488` on 2026-10-07. Its first
+local increment adds read-only PS7 admission/inventory/receipt logic and 47 Pester cases, registered
+in the existing dependency group without changing aggregate unit counts, profiles or deadlines.
+All 52 dependency cases pass through the native adapter on Windows/Linux; 89 focused catalog and
+clean-planning cases also pass per OS. Restore/execution/handoff of real cached runtimes is still
+unqualified and disabled. Real archive contents, mutable-file and fixed-prefix sealing, hosted
+cold/warm/corruption/recovery and acquisition warning disposition remain open. The local increment
+is uncommitted pending review; detailed boundaries and evidence live in the acquisition design.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during
