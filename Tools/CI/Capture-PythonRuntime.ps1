@@ -1,5 +1,5 @@
 #Requires -Version 7.4
-param()
+param([ValidateSet('raw', 'candidate')][string]$Mode = 'raw')
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'PythonRuntimeCache.ps1')
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -35,6 +35,33 @@ try {
     $result = Get-CiPythonRuntimeCapture $context $pins $root -DeadlineUtc ([datetime]::UtcNow.AddMinutes(5))
     $result | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $output 'capture.json') -Encoding utf8
     Write-Host "Raw capture: $($result.inventory.entries.Count) entries. No trusted seal, restoration or runtime handoff."
+    if ($Mode -eq 'candidate') {
+        $workspace = Get-CiPythonCachePath (Join-Path $repo '.tmp/ci-runtime-candidates')
+        if (Test-Path -LiteralPath $workspace) {
+            throw 'Candidate pilot workspace must be fresh.'
+        }
+        $null = New-Item -ItemType Directory -Path $workspace
+        $destination = Join-Path $workspace 'runtime'
+        $candidate = New-CiPythonRuntimeCandidate $root $workspace $destination $pins -DeadlineUtc ([datetime]::UtcNow.AddMinutes(5))
+        $candidate | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $output 'candidate.json') -Encoding utf8
+        $nativeExe = Join-Path $root $(if ($IsWindows) {
+                'python.exe'
+            }
+            else {
+                'bin/python3.14'
+            })
+        & $nativeExe -I -B (Join-Path $PSScriptRoot 'qualify_runtime_candidate.py') `
+            --candidate $destination --receipt (Join-Path $output 'candidate.json') --output $output
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Candidate qualification failed; see retained report and process diagnostics.'
+        }
+        $finalDeadline = [datetime]::UtcNow.AddMinutes(2)
+        if ((Get-CiPythonRuntimeInventory $destination -SealModes -DeadlineUtc $finalDeadline).sha256 -cne $candidate.inventory.sha256 -or
+            (Get-CiPythonRuntimeInventory $root -CaptureOnly -DeadlineUtc $finalDeadline).sha256 -cne $candidate.source_sha256) {
+            throw 'Candidate or native source changed during qualification.'
+        }
+        Write-Host 'Normalized candidate and fresh locked environment qualified; no cache or restore admission.'
+    }
 }
 catch {
     $message = $_.Exception.Message

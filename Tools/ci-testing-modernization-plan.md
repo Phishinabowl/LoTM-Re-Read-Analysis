@@ -2572,6 +2572,17 @@ normalized hosted payloads/ensurepip/locked bootstrap, external seals, fixed-pre
 cold/warm/corruption/recovery/cache-benefit gates remain open; see the acquisition design. No new
 hosted run or default/required-check/PR change is introduced. Phase 6.5 remains open.
 
+The builder is confirmed/published as `c743f42`. An explicit, default-off hosted candidate mode is
+prepared with native-supervised integrity/core-library probes and fresh locked runtime bootstrap,
+plus an opt-in source-only no-base-bytecode bootstrap path. Ordinary behavior and the four bounded
+manual allocations remain unchanged; only receipts/process evidence are uploaded. All 53 focused
+pytest and 84 Pester cases pass per OS, and real fresh local bootstrap succeeds on Windows/WSL.
+The WSL static-SSL build supplies fail-closed probe evidence, not positive Actions-distribution proof.
+Azure's no-agent override preview passes. This eight-file increment remains uncommitted; publish
+only after confirmation, then preview committed source and qualify the four jobs. External seals,
+fixed-prefix restoration, faults/recovery, cache benefit and defaults remain open; see the acquisition
+design for exact evidence/limits. No additional hosted run is queued. Phase 6.5 stays open.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during

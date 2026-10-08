@@ -733,6 +733,18 @@ exploratory projection. Hosted candidate execution, locked bootstrap, external s
 corruption/recovery and benefit measurement remain open. Five files are uncommitted for review;
 no new hosted jobs, defaults or PR state changes. Details are in the acquisition design.
 
+The private builder is confirmed/published as `c743f42`. The next candidate adds a default-off mode
+to pipeline 4 and a native-supervised verifier/probe/locked-bootstrap driver, retaining four bounded
+manual jobs and uploading diagnostic receipts rather than runtime binaries. Complete mode-aware
+payload checks and actual core-library ownership precede qualification; success cannot admit a
+cache or fixed-prefix restore. The bootstrap's no-base-bytecode path is explicit/source-only and
+ordinary behavior stays unchanged. All 53 focused pytest and 84 Pester cases pass per OS; real fresh
+runtime-profile bootstrap succeeds locally on both OSs. The custom WSL static-SSL build is correctly
+rejected by the Actions-specific file-backed-module probe; positive Linux candidate proof is hosted
+and still open. Azure's candidate override preview passes without allocation. Eight files are
+uncommitted for review; no hosted job is queued. The acquisition design records exact limits,
+local-proof boundaries and remaining source/seal/restoration/benefit gates.
+
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
 complete local/hosted portfolio identity and failure/cancellation behavior. Restore the same PRs

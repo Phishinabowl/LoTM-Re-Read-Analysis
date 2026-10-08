@@ -215,7 +215,7 @@ def acquire_wheels(pins, cache, lock, *, offline, check):
     return rows, missing
 
 
-def verify_python(executable, pins):
+def verify_python(executable, pins, *, no_base_bytecode=False):
     script = """
 import importlib, importlib.metadata as md, json, pathlib, sys
 pins = json.loads(sys.argv[1])
@@ -239,10 +239,15 @@ for name, version in sorted(pins.items()):
 print(json.dumps({'python': sys.version.split()[0], 'executable': sys.executable,
                   'prefix': str(prefix), 'packages': result}))
 """
-    return json.loads(run([executable, "-I", "-c", script, json.dumps(pins), json.dumps(IMPORT_NAMES)]))
+    flags = ["-I", "-B"] if no_base_bytecode else ["-I"]
+    return json.loads(run([executable, *flags, "-c", script, json.dumps(pins), json.dumps(IMPORT_NAMES)]))
 
 
 def bootstrap_python(args, versions):
+    immutable = getattr(args, "no_base_bytecode", False)
+    if immutable and args.package_mode != "source":
+        raise ValueError("No-base-bytecode qualification currently requires source package mode")
+    flags = ["-I", "-B"] if immutable else []
     profile = "build" if args.package_mode in {"editable", "wheel"} else args.python_profile
     pins, identity, lock = python_plan(profile, args.media, versions)
     if profile == "build" and not args.build_only:
@@ -265,12 +270,15 @@ def bootstrap_python(args, versions):
             raise ValueError(f"Environment missing: {environment_root}; run explicit bootstrap")
         environment_root.mkdir(parents=True, exist_ok=True)
         (environment_root / "bootstrap-owner.json").write_text(json.dumps(identity, sort_keys=True), encoding="utf-8")
-        venv.EnvBuilder(with_pip=True).create(environment_root)
+        venv.EnvBuilder(with_pip=not immutable).create(environment_root)
+        if immutable:
+            run([executable, *flags, "-m", "ensurepip", "--upgrade", "--default-pip"])
         requirements = owned_path(environment_root / "locked-requirements.txt")
         requirements.write_text("\n".join(rows) + "\n", encoding="utf-8")
         run(
             [
                 executable,
+                *flags,
                 "-m",
                 "pip",
                 "--isolated",
@@ -288,10 +296,10 @@ def bootstrap_python(args, versions):
     if read_json(environment_root / "bootstrap-owner.json") != identity:
         raise ValueError("Environment owner/declaration provenance mismatch")
     start = time.perf_counter()
-    verified = verify_python(executable, pins)
+    verified = verify_python(executable, pins, no_base_bytecode=True) if immutable else verify_python(executable, pins)
     if verified["python"] != versions["python"]:
         raise ValueError("Isolated interpreter version mismatch")
-    run([executable, "-m", "pip", "check"])
+    run([executable, *flags, "-m", "pip", "check"])
     verified.update(
         key=key,
         acquisition_seconds=acquisition,
@@ -611,10 +619,15 @@ def main():
     parser.add_argument("--actionlint", action="store_true")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--build-only", action="store_true")
+    parser.add_argument("--no-base-bytecode", action="store_true", help="Opt-in sealed-base source-mode qualification")
     args = parser.parse_args()
     started = time.perf_counter()
     report = {"schema_version": 1, "status": "failed", "check_only": args.check, "offline": args.offline}
     try:
+        if args.no_base_bytecode and (
+            args.package_mode != "source" or not sys.flags.isolated or not sys.flags.dont_write_bytecode
+        ):
+            raise ValueError("No-base-bytecode qualification requires source mode and an isolated -B parent")
         if args.build_only and args.package_mode != "wheel":
             raise ValueError("--build-only requires --package-mode wheel")
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", args.environment_id):

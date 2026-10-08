@@ -370,3 +370,255 @@ def test_bootstrap_children_obey_inherited_whole_unit_deadline(tmp_path, monkeyp
         with pytest.raises(ValueError, match="deadline"):
             bootstrap.run(["synthetic"], cwd=tmp_path)
         assert not calls
+
+
+def load_candidate_qualification():
+    prior = sys.path[:]
+    try:
+        sys.path.insert(0, str(ROOT / "Tools/CI"))
+        spec = importlib.util.spec_from_file_location(
+            "ci_candidate_qualification", ROOT / "Tools/CI/qualify_runtime_candidate.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        sys.path[:] = prior
+
+
+def candidate_fixture(tmp_path):
+    import hashlib
+    import stat
+
+    candidate = tmp_path / "candidate"
+    candidate.mkdir()
+    (candidate / "retained.txt").write_bytes(b"retained bytes")
+    row = {
+        "path": "retained.txt",
+        "kind": "file",
+        "bytes": len(b"retained bytes"),
+        "sha256": hashlib.sha256(b"retained bytes").hexdigest(),
+    }
+    if sys.platform == "linux":
+        row["unix_mode"] = stat.S_IMODE((candidate / "retained.txt").stat().st_mode)
+    frame = {
+        "root_unix_mode": stat.S_IMODE(candidate.stat().st_mode) if sys.platform == "linux" else None,
+        "entries": [row],
+    }
+    inventory = {
+        "schema_version": 3,
+        **frame,
+        "sha256": hashlib.sha256(json.dumps(frame, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest(),
+    }
+    return candidate, {
+        "contract": "ci-python-runtime-candidate",
+        "schema_version": 1,
+        "normalization": "native-core-v1",
+        "status": "candidate-complete",
+        "inventory": inventory,
+        "trusted_seal": False,
+        "handoff_admitted": False,
+        "saved": False,
+        "runtime_probe_verified": False,
+    }
+
+
+@pytest.mark.parametrize("mutation", ["none", "corrupt", "missing", "extra", "receipt-digest", "promotion", "mode"])
+def test_candidate_validator_checks_every_byte_and_withholds_cache_trust(tmp_path, mutation):
+    module = load_candidate_qualification()
+    candidate, receipt = candidate_fixture(tmp_path)
+    if mutation == "corrupt":
+        (candidate / "retained.txt").write_bytes(b"changed bytes!")
+    elif mutation == "missing":
+        (candidate / "retained.txt").unlink()
+    elif mutation == "extra":
+        (candidate / "extra.txt").write_bytes(b"extra")
+    elif mutation == "receipt-digest":
+        receipt["inventory"]["sha256"] = "0" * 64
+    elif mutation == "promotion":
+        receipt["trusted_seal"] = True
+    elif mutation == "mode" and sys.platform == "linux":
+        (candidate / "retained.txt").chmod(0o700)
+    elif mutation == "mode":
+        receipt["inventory"]["root_unix_mode"] = 0o700
+    if mutation == "none":
+        assert module.validate_payload(candidate, receipt) == candidate
+        assert not receipt["trusted_seal"] and not receipt["handoff_admitted"]
+    else:
+        with pytest.raises(ValueError):
+            module.validate_payload(candidate, receipt)
+
+
+def test_candidate_environment_scrubs_credentials_and_loader_inheritance(tmp_path):
+    module = load_candidate_qualification()
+    inherited = {
+        "PATH": "system",
+        "SYSTEM_ACCESSTOKEN": "sentinel",
+        "GITHUB_TOKEN": "sentinel",
+        "PYTHONPATH": "hostile",
+        "PYTHONHOME": "hostile",
+        "LD_LIBRARY_PATH": "hostile",
+    }
+    result = module.child_environment(tmp_path, inherited)
+    assert not {"SYSTEM_ACCESSTOKEN", "GITHUB_TOKEN", "PYTHONPATH", "PYTHONHOME"}.intersection(result)
+    assert result["PYTHONDONTWRITEBYTECODE"] == "1"
+    if sys.platform == "linux":
+        assert result["LD_LIBRARY_PATH"] == str(tmp_path / "lib")
+    else:
+        assert "LD_LIBRARY_PATH" not in result
+
+
+def test_candidate_probe_uses_owned_process_cleanup_and_real_core_library_paths(tmp_path):
+    import threading
+    import time
+
+    module = load_candidate_qualification()
+    prefix, base = Path(sys.prefix), Path(sys.base_prefix)
+    command = [
+        str(Path(sys.executable).resolve()),
+        "-I",
+        "-B",
+        "-c",
+        module.PROBE,
+        str(prefix),
+        str(base),
+        str(Path(sys.executable).resolve()),
+        sys.version.split()[0],
+        "environment",
+    ]
+    if importlib.util.find_spec("_ssl").origin == "built-in":
+        # The local source-built WSL interpreter is not the file-backed Actions distribution.
+        # Exercise fail-closed behavior; positive Linux qualification remains a hosted gate.
+        with pytest.raises(RuntimeError, match="Expected file-backed qualification module"):
+            module.step(
+                command,
+                tmp_path,
+                module.child_environment(base),
+                module.Lease(time.monotonic() + 30),
+                threading.Event(),
+            )
+        evidence = json.loads(next(tmp_path.glob("process-*/process.json")).read_text(encoding="utf-8"))
+        assert evidence["cleanup"]["verified"] and evidence["child_exit_code"] == 1
+        return
+    result, stdout = module.step(
+        command, tmp_path, module.child_environment(base), module.Lease(time.monotonic() + 30), threading.Event()
+    )
+    probe = json.loads(stdout.read_text(encoding="utf-8"))
+    assert result["cleanup"]["verified"] and result["child_exit_code"] == 0
+    assert probe["core_library"] and probe["isolated"] and probe["no_bytecode"]
+    assert all(Path(name).resolve().is_relative_to(base.resolve()) for name in probe["core_library"])
+
+
+def test_candidate_cli_rejects_local_execution_before_opening_candidate(tmp_path, monkeypatch):
+    module = load_candidate_qualification()
+    monkeypatch.setenv("CAPTURE_MODE", "local")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["qualifier", "--candidate", str(tmp_path), "--receipt", str(tmp_path / "missing"), "--output", str(tmp_path)],
+    )
+    with pytest.raises(ValueError, match="explicit manual hosted"):
+        module.main()
+
+
+@pytest.mark.parametrize("immutable", [False, True])
+def test_immutable_base_bootstrap_uses_explicit_no_bytecode_ensurepip_and_keeps_default(
+    tmp_path, monkeypatch, immutable
+):
+    from types import SimpleNamespace
+
+    monkeypatch.setattr(bootstrap, "ROOT", tmp_path)
+    identity = {"fixture": True}
+    monkeypatch.setattr(bootstrap, "python_plan", lambda *a: ({"pip": "26.2"}, identity, {}))
+    monkeypatch.setattr(bootstrap, "acquire_wheels", lambda *a, **k: (["pip==26.2 --hash=sha256:fixture"], []))
+    calls, creates = [], []
+
+    class Builder:
+        def __init__(self, with_pip):
+            creates.append(with_pip)
+
+        def create(self, root):
+            pass
+
+    monkeypatch.setattr(bootstrap.venv, "EnvBuilder", Builder)
+    monkeypatch.setattr(bootstrap, "run", lambda command, **k: calls.append([str(x) for x in command]) or "")
+    monkeypatch.setattr(bootstrap, "verify_python", lambda exe, pins, **k: {"python": "3.14.8", "probe_flags": k})
+    args = SimpleNamespace(
+        package_mode="source",
+        python_profile="runtime",
+        media=False,
+        environment_id="fixture",
+        offline=False,
+        check=False,
+        no_base_bytecode=immutable,
+    )
+    _, result = bootstrap.bootstrap_python(args, {"python": "3.14.8"})
+    assert creates == [not immutable] and result["environment_created"]
+    assert (
+        all(command[1:3] == ["-I", "-B"] for command in calls)
+        if immutable
+        else all("-B" not in command for command in calls)
+    )
+    ensurepip = [command for command in calls if "ensurepip" in command]
+    assert len(ensurepip) == int(immutable)
+    assert result["probe_flags"] == ({"no_base_bytecode": True} if immutable else {})
+
+
+@pytest.mark.parametrize("mutation", ["none", "prefix", "core", "flags", "version"])
+def test_candidate_probe_admission_requires_actual_ownership_and_capability_evidence(tmp_path, mutation):
+    module = load_candidate_qualification()
+    value = {
+        "version": "3.14.8",
+        "mode": "base",
+        "isolated": True,
+        "no_bytecode": True,
+        "prefix": str(tmp_path),
+        "base_prefix": str(tmp_path),
+        "executable": str(tmp_path / "python"),
+        "origins": {name: str(tmp_path / name) for name in ("ssl", "sqlite3", "venv", "ensurepip", "_ssl", "_sqlite3")},
+        "core_library": [str(tmp_path / "core")],
+    }
+    if mutation == "prefix":
+        value["prefix"] = str(tmp_path.parent)
+    elif mutation == "core":
+        value["core_library"] = [str(tmp_path.parent / "external-core")]
+    elif mutation == "flags":
+        value["no_bytecode"] = 1
+    elif mutation == "version":
+        value["version"] = "3.14.7"
+    if mutation == "none":
+        assert module.admit_probe(value, tmp_path, tmp_path, tmp_path / "python", "3.14.8", "base") == value
+    else:
+        with pytest.raises(ValueError):
+            module.admit_probe(value, tmp_path, tmp_path, tmp_path / "python", "3.14.8", "base")
+
+
+@pytest.mark.parametrize("mode", ["editable", "wheel"])
+def test_no_base_bytecode_rejects_unqualified_package_modes_before_acquisition(mode):
+    from types import SimpleNamespace
+
+    with pytest.raises(ValueError, match="source package mode"):
+        bootstrap.bootstrap_python(SimpleNamespace(no_base_bytecode=True, package_mode=mode), {})
+
+
+@pytest.mark.parametrize(
+    "status,expected,code", [("exited", "failed", 1), ("cancelled", "cancelled", 130), ("timed-out", "timed-out", 124)]
+)
+def test_candidate_qualification_preserves_failure_cancellation_and_timeout_evidence(
+    tmp_path, monkeypatch, status, expected, code
+):
+    module = load_candidate_qualification()
+    candidate, receipt = candidate_fixture(tmp_path)
+    output = tmp_path / "diagnostics"
+    output.mkdir()
+    process = {"status": status, "child_exit_code": 2 if status == "exited" else None, "cleanup": {"verified": True}}
+
+    def fail(*args):
+        raise module.QualificationProcessError(process)
+
+    monkeypatch.setattr(module, "step", fail)
+    result = module.qualify(candidate, receipt, output, "a" * 40, "fixture")
+    assert result["status"] == expected and result["exit_code"] == code
+    assert result["failed_process"] == process and result["payload_unchanged"]
+    assert not result["handoff_admitted"] and not result["trusted_seal"] and not result["environment_verified"]
+    assert json.loads((output / "candidate-qualification.json").read_text()) == result

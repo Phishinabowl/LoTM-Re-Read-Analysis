@@ -1,10 +1,16 @@
-# Temporary capture-only Phase 6.5 experiment; no validation policy or cache restoration.
+# Temporary Phase 6.5 experiment; raw capture by default, explicit candidate qualification only.
 trigger: none
 pr: none
 
+parameters:
+  - name: mode
+    type: string
+    default: raw
+    values: [raw, candidate]
+
 jobs:
   - job: RuntimeCapture
-    displayName: Raw Python runtime capture
+    displayName: Python runtime pilot
     timeoutInMinutes: 15
     cancelTimeoutInMinutes: 2
     strategy:
@@ -45,13 +51,14 @@ jobs:
           architecture: x64
           addToPath: false
       - pwsh: |
-          ./Tools/CI/Capture-PythonRuntime.ps1
-        displayName: Inventory native tree without mutation or restored execution
+          ./Tools/CI/Capture-PythonRuntime.ps1 -Mode $env:CAPTURE_MODE
+        displayName: Capture native tree and run only the selected qualification mode
         env:
           LOTM_RUNTIME_CAPTURE: hosted-capture-only
           NATIVE_PYTHON_LOCATION: $(NativePython.pythonLocation)
           CAPTURE_IMAGE: $(image)
           CAPTURE_ID: $(capture)
+          CAPTURE_MODE: ${{ parameters.mode }}
       - task: PublishPipelineArtifact@1
         condition: and(always(), eq(variables['CAPTURE_OUTPUT_READY'], 'true'))
         displayName: Retain untrusted raw inventory for comparison

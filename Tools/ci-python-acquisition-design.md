@@ -398,3 +398,60 @@ Next qualify actual normalized hosted payloads and ensurepip/venv/locked bootstr
 reviewed mode-aware external seals and fixed-prefix restore admission. Keep post-seal no-bytecode
 controls, source/provider identity, corruption/recovery, measured cache benefit and the native rollback
 as open gates. Phase 6.5 stays open; ordinary CI, defaults and paused PRs are unchanged.
+
+## Opt-In Hosted Candidate Qualification Prepared
+
+The private builder is confirmed and dual-published as `c743f42`, with four-ref parity. The next
+increment adds explicit `mode: candidate` to the same temporary manual pipeline; `raw` remains
+the default. Its four matrix allocations and 15-minute job limits are retained. No cache task,
+required check, production adapter or schedule is introduced. The entry point first retains the
+raw inventory, builds a normalized candidate into a separate fresh ignored owner and publishes
+only the receipt/qualification/process-diagnostic folder. Candidate runtime bytes stay on the
+ephemeral agent and are not uploaded as artifacts by this experiment.
+
+The native-selected interpreter supervises candidate execution through the existing owned process
+primitive. A Python verifier checks the complete schema-3 inventory, hashes, unique ordinal paths,
+links, hard-link restrictions and Unix modes before launch and between stages. Child environments
+use an allowlist without credentials, inherited Python paths or inherited loader overrides. On
+Linux, the explicit candidate library directory is the loader path. The isolated `-B` probe requires
+exact CPython/x64/GIL/version/prefix/executable ownership, file-backed SSL/SQLite/venv/ensurepip modules,
+absence of base pip and a Python DLL/shared library loaded from the candidate owner. A copied runtime
+that still uses the native tree's core library does not pass this probe.
+
+The next child runs the original hash-locked runtime-profile bootstrap, followed by a fresh-environment
+probe proving that its base prefix and core library belong to the candidate. A new opt-in bootstrap
+flag, `--no-base-bytecode`, uses public `venv` creation without implicit pip setup and explicitly runs
+isolated `-B` ensurepip/install/check/verification commands. It requires an isolated `-B` parent and
+source package mode. This avoids implicit `venv` setup regenerating base bytecode while preserving
+the ordinary default bootstrap path. Editable/wheel modes remain unqualified for this opt-in flag.
+Post-qualification Python and PowerShell inventories verify both the candidate and native source.
+
+The qualification controller has a 600-second lease, per-probe 60-second limits, a bootstrap limit
+of 360 seconds and the existing process-tree termination/cleanup ownership. Verification observes
+the lease/cancellation; final failure verification has a 20-second allowance. Structured failure,
+cancellation and timeout evidence retain honest exit codes (1, 130 and 124). The final PS inventory
+checks share a two-minute deadline; the existing 15-minute job limit bounds the whole experiment.
+Successful qualification still withholds provider/external-seal verification, fixed-prefix restore,
+cache save and ordinary runtime handoff admission. Scratch execution is not restoration proof.
+
+Local verification passes 53 bootstrap/qualification pytest cases per OS and all 84 registered
+Pester dependency cases per OS, with zero skips/errors. Coverage includes byte/owner/mode validation,
+credential/loader scrubbing, probe-output ownership, default-vs-opt-in bootstrap commands, package-mode
+restriction, local CLI rejection and explicit failure/cancellation/timeout receipts. The real Windows
+process probe passes against the preexisting development interpreter. The source-built WSL interpreter
+has built-in SSL modules and is intentionally rejected by this Actions-distribution qualification
+probe, with verified process cleanup; positive Linux candidate execution awaits the hosted release.
+This is a tested refusal, not positive Linux distribution proof or a skipped test.
+
+Real opt-in bootstrap also creates/verifies fresh local runtime-profile environments on Windows and
+WSL using adopted pip 26.2/PyYAML 6.0.3 (14.648s/88.457s). Initial offline attempts correctly refuse
+missing profile-specific wheels; explicit acquisition uses the existing hash locks and then succeeds.
+No machine interpreter is installed or host tool cache restored. Azure's no-agent YAML override
+preview accepts candidate mode, the named native output and all four bounded jobs, with no cache
+task or binary upload. Formatting/lint, annotation policy/22 fixtures and documentation checks pass.
+
+This eight-file wiring/test/evidence increment is uncommitted for review. No new hosted job is queued.
+After publication approval, preview its actual committed source and run one bounded four-job candidate
+qualification. Repeated normalized payloads, real loaded-library/locked-bootstrap proof, external
+seals, fixed-prefix restoration, faults/recovery and measured cache benefit remain open. Phase 6.5
+stays open; both PRs and ordinary CI/default acquisition remain unchanged.
