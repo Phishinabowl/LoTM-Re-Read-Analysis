@@ -106,16 +106,24 @@ def test_live_posix_root_is_active_even_when_proc_group_scan_has_no_members(monk
     assert tree.active() is True
 
 
-def tree_code(tmp_path, root_exit=False):
+def tree_code(tmp_path, root_exit=False, lifetime=20):
     leaf = (
-        "import os,time; from pathlib import Path; Path('grandchild.pid').write_text(str(os.getpid())); time.sleep(20)"
+        "import os,time; from pathlib import Path; Path('grandchild.pid').write_text(str(os.getpid())); time.sleep("
+        + repr(lifetime)
+        + ")"
     )
-    child = "import subprocess,sys,time; subprocess.Popen([sys.executable,'-c'," + repr(leaf) + "]); time.sleep(20)"
+    child = (
+        "import subprocess,sys,time; subprocess.Popen([sys.executable,'-c',"
+        + repr(leaf)
+        + "]); time.sleep("
+        + repr(lifetime)
+        + ")"
+    )
     return (
         "import subprocess,sys,time; subprocess.Popen([sys.executable,'-c',"
         + repr(child)
         + "]); "
-        + ("time.sleep(.3)" if root_exit else "time.sleep(20)")
+        + ("time.sleep(.3)" if root_exit else "time.sleep(" + repr(lifetime) + ")")
     )
 
 

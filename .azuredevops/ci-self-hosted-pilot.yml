@@ -1,6 +1,16 @@
-# Manual preparation-only smoke; one job from the bounded KM pilot allowance.
+# Manual qualification only; no required gate or full-profile acceptance.
 trigger: none
 pr: none
+
+parameters:
+  - name: mode
+    type: string
+    default: smoke
+    values: [smoke, workload, failure, cancel]
+  - name: placement
+    type: string
+    default: lab
+    values: [lab, managed]
 
 variables:
   PYTHONUTF8: '1'
@@ -10,19 +20,29 @@ variables:
 
 jobs:
   - job: ServicePreparation
-    displayName: KM CI - service identity and pinned dependencies
-    condition: and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/architecture/ci-testing-modernization'))
-    timeoutInMinutes: 12
+    displayName: KM CI - ${{ parameters.placement }} ${{ parameters.mode }} qualification
+    condition: and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/architecture/ci-testing-modernization'), or(eq('${{ parameters.placement }}', 'lab'), eq('${{ parameters.mode }}', 'workload')))
+    timeoutInMinutes: 25
     cancelTimeoutInMinutes: 2
     pool:
-      name: KM-CI-Pilot
-      demands:
-        - Agent.Name -equals KM-CI-01
+      ${{ if eq(parameters.placement, 'lab') }}:
+        name: KM-CI-Pilot
+        demands:
+          - Agent.Name -equals KM-CI-01
+      ${{ else }}:
+        vmImage: windows-2022
     steps:
       - checkout: self
-        clean: true
-        fetchDepth: 1
+        # Retain ignored owned dependency payloads; every run gets a fresh environment label.
+        clean: false
+        path: km-agent-pilot
+        fetchDepth: 2
         persistCredentials: false
+      - ${{ if eq(parameters.placement, 'managed') }}:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.14.8'
+              architecture: x64
       - pwsh: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Path '.tmp/km-service-smoke' -Force | Out-Null
@@ -75,15 +95,81 @@ jobs:
             full_profile_acceptance = $false
           } | ConvertTo-Json | Set-Content '.tmp/km-service-smoke/identity.json' -Encoding utf8
         displayName: Verify non-admin identity, shared tools and synthetic cleanup
+        condition: and(succeeded(), eq('${{ parameters.mode }}', 'smoke'))
       - pwsh: |
           $ErrorActionPreference = 'Stop'
-          & 'C:\DevTools\Python\3.14.8\python.exe' -I Tools/CI/bootstrap.py --python-profile development --powershell-profile development --pwsh 'C:\Program Files\PowerShell\7\pwsh.exe' --environment-id km-service-smoke --source-revision $env:BUILD_SOURCEVERSION --report .tmp/km-service-smoke/dependencies.json
+          $head = & git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0 -or $head -ne $env:BUILD_SOURCEVERSION) { throw 'Dispatched source differs from checkout.' }
+          if ('${{ parameters.placement }}' -eq 'lab') {
+            $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+            if ($identity.Name.Split('\')[-1] -ne 'svc_km_ci' -or ([Security.Principal.WindowsPrincipal]::new($identity)).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { throw 'Expected non-admin CI service identity.' }
+            $python = 'C:\DevTools\Python\3.14.8\python.exe'
+          } else { $python = (Get-Command python -CommandType Application).Source }
+          $pwsh = & $python -I -c "import sys;sys.path.insert(0,'Tools/CI');import host_cache;print(host_cache.runtime())"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & 'C:\DevTools\Python\3.14.8\python.exe' -I Tools/CI/bootstrap.py --python-profile development --powershell-profile development --pwsh 'C:\Program Files\PowerShell\7\pwsh.exe' --environment-id km-service-smoke --source-revision $env:BUILD_SOURCEVERSION --check --offline --report .tmp/km-service-smoke/offline-check.json
+          $report = '.tmp/km-pilot-setup/' + $env:BUILD_BUILDID + '/bootstrap.json'
+          $extra = @()
+          if ('${{ parameters.mode }}' -ne 'smoke') { $extra += '--media' }
+          & $python -I Tools/CI/bootstrap.py --python-profile development --powershell-profile development --pwsh $pwsh --environment-id ('km-pilot-' + $env:BUILD_BUILDID) --source-revision $env:BUILD_SOURCEVERSION --report $report @extra
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $setup = Get-Content $report -Raw | ConvertFrom-Json
+          Write-Host ('##vso[task.setvariable variable=PilotPython]' + $setup.python.executable)
+          Write-Host ('##vso[task.setvariable variable=PilotBootstrap]' + $report)
+          $system = Get-CimInstance Win32_ComputerSystem
+          $os = Get-CimInstance Win32_OperatingSystem
+          [pscustomobject]@{
+            sampled_utc = [DateTime]::UtcNow.ToString('o')
+            os_build = $os.BuildNumber
+            logical_cpus = $system.NumberOfLogicalProcessors
+            memory_bytes = $system.TotalPhysicalMemory
+            free_memory_kib = $os.FreePhysicalMemory
+            cpu_load_percent = (Get-CimInstance Win32_Processor | Measure-Object LoadPercentage -Average).Average
+          } | ConvertTo-Json | Set-Content (Join-Path (Split-Path $report -Parent) 'resources-before.json') -Encoding utf8
+        displayName: Prepare fresh environment from owned dependency payloads
+      - pwsh: |
+          $ErrorActionPreference = 'Stop'
+          if ('${{ parameters.mode }}' -eq 'smoke') {
+            & $env:PILOT_PYTHON -I Tools/CI/bootstrap.py --python-profile development --powershell-profile development --pwsh (Get-Content $env:PILOT_BOOTSTRAP -Raw | ConvertFrom-Json).powershell.executable --environment-id ('km-pilot-' + $env:BUILD_BUILDID) --source-revision $env:BUILD_SOURCEVERSION --check --offline --report .tmp/km-service-smoke/offline-check.json
+          } else {
+            & $env:PILOT_PYTHON -I Tools/CI/agent_pilot.py --mode '${{ parameters.mode }}' --bootstrap-report $env:PILOT_BOOTSTRAP --source $env:BUILD_SOURCEVERSION --output-root ('.tmp/km-pilot/' + $env:BUILD_BUILDID)
+          }
           exit $LASTEXITCODE
-        displayName: Prepare and independently verify owned pinned dependencies
+        displayName: Execute ${{ parameters.mode }} with existing runners and fixtures
+        env:
+          PILOT_PYTHON: $(PilotPython)
+          PILOT_BOOTSTRAP: $(PilotBootstrap)
+      - pwsh: |
+          $directory = '.tmp/km-pilot-setup/' + $env:BUILD_BUILDID
+          if (Test-Path -LiteralPath $directory) {
+            $os = Get-CimInstance Win32_OperatingSystem
+            [pscustomobject]@{
+              sampled_utc = [DateTime]::UtcNow.ToString('o')
+              free_memory_kib = $os.FreePhysicalMemory
+              cpu_load_percent = (Get-CimInstance Win32_Processor | Measure-Object LoadPercentage -Average).Average
+            } | ConvertTo-Json | Set-Content (Join-Path $directory 'resources-after.json') -Encoding utf8
+          }
+        condition: always()
+        displayName: Record bounded post-workload resource sample
       - task: PublishPipelineArtifact@1
         condition: always()
         inputs:
-          targetPath: $(Build.SourcesDirectory)/.tmp/km-service-smoke
-          artifact: km-service-smoke-$(Build.BuildId)
+          targetPath: $(Build.SourcesDirectory)/.tmp/km-pilot-setup/$(Build.BuildId)
+          artifact: km-pilot-setup-$(Build.BuildId)
+      - ${{ if eq(parameters.mode, 'smoke') }}:
+          - task: PublishPipelineArtifact@1
+            condition: always()
+            inputs:
+              targetPath: $(Build.SourcesDirectory)/.tmp/km-service-smoke
+              artifact: km-service-smoke-$(Build.BuildId)
+      - ${{ else }}:
+          - task: PublishPipelineArtifact@1
+            condition: always()
+            inputs:
+              targetPath: $(Build.SourcesDirectory)/.tmp/km-pilot/$(Build.BuildId)
+              artifact: km-pilot-qualification-$(Build.BuildId)
+      - ${{ if eq(parameters.mode, 'failure') }}:
+          - task: PublishPipelineArtifact@1
+            condition: always()
+            inputs:
+              targetPath: $(Build.SourcesDirectory)/.tmp/ci-publication-qualification
+              artifact: km-pilot-failure-$(Build.BuildId)

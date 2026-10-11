@@ -2834,12 +2834,13 @@ Use the following focused checkpoints rather than an open-ended optimization loo
   existing bootstrap in project-owned environments, and verify service-identity tool/network/access
   behavior. Shared tools remain admin-owned in `C:\DevTools`; Python packages remain environment-owned.
   No unrestricted pool access, new PAT by default, autologon or administrator membership.
-- [ ] **6.5.4 Bounded qualification and timing:** use at most six deliberately queued jobs for identity/
+- [ ] **6.5.4 Bounded qualification and timing:** use the initial six-job planning guideline for identity/
   cleanup smoke, a small existing Windows profile, deterministic failure/cancellation, and comparable
   managed/first-preparation/repeat-preparation evidence. Reconcile source, coverage, job allocation
   and pins before scheduling; reuse managed evidence only if comparable. Record queue, provisioning,
   preparation, execution, publication, resource observations and maintenance separately. No automatic
-  full runs, PR reopening or indefinite correction/retry cycles. Review any expansion before queuing.
+  full runs, PR reopening or indefinite correction/retry cycles. On 2026-10-11 the maintainer permits
+  useful extra jobs within this pilot; retain a ledger and stop when the decision evidence is sufficient.
 - [ ] **6.5.5 Adopt-or-stop disposition:** decide from actual timing, reliability, maintenance and
   shared-host exposure whether further qualification is worth pursuing. Retain the managed fallback;
   if stopping, disable/unregister only the pilot and preserve reusable tools and evidence. If continuing,
@@ -2853,7 +2854,7 @@ Use the following focused checkpoints rather than an open-ended optimization loo
 **Ownership:** [KM agent pilot](ci-self-hosted-agent-pilot.md) contains the concrete preparation,
 registration, bounded-screen and rollback detail. Existing [host-equivalence evidence](ci-testing-host-equivalence.md)
 and [acquisition decision record](ci-python-acquisition-design.md#scoped-retirement-after-the-bounded-screen)
-retain prior measurements and retirement reasoning. The six-job allowance covers only the initial pilot;
+retain prior measurements and retirement reasoning. The flexible six-job guideline covers only the initial pilot;
 broader final equivalence needs its own reviewed allocation. Shared runtime installation is not a new
 dependency source of truth: repository pins, declarations, locks, catalogs and runners remain authoritative.
 
@@ -2884,6 +2885,21 @@ measurements with zero framework units, not a hosted/lab workload speedup or ful
 One of six pilot jobs is consumed; no retry or additional job is queued. Phase 6.5.3 and its evidence
 are verified and confirmed by the maintainer on 2026-10-11. Phase 6.5.4
 native/failure/cancellation/comparison work and 6.5.5/6.5.6 remain open.
+
+**6.5.4 wiring checkpoint (2026-10-11, confirmed for publication):** the existing manual pilot adds
+workload/failure/cancel modes and a managed Windows workload reference. It uses the existing complete
+infrastructure profile plus PowerShell project-root conformance, the existing assertion/recovery
+probes and the existing owned tree with a configurable cancellation-test lifetime. Shared runtimes,
+project-owned fresh environments, retained dependency payloads and exact committed source remain
+the boundaries. Five planned runs fit the original guideline with run 78; the maintainer allows useful
+scoped follow-up instead of a hard six-job ceiling. Local process regression, complete five-group
+workload and supplemental conformance, real assertion/recovery, and extended-tree cancellation pass.
+See the [pilot wiring detail](ci-self-hosted-agent-pilot.md#654-workload-and-timing-wiring-prepared-not-hosted-acceptance)
+for cold/repeat semantics, Pillow prerequisite, resource samples and cancellation limits. Local proof
+does not close 6.5.4. Four Azure preview variants compile with no job execution; publication,
+actual service-account runs, same-source managed
+comparison and live cancellation/recovery remain open. Ordinary pipelines, required checks and PR pause
+remain unchanged.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain

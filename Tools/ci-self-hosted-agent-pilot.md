@@ -286,9 +286,11 @@ and 6.5.3 closeout on 2026-10-11. No additional pilot job is authorized or queue
 
 - Compare one managed reference with first-preparation and repeat-preparation lab runs at the same
   source, logical coverage, pins and fault-free mode. Reuse adequate managed evidence where valid.
-- Initial hosted execution allowance is at most six deliberately queued jobs across smoke,
-  comparison and failure/cancellation checks. Reconcile job count before queuing; failures are
-  not permission for indefinite retries. Review any expansion before allocation.
+- The initial six-job planning guideline covers smoke, comparison and failure/cancellation checks.
+  On 2026-10-11 the maintainer authorized flexibility for useful additional runs within this pilot.
+  Keep an explicit job ledger and stop once the decision evidence is sufficient; no indefinite
+  retry loop or unrelated workload expansion follows from that flexibility. New publication,
+  credentials, permissions or paid capacity still follow their existing approval boundaries.
 - Record queue, preparation, workload, publication, total job seconds and resource samples separately.
   Distinguish first provisioning, retained-cache reuse and clean environment recreation.
 - Report missing coverage honestly. These bounded runs are not full-profile, content-selection,
@@ -297,6 +299,58 @@ and 6.5.3 closeout on 2026-10-11. No additional pilot job is authorized or queue
 **Decision:** adopt only for a further scoped qualification if setup/feedback benefits justify
 maintenance and shared-host exposure. Otherwise disable/unregister the pilot while preserving evidence.
 No numerical speedup is promised. Routine feature/content goals remain owned by the modernization plan.
+
+### 6.5.4 Workload And Timing Wiring (Prepared, Not Hosted Acceptance)
+
+The manual pipeline adds `workload`, `failure` and `cancel` modes beside the existing preparation
+smoke, and `lab`/`managed` placement. Managed placement is permitted only for the workload reference.
+All remain manually invoked on the modernization branch; lab jobs require the existing exact agent.
+The thin [qualification wrapper](CI/agent_pilot.py) calls existing public runners/publication probes
+and the existing owned-tree fixture rather than implementing another supervisor or cache backend.
+
+Planned first screen: first lab workload, repeated lab workload, managed Windows reference,
+deliberate failure followed by independent passing control in the same job, and one real ADO
+cancellation run. These five additional physical jobs plus completed run 78 fit the original six-job
+guideline. Useful targeted follow-up is permitted if a specific evidence gap remains; record it.
+Freeze one published commit for all compared runs, and recheck live grants/availability before queuing.
+
+- Workload membership is the complete existing `ci-infrastructure` profile plus the registered
+  PowerShell `project-root` conformance suite. Compare their exact outcomes/native identities; do not
+  describe this subset as full framework verification or Windows/Linux equivalence.
+- Use a new fixed workload checkout path so the first lab workload has no pre-existing project cache.
+  Keep ignored owned downloads on repeat checkout (`clean: false`), but create a new environment
+  label for every build. Require clean tracked/untracked source and exact dispatched HEAD; ignored
+  payload retention cannot satisfy an undeclared package or substitute an installed environment.
+- Existing pytest aggregate preflight requires pinned Pillow, so non-smoke development bootstrap
+  includes the media dependency declaration. This installs Pillow into the project environment,
+  without selecting media test units, renderer tooling or global Python packages.
+- Managed Windows uses the existing exact `UsePythonVersion@0` acquisition and supported pinned
+  PowerShell helper; the lab reuses shared installations. Record acquisition/preparation independently.
+  Server 2019 versus the managed Windows 2022 image remains an explicit comparison limitation.
+- Failure mode reuses existing Python/Pester assertion probes, then existing passing recovery,
+  retains native failure bundles and returns nonzero so ADO remains red. No canonical source is edited.
+- Cancellation mode reuses the existing process-tree fixture with a bounded longer lifetime;
+  its default lifetime and normal tests are unchanged. Request real ADO cancellation only after
+  the owned grandchild readiness marker exists. Verify owned descendants and guardian evidence
+  afterward, agent recovery and canonical source preservation. Cancellation may prevent artifact
+  upload; inspect only the exact owned evidence through the existing administrative SSH access.
+  Missing finalization is recorded honestly, not treated as an ordinary passing report.
+- Record setup and execution reports, task/run queue/setup/workload/publication timings and bounded
+  pre/post resource samples. Reuse the existing verified Markdown projection for infrastructure
+  rather than inventing a new reporting contract. No native XML directory sweep is published to Tests.
+
+**Local verification:** all 45 existing process tests pass; the extended-lifetime fixture cancels
+after readiness with descendant cleanup verified. The wrapper's real local-worktree infrastructure
+run passes all five groups with guarded source/cleanup, and the supplemental PowerShell suite passes.
+An isolated local checkout verifies real existing Python/Pester assertion failures, subsequent
+passing recovery, unchanged canonical source and retained red exit. These are local wiring checks,
+not service-account hosted timings or acceptance. All four lab workload/managed workload/failure/
+cancellation YAML variants compile through Azure preview (id -1, no job execution). Existing managed
+queue access is already open to pipelines; no managed authorization setting was changed. Actual
+committed-source live checks remain open, and the pilot run inventory still contains only run 78.
+
+The wiring checkpoint is confirmed for publication on 2026-10-11. Live qualification is on hold;
+no additional pilot jobs are queued as part of this confirmation. Phase 6.5.4 remains open.
 
 ## 4. Later Decisions And Rollback
 
