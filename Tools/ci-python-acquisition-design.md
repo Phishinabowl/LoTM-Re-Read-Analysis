@@ -1,13 +1,14 @@
 # Pinned Python Acquisition Proposal
 
-Status: pilot design approved on 2026-10-07; guarded driver confirmed at `687aabc`; manual cache
-wiring prepared for review on 2026-10-10. Not an adopted acquisition backend.
+Status: bounded screen complete; maintainer authorized scoped retirement on 2026-10-10.
+The maintainer confirmed the removal for publication. Azure experiment definitions 4/5 are disabled with
+history retained. Supported native acquisition remains the adopted path.
 Scope: the CI modernization Phase 6.5
 interpreter acquisition gate. The adopted interpreter remains Python 3.14.8; project environments
 continue using the existing pip 26.2 and dependency locks. Catalogs, profile coverage and runtime
-support boundaries are unchanged. The latest source checkpoint adds a disconnected manual YAML
-definition; no new service pipeline, cache, secret, machine installation or hosted execution has
-been created by that checkpoint. Earlier sections retain their dated design/evidence boundaries.
+support boundaries are unchanged. Earlier sections are dated historical design/evidence, not
+live implementation instructions. Historical source links point to the c218be9 checkpoint.
+See the final screen and retirement sections for the current disposition.
 
 ## Confirmed Current Behavior
 
@@ -680,17 +681,17 @@ already independently proved `5e88f33c1f23523d9099daf29854fb12536ec3d0e6e5b3b7e2
 
 Authoritative files:
 
-- [Release specification](CI/Data/python-linux-release-reference-spec.json) binds provider/build,
+- [Release specification](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/Tools/CI/Data/python-linux-release-reference-spec.json) binds provider/build,
   CPython/GIL/OS/image/architecture, exact archive identity, normalization revision, reference filename,
   reference-file SHA-256 and expected mode-aware inventory SHA-256.
-- [Full release reference](CI/Data/python-linux-3.14.8-reference.json) contains the single complete
+- [Full release reference](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/Tools/CI/Data/python-linux-3.14.8-reference.json) contains the single complete
   3,040-entry external inventory. Its 703,313 UTF-8 bytes hash to
   `95e112863137211040344814033dca6a6c0156bc51546022643108f78ee165c6`.
-- [Derivation command](CI/derive_python_release_reference.py) rehashes the pinned archive before and
+- [Derivation command](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/Tools/CI/derive_python_release_reference.py) rehashes the pinned archive before and
   after bounded metadata/member processing, applies the reviewed omissions/aliases, verifies expected
   inventory and exact output bytes, and creates only a fresh repository-owned output. It does not
   download, extract, run installers, overwrite an output or automatically update expected digests.
-- [PS7 helpers](CI/PythonRuntimeCache.ps1) bind ordinary reference loading to the repository CI data
+- [PS7 helpers](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/Tools/CI/PythonRuntimeCache.ps1) bind ordinary reference loading to the repository CI data
   boundary. The explicit path reader exists for deterministic private fixtures; no cache payload or
   environment supplies a specification to the production-bound loader.
 
@@ -851,12 +852,12 @@ reference, a common strict platform reader preserving the Linux API, and separat
 cache plan/decision helpers. No existing pipeline or caller selects these cache helpers yet. There
 is no cache restore/save, destination creation, executable launch, registry change or tool-cache write.
 
-The [Windows specification](CI/Data/python-windows-native-reference-spec.json) binds the exact provider
-archive, declared build and complete normalized inventory. The [Windows reference](CI/Data/python-windows-3.14.8-reference.json)
+The [Windows specification](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/Tools/CI/Data/python-windows-native-reference-spec.json) binds the exact provider
+archive, declared build and complete normalized inventory. The [Windows reference](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/Tools/CI/Data/python-windows-3.14.8-reference.json)
 contains the independently audited run-74 pair's 3,878 rows at inventory fingerprint
 `9dc6d79241cd40fe80e6b8476055f2d7d4d2184ce5099aca2509238d68ef85ec`. Its 742,725 UTF-8/LF bytes hash to
 `952d15ad6b7cf9062000f5e855ebee2489812314cd01daac041f74de2ef10a98`.
-The [explicit freeze command](CI/derive_windows_native_reference.py) rehashes the pinned 33,100,332-byte
+The [explicit freeze command](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/Tools/CI/derive_windows_native_reference.py) rehashes the pinned 33,100,332-byte
 archive, requires distinct same-source capture IDs 1/2 with completed immutable candidate/probe/cleanup
 declarations, recomputes both reviewed inventory digests and refuses output that differs from the
 declared reference-file checksum. It never extracts/runs the installer or automatically updates hashes.
@@ -971,7 +972,7 @@ stays open and native acquisition remains default/rollback.
 
 ## Guarded Restoration Driver and Probe Protocol Implemented for Review
 
-The next eight-file increment adds [Restore-PythonRuntime.ps1](CI/Restore-PythonRuntime.ps1), guarded
+The next eight-file increment adds [Restore-PythonRuntime.ps1](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/Tools/CI/Restore-PythonRuntime.ps1), guarded
 hosted copying and the existing Python qualifier's explicit `--restored` entry. Pipeline YAML remains
 unchanged: nothing invokes this route yet and no hosted experiment is queued. Native acquisition is
 still the default. Publication of these sources alone does not adopt the cache backend.
@@ -1037,9 +1038,9 @@ checks/defaults and paused PRs unchanged. Phase 6.5 stays open.
 The maintainer explicitly approves finishing a bounded experiment rather than assuming cache
 adoption. Standard supported setup/dependency caching remains the starting point; this installed-
 runtime restoration is a specialized alternative. Its maintenance burden needs a measured benefit.
-The [manual YAML](../.azuredevops/ci-runtime-cache.yml) uses Microsoft's `Cache@2` for transport and
-immutable post-job storage, with no `restoreKeys`. Repository-owned [pilot decisions](CI/PythonRuntimeCachePilot.ps1)
-and [entry point](CI/Invoke-PythonRuntimeCachePilot.ps1) own admission/routing/receipts; YAML does not
+The [manual YAML](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/.azuredevops/ci-runtime-cache.yml) uses Microsoft's `Cache@2` for transport and
+immutable post-job storage, with no `restoreKeys`. Repository-owned [pilot decisions](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/Tools/CI/PythonRuntimeCachePilot.ps1)
+and [entry point](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/blob/c218be99966e3f6410c52a6fd4ee9b6fb8e93732/Tools/CI/Invoke-PythonRuntimeCachePilot.ps1) own admission/routing/receipts; YAML does not
 define test-suite membership. The existing ordinary CI and capture/cache-pilot definitions are unchanged.
 
 Manual parameters select `native` reference or `cache`, both OSs or one supported OS, a validated
@@ -1086,7 +1087,7 @@ against the complete warm cache planning/transport/routing/restoration/qualifica
 extra verification and post-job overhead. Audit common work, publication/queue costs and cold save
 cost separately. Any ambiguity or run-to-run variation larger than the saving is inconclusive.
 
-**Proposed decision screen for this review:** require repeatable net savings of at least 10 seconds
+**Confirmed decision screen:** require repeatable net savings of at least 10 seconds
 and 20% for the relevant absent-interpreter setup case, with cold seeding/save overhead recovered
 within ten qualifying warm runs. Record the break-even assumptions and do not infer hit rates from
 a deliberately warmed pilot. This is a deliberately conservative experiment screen, not a universal
@@ -1132,4 +1133,112 @@ Expanded matrices have the expected 2/1 image allocations; native omits Cache@2 
 retain one exact-key transport task with no broader restore fallback. These previews reuse the
 existing pipeline solely for compilation and do not create a new service pipeline or allocate an
 agent. They validate uncommitted YAML expansion, not execution of its unpublished helper files.
-The nine-file increment awaits review/publication and subsequent authorized bounded live qualification.
+The maintainer confirms the nine-file increment and live native/cold/warm screen, dual-published
+as `c218be9` with four-ref parity. The result record follows.
+
+## Native/Cold/Warm Hosted Screen And Stop Disposition
+
+The authorized screen completes on 2026-10-10 (service timestamps are UTC on 2026-10-11), at exact
+commit `c218be99966e3f6410c52a6fd4ee9b6fb8e93732`. Pipeline **5**, **LoTM Python Runtime Cache Pilot**,
+is registered against the Azure mirror and `.azuredevops/ci-runtime-cache.yml`, with the first
+automatic run skipped. The source YAML has no CI/PR/scheduled execution or policy adoption. Its
+three observed runs are manual and completed; no further experiment is queued:
+
+- [Native reference 75](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=75): both jobs pass.
+- [Cold cache 76](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=76): both jobs pass, exact misses, qualified seed copies and completed cache saves.
+- [Warm cache 77](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=77): exact hits on both OSs; Windows fails admission, Linux passes via its occupied native slot; aggregate stays failed.
+
+All three use namespace `phase65-20261010-r1`, exact source and the unchanged source-owned seals.
+Warm is queued only after both cold jobs/post-job saves succeed. Service logs independently confirm
+both cache items created in pipeline-5/source-branch scope. Windows uploads 83.1 MB physical/187.4 MB
+logical content; Linux uploads 67.8 MB physical/183.4 MB logical content. In-job `cache_save_verified`
+remains false honestly: this later audit, not the earlier receipt, confirms actual saving.
+
+Authoritative service task durations, in seconds:
+
+| Component | Windows 2022 | Ubuntu 24.04 |
+| --- | ---: | ---: |
+| Native-reference Python selection | 0.313 | 0.177 |
+| Cold cache miss lookup | 2.007 | 1.523 |
+| Cold seed copy/verification (controller stopwatch) | 15.518 | 10.663 |
+| Cold post-job cache save | 20.683 | 9.633 |
+| Warm exact-hit transport | 7.477 | 6.413 |
+| Warm admission/routing step | 11.337 (failed) | 12.020 |
+| Warm native selection | skipped | 0.193 |
+| Warm post-job cache task | 0.263 (no save work) | 1.313 (existing key; no upload) |
+
+The native and cold samples select image-preinstalled Python. Native initialization records Windows
+image `20261004.326.1` and Linux image `20261004.327.1`. Successfully admitted selected routes report
+occupied slots; Windows warm rejects before slot routing. No guarded absent-prefix restoration or
+ordinary handoff is exercised. These samples therefore do not benchmark avoidance of a native
+download/installation. Historical missing-version acquisition costs remain historical evidence,
+not substituted into this screen to manufacture savings.
+
+Independent artifact audits pass for native/cold and successful Linux warm: exact source/build/
+namespace/key identities, full 3,878-row Windows/3,040-row Linux inventories equal their external
+references, all three base/bootstrap/environment children exit zero with verified cleanup, unchanged
+payload and fresh locked environments. Diagnostic artifacts contain no runtime binaries. Native/cold
+Linux also supplies fresh executable proof of the newer image's 3,029 all-0777 entry reductions and
+0777 root to canonical modes/root, with original source preserved. This closes that narrow variance
+observation gap without claiming real cache restoration or backend adoption.
+
+Windows warm transport reports an exact hit and restored content, but physical inventory admission
+fails with `Staged bytes or modes differ from the external sealed reference.` The retained failed
+receipt identifies phase `route`, hit `true`, fault `none`, no save eligibility and no handoff. Service
+tasks confirm native selection and qualification are skipped: cached bytes are never executed and
+the native slot is not used as a silent fallback. The post-job cache task does no save work, leaving
+the immutable seed untouched. The exact differing entries are not retained in this failure bundle;
+do not assert a specific byte/link/permission cause. A source/transport investigation would require
+additional evidence and is deliberately not pursued to rescue an economically unproved backend.
+
+Linux warm preserves the complete sealed payload, but still selects its already-installed native
+interpreter. Its 6.413s transport alone is extra work beside 0.177s native-reference selection, with
+staging verification and post-job overhead on top. It provides cache transport/admission proof,
+not missing-interpreter restoration or a setup saving. Neither OS satisfies the confirmed net-saving/
+safety/absent-prefix conditions, and no seed-cost break-even claim can be justified.
+
+Whole-run walls are not adoption metrics: native 75 is 7m59.349s queue-to-finish/4m29.173s summed
+jobs; cold 76 is 11m04.258s/5m31.970s; warm 77 is 4m16.038s/3m30.850s. Native/cold jobs interleave
+on the single hosted slot, while failed Windows warm terminates early. These walls include pilot-
+only capture/normalization/copy, publication and queue effects; do not call warm's shorter failed
+run a CI speedup. Total measured execution of the six screen jobs is 13m31.993s, not a billing estimate
+or a new full-portfolio timing baseline.
+
+**Disposition for maintainer review: stop this installed-runtime cache backend and retain supported
+native acquisition.** No corrective/fault/recovery runs, alternative distribution, relaxed inventory
+checks, forced runtime removal or new agent infrastructure are needed to complete a negative screen.
+No adoption/integration is permitted from these samples. The experiment has reached its agreed
+decision point rather than an obligation to make the cache win.
+
+The screen proposed a scoped retirement of unused experiment controllers/drivers/references, registrations
+and experiment-only tests, preserving genuinely reused bootstrap/runner behavior, dated evidence,
+accepted pins and the ordinary native path. Review that concrete removal before publication and
+disable unused manual experiment entry points without deleting retained run evidence. The maintainer
+subsequently authorized that retirement and requested an optimization discussion before further
+implementation. Phase 6.5 remains open for role-specific preparation/job-consolidation measurement
+and final host/profile/policy equivalence; its next implementation step awaits that discussion.
+
+## Scoped retirement after the bounded screen
+
+The maintainer authorized stopping and removing the installed-runtime cache experiment.
+Its two manual YAML entry points, capture/cache/restore helpers, derivation and qualification
+programs, four source specifications/references and experiment-only tests are retired.
+Historical source links above resolve to the published c218be9 checkpoint; runs 75-77 and
+ignored local audit bundles remain evidence. The experiment-specific bootstrap option is
+removed; the ordinary bootstrap, exact pins, supported native setup, dependency caching,
+shared process supervision, selection and reporting remain unchanged.
+
+Azure definitions 4 and 5 are disabled reversibly, retaining run history. Definitions 2
+and 3 remain outside this retirement. No new hosted runs are required for removal.
+Fresh service reads confirm 4/5 disabled at revision 2 and 2/3 enabled. Rollback can
+restore source from c218be9 and re-enable the retained definitions after explicit review.
+The retained bootstrap/catalog/scope regressions pass 240 cases per OS (Windows 59.63s,
+Linux 64.26s); the registered dependency group passes 5 Pester cases per OS. Ruff checks,
+all 60 remaining relative documentation links and `git diff --check` pass. Source scans
+find no remaining executable consumers of retired entry points or the removed bootstrap
+option. Private clean-checkout planning includes deliberate working-tree deletions rather
+than copying removed experiment files from the still-uncommitted index. No full-profile
+equivalence or hosted performance improvement is claimed by these removal checks.
+The maintainer confirmed this scoped retirement for publication. Phase 6.5 remains open. Before further
+optimization implementation, discuss goals, cost budgets, supported defaults and measured
+bottlenecks with the maintainer; no new cache experiment is implied by this cleanup.

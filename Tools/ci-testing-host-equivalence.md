@@ -899,6 +899,28 @@ annotation policy/22 fixtures, 70 links and diff checks pass. Six no-agent Azure
 preview ID -1 with expected both/single-OS matrices and cache/native/fault wiring. Nine files await
 review; service registration, actual transport/save/restore and economics remain unqualified.
 
+The maintainer confirms wiring and the native/cold/warm screen, published as `c218be9` with four-ref
+parity. Manual pipeline 5 is registered; runs 75/native and 76/cold pass both OSs, with exact misses,
+matching full external inventories, clean owned probe children and independently verified post-job
+cache saves. Warm run 77 reports exact hits: Windows rejects a full-inventory mismatch before any
+native/cached execution; Linux validates staging and uses its occupied native slot. Aggregate remains
+failed, diagnostics are retained and no failed warm payload is saved. The exact Windows difference
+is not captured, so no specific corruption/link/mode cause is asserted.
+
+Native-reference selection is 0.313s Windows/0.177s Linux, using preinstalled interpreters. Warm cache
+transport costs 7.477s/6.413s plus admission/routing, against cold save costs 20.683s/9.633s. Neither
+OS exercises absent-prefix restoration or demonstrates savings/break-even; the safety/economic
+adoption gates remain unmet. Native/cold Linux additionally proves the real 3,029-entry 0777 mode
+variance normalization with source preservation. This narrow correctness result is not adoption.
+
+The bounded screen reaches a stop disposition for maintainer review: keep supported native setup,
+omit further corrective/fault/recovery runs and prepare scoped retirement of unused experiment code/
+tests/manual entries while retaining evidence and reused infrastructure. Exactly three manual runs
+are completed, no new run is queued, no ordinary backend/check/policy/PR is changed. The acquisition
+design records authoritative component timings, whole-run/queue limits, artifact audits and links.
+Three result documents await confirmation; 6.5 continues with job/preparation optimization and final
+host/profile/policy equivalence, not an indefinite attempt to rescue this runtime cache.
+
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
 complete local/hosted portfolio identity and failure/cancellation behavior. Restore the same PRs
@@ -910,3 +932,10 @@ environment and hosted evidence. Restore the complete candidate pin increment to
 qualification fails; retain failed candidate diagnostics and record its disposition. Do not downgrade
 or remove machine runtimes, overwrite existing environment owners, or mix interpreter labels with
 different authoritative pins.
+
+Scoped retirement is now confirmed for publication following maintainer review: unused runtime
+experiment code/data/tests and both manual YAML entry points are removed; ordinary
+bootstrap/dependency caching and shared CI contracts are retained. Historical evidence
+is preserved in the [acquisition decision record](ci-python-acquisition-design.md#scoped-retirement-after-the-bounded-screen).
+Phase 6.5 stays open. Pause further optimization implementation for the requested
+maintainer discussion of objectives, supported approaches and measured bottlenecks.

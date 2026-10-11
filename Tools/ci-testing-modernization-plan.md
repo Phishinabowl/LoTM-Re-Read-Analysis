@@ -2745,6 +2745,34 @@ Six Azure YAML-override previews return -1 and allocate no agents, covering nati
 both/single-OS expansion. Nine source/test/evidence files await publication confirmation; next create
 the separate manual service pipeline and run the bounded native/cold/warm screen before any adoption.
 
+The maintainer confirms that checkpoint and live screening, published as `c218be9` with four-ref
+parity. Pipeline 5 is registered without an automatic first run. Same-source manual runs 75/native
+and 76/cold pass both OSs with complete reference/probe/source evidence and verified cache saves.
+Warm 77 has exact hits but fails overall: Windows rejects physical inventory mismatch before native
+selection or cached execution; Linux validates staging and selects its occupied native slot. No
+absent-prefix restoration or ordinary cache handoff is qualified, and no failed warm content is saved.
+
+Native-reference selection takes 0.313s Windows/0.177s Linux on preinstalled images; warm transport
+alone costs 7.477s/6.413s plus admission, while cold saves cost 20.683s/9.633s. No net-saving or seed
+break-even criterion is met. Linux supplies real all-0777 normalization/source-preservation proof,
+but the exact Windows mismatch cause remains unverified. Run walls include interleaved single-slot
+queue time, experimental candidate-copy work and an early failed job, so they are not CI speedups.
+
+**Stop disposition for maintainer review:** retain supported native acquisition; no more corrective/
+fault/recovery cache runs or adoption integration. Next prepare scoped removal of unused experiment
+helpers/data/tests/registrations and disabled manual entry points, preserving reused bootstrap/runner
+contracts and dated results. The result/disposition is a three-document uncommitted checkpoint;
+ordinary CI, pins, required checks and paused PRs remain unchanged. Phase 6.5 remains open for
+role-specific preparation/job-consolidation and final host/profile/policy equivalence. The acquisition
+design is the complete authoritative audit record with run links and timing limits.
+
+The maintainer confirms scoped retirement for publication: unused runtime experiment code/data/tests
+and both manual YAML entry points are removed; Azure definitions 4/5 are disabled with history retained.
+Ordinary bootstrap/dependency caching and shared CI contracts remain. The retained checks pass 240
+Python cases and 5 Pester cases per OS. See the
+[retirement decision record](ci-python-acquisition-design.md#scoped-retirement-after-the-bounded-screen).
+Phase 6.5 stays open; pause further optimization implementation for the requested maintainer discussion.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during

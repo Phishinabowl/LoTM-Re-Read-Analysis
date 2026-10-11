@@ -576,7 +576,10 @@ def test_host_full_planning_cli_in_clean_private_checkout(tmp_path, adapter):
     root = tmp_path / "private-project"
     # Captured CI sources have a private index without HEAD; copy index-approved working bytes.
     inventory = scope.parse_inventory(scope.Git(ROOT).index(), index=True)
+    deleted = set(scope.Git(ROOT).read("ls-files", "--deleted", "-z").decode().split("\0"))
     for name, row in inventory.items():
+        if name in deleted:
+            continue
         destination = root / name
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes((ROOT / name).read_bytes())
@@ -589,8 +592,6 @@ def test_host_full_planning_cli_in_clean_private_checkout(tmp_path, adapter):
     for name in (
         "Tools/CI/ado_cohort.py",
         "Tools/Tests/Python/test_ci_cohort.py",
-        "Tools/CI/PythonRuntimeCache.ps1",
-        "Tools/Tests/PowerShell/PythonRuntimeCache.Tests.ps1",
     ):
         shutil.copy2(ROOT / name, root / name)
     git(root, "init", "--initial-branch=main")
