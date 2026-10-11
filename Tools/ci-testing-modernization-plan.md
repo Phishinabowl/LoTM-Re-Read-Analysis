@@ -103,7 +103,8 @@ for actual hosted measurements.
 is in progress. The unused installed-runtime cache experiment has been retired; the maintainer
 has selected a simpler, bounded self-hosted capacity trial before further backend adoption.
 Host recovery/account/folder/runtime preparation is complete to the limits recorded below.
-Agent registration, service-identity proof and timing/adoption remain pending. The main plan owns
+Agent registration, online state, non-admin service-token inspection and reconnect are now verified;
+job-level dependency/tool execution and timing/adoption remain pending. The main plan owns
 sequencing and acceptance; the [KM agent pilot](ci-self-hosted-agent-pilot.md) owns its detailed
 setup, evidence boundaries and rollback. Neither document closes 6.5 or activates content selection.
 
@@ -2854,6 +2855,23 @@ and [acquisition decision record](ci-python-acquisition-design.md#scoped-retirem
 retain prior measurements and retirement reasoning. The six-job allowance covers only the initial pilot;
 broader final equivalence needs its own reviewed allocation. Shared runtime installation is not a new
 dependency source of truth: repository pins, declarations, locks, catalogs and runners remain authoritative.
+
+**6.5.3 in-progress checkpoint (2026-10-11):** The maintainer authorized restricted registration
+and dependency preparation. The self-hosted pool and project-only queue are created with auto-provision
+disabled and no authorized pipelines. The offered agent 5.280.0 archive/hash, Microsoft signature,
+Server 2019 support and actual executable version are verified. Online project development bootstrap
+and independent offline Python/PowerShell dependency checks pass at `bbb9ab6` under administrative
+SSH. The maintainer subsequently completed interactive device-code registration and local password
+entry. Effective service-logon rights, successful startup and ADO online state are verified; read-only
+process-token inspection confirms the intended identity has no Administrators SID. The authorized
+pilot-service restart/reconnect passes with a new process and ADO online state. The one-job
+[manual service preparation pipeline](../.azuredevops/ci-self-hosted-pilot.yml) is locally prepared:
+restricted manual/branch/pool/agent routing, non-admin identity, shared-tool write denial, synthetic
+cleanup, exact runtime execution, existing development bootstrap and independent offline check.
+Local YAML/PowerShell syntax and boundary checks pass. Publication, Azure compilation, single-pipeline
+authorization and actual service-account job proof remain open. This preparation-only smoke uses one
+of the six pilot jobs when queued and reports zero framework units; no full/profile timing pass is implied.
+No workload job is queued, no timing claim is made, and 6.5.3 remains unchecked.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain

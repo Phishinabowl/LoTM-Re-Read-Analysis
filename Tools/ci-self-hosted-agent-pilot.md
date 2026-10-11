@@ -1,7 +1,9 @@
 # Bounded Windows Self-Hosted Agent Pilot
 
 Status: preparation in progress; maintainer created the dedicated domain service account.
-No agent installed or registered; further host provisioning remains subject to concrete review.
+The approved Windows x64 agent is registered and online. Its service runs under the dedicated
+identity with no Administrators SID in the running token. Service restart/reconnect is verified;
+workload/tool execution under that identity remains pending. Further provisioning remains subject to review.
 The approved agent/tool directories were created and their protected ACLs verified;
 the service identity can modify the agent root and read/execute the separate admin-owned tool root.
 The maintainer approved shared versioned tools for other development projects. `C:\DevTools`
@@ -13,7 +15,8 @@ checks passed; the installer left PATH unchanged. The maintainer subsequently au
 appending the Python root and Scripts directories to system PATH for interactive development;
 existing entries were preserved and fresh-process resolution verified. CI retains its explicit path.
 PowerShell 7.6.6, Node 24.15.0 and npm 11.12.1
-were verified by actual execution and can be reused. Service-identity execution remains pending.
+were verified by actual execution and can be reused. Dependency/tool execution as the service identity
+remains pending; administrative dependency verification does not replace it.
 Owner: [CI modernization Phase 6.5](ci-testing-modernization-plan.md#phase-65-host-equivalence-and-policy-adoption-review).
 The implementation plan's current 6.5.1-6.5.6 checkpoints remain authoritative for sequencing
 and acceptance; this document supplies pilot detail. This proposal does not close 6.5, adopt a backend,
@@ -164,6 +167,61 @@ ignored inspection evidence, not this shared document.
 
 **Checkpoint:** one correctly scoped agent is available; no paid capacity or default CI adoption.
 
+**6.5.3 preparation evidence (2026-10-11, in progress):** The maintainer authorized this checkpoint.
+`KM-CI-Pilot` was created as a self-hosted pool with cross-project auto-provisioning disabled;
+its queue is associated only with the current project and has no authorized pipelines. The public
+permission API returns no all-pipeline grant (null) and an empty pipeline list, including after the
+explicit closed-access update. This is not yet proof of the final manual pipeline's authorization.
+The organization offered Windows x64 agent 5.280.0. Its archive matches the organization-provided
+SHA-256 and Agent.Listener has a valid Microsoft publisher signature; actual `--version` passes.
+Microsoft's agent 5 documentation explicitly includes Windows Server 2019 and bundled .NET 10.
+The prepared root was empty before extraction, no prior agent service was found, and effective
+service-logon policy has no returned deny-service-logon entry. Supported setup still needs to add
+the dedicated identity's service right and prove its resulting access. A project checkout at the
+confirmed planning commit `bbb9ab6` was prepared for the existing dependency bootstrap. Online
+development preparation and a separate offline check pass, verifying Python 3.14.8, project-local
+pip 26.2, pytest 9.1.1, PyYAML 6.0.3, Ruff 0.16.1 and declared support packages; PowerShell probes
+verify Pester 6.2.0, PSScriptAnalyzer 1.25.0 and powershell-yaml 0.4.12 from the owned module cache.
+Shared Python's bundled pip remains unchanged. Build/media/render and actionlint acquisition were
+not requested by this small-profile preparation. No ADO job is queued.
+
+The maintainer completes the supported interactive configuration in an elevated Windows PowerShell
+window on the pilot host. Registration uses `AAD`, the existing organization login, pool
+`KM-CI-Pilot`, agent name `KM-CI-01`, service mode and `_work`. The domain service identity/password
+are supplied locally; never include the password in command arguments or captured chat output.
+Dependency/tool execution under the service identity remains open until verified.
+The detached preparation attempt produced
+no completion evidence; the bounded foreground preparation and independent offline check provide
+the successful dependency proof. Neither preparation timing nor metadata-only pool setup is hosted
+workload-performance evidence.
+
+**Registration verification (2026-10-11):** The maintainer completed device-code registration and
+local password entry, selected unrestricted service SID mode, and initially prevented service
+startup. The final effective service-logon right includes the CI identity and preserves existing
+grants. Setup's rights-enumeration warning occurred before that grant; subsequent Windows service
+startup succeeds with exit code zero. The service was started after configuration review and ADO
+reports the expected enabled agent online. Read-only process-token inspection verifies the intended
+identity and absence of the Administrators SID. Unrestricted service SID mode is not administrator
+membership. Setup added an agent-folder access group containing only the CI identity, without adding
+it to Administrators. Queue access remains closed with no authorized pipelines. No workload job has
+run and no service-account dependency or performance result is claimed.
+
+**Reconnect and service-smoke wiring (2026-10-11):** The maintainer authorized reconnect and
+service-account verification. Only the pilot service was restarted; a changed process ID, Running
+state, exit code zero and ADO online state were observed. No host reboot or unrelated service restart
+was used. The [manual service preparation pipeline](../.azuredevops/ci-self-hosted-pilot.yml) is
+prepared locally, not published or registered. Its one Windows job counts toward the initial six-job
+allowance when queued. Manual reason, the modernization branch, restricted pool and exact agent
+are required; it does not change ordinary CI, schedule runs or accept external contributions.
+Checkout credentials are not persisted. It checks the current job's non-admin service identity,
+exact dispatched checkout, pinned shared runtime execution, denied shared-tool writes and synthetic
+workspace cleanup, then uses the existing development bootstrap and independent offline verification
+in the actual checkout's owned environment/module cache. Build/render/media tools are outside this
+preparation-only job. Native framework units are explicitly zero; no full-profile pass is claimed.
+Artifacts contain only preparation evidence, not a full environment or credential dump. Local YAML
+structure/restriction checks and both PowerShell AST parses pass; final Azure compilation and actual
+service-account checks await reviewed publication, definition creation and single-pipeline authorization.
+
 ## 3. Bounded Execution And Comparison
 
 ### 3.1 Identity, Access And Cleanup Smoke
@@ -223,6 +281,8 @@ No numerical speedup is promised. Routine feature/content goals remain owned by 
 ## Official References
 
 - [Windows Azure Pipelines agent setup](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/windows-agent?view=azure-devops)
+- [Agent 5 supported operating systems and bundled runtime](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/v5-agent?view=azure-devops)
+- [Device-code registration](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/device-code-flow-agent-registration?view=azure-devops)
 - [Agent permissions and shared infrastructure](https://learn.microsoft.com/en-us/azure/devops/pipelines/security/misc?view=azure-devops)
 - [Python selection on self-hosted agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/use-python-version-v0?view=azure-pipelines)
 - [Parallel-job capacity](https://learn.microsoft.com/en-us/azure/devops/pipelines/licensing/concurrent-jobs?view=azure-devops)

@@ -1,0 +1,89 @@
+# Manual preparation-only smoke; one job from the bounded KM pilot allowance.
+trigger: none
+pr: none
+
+variables:
+  PYTHONUTF8: '1'
+  GIT_CONFIG_COUNT: '1'
+  GIT_CONFIG_KEY_0: core.autocrlf
+  GIT_CONFIG_VALUE_0: 'false'
+
+jobs:
+  - job: ServicePreparation
+    displayName: KM CI - service identity and pinned dependencies
+    condition: and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/architecture/ci-testing-modernization'))
+    timeoutInMinutes: 12
+    cancelTimeoutInMinutes: 2
+    pool:
+      name: KM-CI-Pilot
+      demands:
+        - Agent.Name -equals KM-CI-01
+    steps:
+      - checkout: self
+        clean: true
+        fetchDepth: 1
+        persistCredentials: false
+      - pwsh: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Path '.tmp/km-service-smoke' -Force | Out-Null
+          $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+          $principal = [Security.Principal.WindowsPrincipal]::new($identity)
+          if ($identity.Name.Split('\')[-1] -ne 'svc_km_ci' -or $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+            throw 'Expected the dedicated non-admin CI service identity.'
+          }
+          $head = & git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0 -or $head -ne $env:BUILD_SOURCEVERSION) { throw 'Checkout does not match the dispatched source.' }
+          $pins = Get-Content Tools/CI/Data/runtime-versions.json -Raw | ConvertFrom-Json
+          if ($PSVersionTable.PSVersion.ToString() -ne $pins.powershell) { throw 'PowerShell differs from the repository pin.' }
+          $python = 'C:\DevTools\Python\3.14.8\python.exe'
+          $pythonVersion = & $python -I --version
+          if ($LASTEXITCODE -ne 0 -or $pythonVersion -ne "Python $($pins.python)") { throw 'Shared Python differs from the repository pin.' }
+          $nodeVersion = & 'C:\Program Files\nodejs\node.exe' --version
+          if ($LASTEXITCODE -ne 0 -or $nodeVersion -ne "v$($pins.node)") { throw 'Node differs from the repository pin.' }
+          $npmVersion = & 'C:\Program Files\nodejs\npm.cmd' --version
+          if ($LASTEXITCODE -ne 0 -or $npmVersion -ne $pins.npm) { throw 'npm differs from the repository pin.' }
+          $scratch = Join-Path $env:AGENT_TEMPDIRECTORY ('km-ci-smoke-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $scratch | Out-Null
+          [IO.File]::WriteAllText((Join-Path $scratch 'synthetic.txt'), 'KM CI cleanup probe')
+          $resolved = (Resolve-Path -LiteralPath $scratch).Path
+          $tempRoot = [IO.Path]::GetFullPath($env:AGENT_TEMPDIRECTORY).TrimEnd('\') + '\'
+          if (-not $resolved.StartsWith($tempRoot, [StringComparison]::OrdinalIgnoreCase)) { throw 'Scratch path escapes agent temporary storage.' }
+          Remove-Item -LiteralPath $resolved -Recurse -Force
+          if (Test-Path -LiteralPath $resolved) { throw 'Synthetic workspace cleanup failed.' }
+          $probe = Join-Path 'C:\DevTools' ('.km-ci-smoke-' + [guid]::NewGuid().ToString('N') + '.tmp')
+          $denied = $false
+          try { [IO.File]::WriteAllText($probe, 'Synthetic permission probe') }
+          catch {
+            if ($_.Exception -is [UnauthorizedAccessException] -or $_.Exception.InnerException -is [UnauthorizedAccessException]) { $denied = $true }
+            else { throw }
+          }
+          if (-not $denied) {
+            Remove-Item -LiteralPath $probe -Force
+            throw 'Service identity can write the shared admin-owned tool root.'
+          }
+          [pscustomobject]@{
+            mode = 'preparation-only'
+            source = $head
+            non_admin_service_identity = $true
+            shared_tool_write_denied = $denied
+            synthetic_cleanup = $true
+            python = $pins.python
+            powershell = $pins.powershell
+            node = $pins.node
+            npm = $pins.npm
+            framework_units_executed = 0
+            full_profile_acceptance = $false
+          } | ConvertTo-Json | Set-Content '.tmp/km-service-smoke/identity.json' -Encoding utf8
+        displayName: Verify non-admin identity, shared tools and synthetic cleanup
+      - pwsh: |
+          $ErrorActionPreference = 'Stop'
+          & 'C:\DevTools\Python\3.14.8\python.exe' -I Tools/CI/bootstrap.py --python-profile development --powershell-profile development --pwsh 'C:\Program Files\PowerShell\7\pwsh.exe' --environment-id km-service-smoke --source-revision $env:BUILD_SOURCEVERSION --report .tmp/km-service-smoke/dependencies.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & 'C:\DevTools\Python\3.14.8\python.exe' -I Tools/CI/bootstrap.py --python-profile development --powershell-profile development --pwsh 'C:\Program Files\PowerShell\7\pwsh.exe' --environment-id km-service-smoke --source-revision $env:BUILD_SOURCEVERSION --check --offline --report .tmp/km-service-smoke/offline-check.json
+          exit $LASTEXITCODE
+        displayName: Prepare and independently verify owned pinned dependencies
+      - task: PublishPipelineArtifact@1
+        condition: always()
+        inputs:
+          targetPath: $(Build.SourcesDirectory)/.tmp/km-service-smoke
+          artifact: km-service-smoke-$(Build.BuildId)
