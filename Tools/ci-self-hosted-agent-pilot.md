@@ -1,9 +1,10 @@
 # Bounded Windows Self-Hosted Agent Pilot
 
-Status: preparation in progress; maintainer created the dedicated domain service account.
+Status: 6.5.3 preparation and registration confirmed; bounded workload qualification remains pending.
 The approved Windows x64 agent is registered and online. Its service runs under the dedicated
 identity with no Administrators SID in the running token. Service restart/reconnect is verified;
-workload/tool execution under that identity remains pending. Further provisioning remains subject to review.
+runtime/dependency execution under that identity passes in the single manual preparation smoke.
+The maintainer confirmed 6.5.3 closeout on 2026-10-11; further pilot obligations remain open.
 The approved agent/tool directories were created and their protected ACLs verified;
 the service identity can modify the agent root and read/execute the separate admin-owned tool root.
 The maintainer approved shared versioned tools for other development projects. `C:\DevTools`
@@ -16,7 +17,7 @@ appending the Python root and Scripts directories to system PATH for interactive
 existing entries were preserved and fresh-process resolution verified. CI retains its explicit path.
 PowerShell 7.6.6, Node 24.15.0 and npm 11.12.1
 were verified by actual execution and can be reused. Dependency/tool execution as the service identity
-remains pending; administrative dependency verification does not replace it.
+is now verified separately by the manual preparation-only job; administrative setup alone was not substituted.
 Owner: [CI modernization Phase 6.5](ci-testing-modernization-plan.md#phase-65-host-equivalence-and-policy-adoption-review).
 The implementation plan's current 6.5.1-6.5.6 checkpoints remain authoritative for sequencing
 and acceptance; this document supplies pilot detail. This proposal does not close 6.5, adopt a backend,
@@ -223,6 +224,43 @@ structure/restriction checks and both PowerShell AST parses pass; final Azure co
 service-account checks await reviewed publication, definition creation and single-pipeline authorization.
 
 ## 3. Bounded Execution And Comparison
+
+### 6.5.3 Service Preparation Acceptance Evidence
+
+The three-file wiring checkpoint is confirmed and dual-published as `d83d2f3`; GitHub, Azure,
+HEAD and upstream agree. Pipeline **KM CI Agent Pilot** is created without an automatic first run,
+uses the dedicated pool/project queue, and is the only pipeline granted queue access. Generated
+CI-trigger metadata on the new definition was explicitly cleared; revision 2 reads back with no
+triggers, and its run inventory contains only the one manual run. The YAML disables push/PR
+triggers and restricts execution to manual dispatch on the modernization branch and exact agent.
+Azure preview compiled the one-job graph without workload execution. The separately authorized
+[Azure run 78](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=78)
+passes its single job on `KM-CI-01` at exact source `d83d2f3bbace50248e45bbdb891855485f3827af`.
+
+Downloaded artifacts independently verify the dedicated non-admin service identity, denied writes
+to the shared admin-owned tool root, synthetic temporary-workspace cleanup, exact shared Python/
+PowerShell/Node/npm versions, project-local package/module pins and origins, and independent offline
+dependency verification. The agent remains online afterward, and a post-run permission read confirms
+only the pilot pipeline is authorized. No credentials or complete environment dump were published.
+The service job's real checkout/environment is separate from the earlier administrative preparation
+checkout; its actual under-account proof provides acceptance rather than relying on that setup probe.
+
+| Observed segment | Seconds | Scope |
+| --- | ---: | --- |
+| Queue to run start | 3.396 | One observed dispatch |
+| Run start to finish | 84.318 | Includes orchestration overhead |
+| Queue to finish | 87.714 | Whole observed run |
+| Physical job | 74.203 | Checkout, identity, dependencies and publication |
+| First development bootstrap | 44.298 | Reported bootstrap elapsed |
+| Independent offline check | 5.374 | Reported check elapsed |
+
+These are preparation-smoke timings, not a framework suite, full-profile or same-source hosted/lab
+performance comparison. The report explicitly records **zero framework units**, preparation-only
+mode and no full-profile acceptance. This consumes **one of six** deliberately queued pilot jobs;
+five remain for reviewed coverage/failure/cancellation/comparison obligations. No retry or additional
+workload job was launched. Native profile, failure/cancellation, timing comparison and adopt-or-stop
+remain 6.5.4/6.5.5; full/event/policy equivalence remains 6.5.6. The maintainer confirmed this evidence
+and 6.5.3 closeout on 2026-10-11. No additional pilot job is authorized or queued by this closeout.
 
 ### 3.1 Identity, Access And Cleanup Smoke
 

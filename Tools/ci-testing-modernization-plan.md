@@ -104,7 +104,8 @@ is in progress. The unused installed-runtime cache experiment has been retired; 
 has selected a simpler, bounded self-hosted capacity trial before further backend adoption.
 Host recovery/account/folder/runtime preparation is complete to the limits recorded below.
 Agent registration, online state, non-admin service-token inspection and reconnect are now verified;
-job-level dependency/tool execution and timing/adoption remain pending. The main plan owns
+job-level runtime/dependency execution now passes the one-job manual smoke. The maintainer confirmed
+6.5.3 and its evidence on 2026-10-11; broader qualification, timing comparison and adoption remain pending. The main plan owns
 sequencing and acceptance; the [KM agent pilot](ci-self-hosted-agent-pilot.md) owns its detailed
 setup, evidence boundaries and rollback. Neither document closes 6.5 or activates content selection.
 
@@ -2825,7 +2826,7 @@ Use the following focused checkpoints rather than an open-ended optimization loo
   libraries and disposable virtual-environment creation. Reuse actual PowerShell 7.6.6, Node 24.15.0
   and npm 11.12.1. An explicitly approved PATH update supports interactive development; CI retains
   its explicit versioned interpreter. This is administrative setup proof, not service-identity proof.
-- [ ] **6.5.3 Restricted registration and dependencies:** obtain the concrete pool/service-registration
+- [x] **6.5.3 Restricted registration and dependencies:** obtain the concrete pool/service-registration
   approval, select and verify the organization-offered Windows x64 agent, and create restricted
   `KM-CI-Pilot` access for this project only. Register one `KM-CI-01` service using supported interactive
   device-code authentication and the dedicated non-admin identity; the maintainer enters the service
@@ -2871,7 +2872,18 @@ cleanup, exact runtime execution, existing development bootstrap and independent
 Local YAML/PowerShell syntax and boundary checks pass. Publication, Azure compilation, single-pipeline
 authorization and actual service-account job proof remain open. This preparation-only smoke uses one
 of the six pilot jobs when queued and reports zero framework units; no full/profile timing pass is implied.
-No workload job is queued, no timing claim is made, and 6.5.3 remains unchecked.
+That wiring checkpoint is subsequently confirmed and dual-published as `d83d2f3`. The restricted
+manual pipeline is created with no automatic first run and only its own queue authorization. Azure
+preview passes, followed by the one authorized [service preparation run 78](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=78)
+at the exact source. Its single job passes on `KM-CI-01`; downloaded artifacts independently verify
+the non-admin identity, shared-tool write denial, synthetic cleanup, exact runtime/dependency pins
+and owned origins, and independent offline verification. Agent online state and restricted queue
+access remain verified after completion. Whole run cost is 87.714 seconds including queue, with
+44.298-second development preparation and 5.374-second offline check. These are preparation-only
+measurements with zero framework units, not a hosted/lab workload speedup or full-profile acceptance.
+One of six pilot jobs is consumed; no retry or additional job is queued. Phase 6.5.3 and its evidence
+are verified and confirmed by the maintainer on 2026-10-11. Phase 6.5.4
+native/failure/cancellation/comparison work and 6.5.5/6.5.6 remain open.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
