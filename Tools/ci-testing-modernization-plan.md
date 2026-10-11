@@ -99,6 +99,14 @@ and Phase 6.4 closeout on 2026-10-07. Phase 6.5 remains unstarted.
 The accepted 5.7 results and timing disposition remain intact; local WSL evidence will not substitute
 for actual hosted measurements.
 
+**Current checkpoint (2026-10-11; supersedes historical progress statements above):** Phase 6.5
+is in progress. The unused installed-runtime cache experiment has been retired; the maintainer
+has selected a simpler, bounded self-hosted capacity trial before further backend adoption.
+Host recovery/account/folder/runtime preparation is complete to the limits recorded below.
+Agent registration, service-identity proof and timing/adoption remain pending. The main plan owns
+sequencing and acceptance; the [KM agent pilot](ci-self-hosted-agent-pilot.md) owns its detailed
+setup, evidence boundaries and rollback. Neither document closes 6.5 or activates content selection.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -2771,7 +2779,81 @@ and both manual YAML entry points are removed; Azure definitions 4/5 are disable
 Ordinary bootstrap/dependency caching and shared CI contracts remain. The retained checks pass 240
 Python cases and 5 Pester cases per OS. See the
 [retirement decision record](ci-python-acquisition-design.md#scoped-retirement-after-the-bounded-screen).
-Phase 6.5 stays open; pause further optimization implementation for the requested maintainer discussion.
+Phase 6.5 stays open. The requested maintainer discussion has since taken place; the current
+direction and bounded next checkpoints below replace the earlier implementation pause.
+
+#### Current Optimization Direction And Bounded KM Pilot (2026-10-11)
+
+Optimize useful feedback and operating cost before adding mechanisms. Prefer affected-work selection,
+role-specific preparation, supported dependency caching and capacity appropriate to measured workload.
+Retain independent execution/failure/cancellation contracts and readable admitted evidence. Complexity
+must earn its maintenance cost through demonstrated benefit; do not resume the retired runtime-cache
+experiment or automatically expand this pilot into a new cache controller or virtualization project.
+
+The target remains fast framework feedback and minimal CI for ordinary canonical-content work.
+Framework/tooling coverage stays conservative until Phase 7 proves selection. Canonical content gets
+its own bounded validation path in Phase 7; installing a faster agent does not implement that path.
+Editor validation can reuse canonical contracts later, but does not replace repository verification
+or become a new deliverable of this pilot. Existing full/native goals and accepted timing exceptions
+remain intact; no speedup or phase closure is inferred from machine setup.
+
+The read-only capacity discussion compared paid hosted concurrency with lab self-hosting. The inspected
+organization has one free hosted slot and one free self-hosted slot; additional physical agents alone
+do not add licensed concurrency. Existing serialized matrices also need separately qualified routing
+changes to benefit from extra slots. Select the existing shared Windows development VM for the first
+trial, keeping its current hypervisor placement. No paid capacity, second VM, vCenter installation,
+migration, network redesign or resource increase is part of the selected trial. Recheck live capacity
+before scheduling. Broader paid or mixed-pool placement remains a later measured decision.
+
+The maintainer accepts rebuild risk and a short-lived pre-installation snapshot instead of an
+independent backup. Snapshot creation is maintainer-reported and post-restart SSH was verified;
+reversion was not tested. The actual time and cleanup deadline are private, ignored operational
+evidence. Review/remove the snapshot within 72 hours; updates installed afterward would be undone
+by reversion. Domain directory and ADO objects are outside VM rollback. Private connection metadata,
+domain names, hostnames, addresses, credentials and recovery timestamps stay out of shared documents.
+
+Use the following focused checkpoints rather than an open-ended optimization loop:
+
+- [x] **6.5.1 Direction and scope:** stop the unsuccessful installed-runtime cache experiment;
+  select one bounded shared-host trial, preserve supported caching and measure benefit versus cost.
+- [x] **6.5.2 Host preparation:** verify existing authorized SSH access; review shared-host suitability
+  and recovery; create the dedicated non-admin domain service account and restricted agent/shared-tool
+  folders. The maintainer verified the enabled account has only Domain Users membership and password
+  expiration enabled. Host SID resolution, folder ACLs and post-update reboot markers were checked.
+  Install shared Python 3.14.8 x64 from the official hash/signature-verified installer; verify standard
+  libraries and disposable virtual-environment creation. Reuse actual PowerShell 7.6.6, Node 24.15.0
+  and npm 11.12.1. An explicitly approved PATH update supports interactive development; CI retains
+  its explicit versioned interpreter. This is administrative setup proof, not service-identity proof.
+- [ ] **6.5.3 Restricted registration and dependencies:** obtain the concrete pool/service-registration
+  approval, select and verify the organization-offered Windows x64 agent, and create restricted
+  `KM-CI-Pilot` access for this project only. Register one `KM-CI-01` service using supported interactive
+  device-code authentication and the dedicated non-admin identity; the maintainer enters the service
+  password locally. Review service-logon policy, qualify retained pinned dependencies through the
+  existing bootstrap in project-owned environments, and verify service-identity tool/network/access
+  behavior. Shared tools remain admin-owned in `C:\DevTools`; Python packages remain environment-owned.
+  No unrestricted pool access, new PAT by default, autologon or administrator membership.
+- [ ] **6.5.4 Bounded qualification and timing:** use at most six deliberately queued jobs for identity/
+  cleanup smoke, a small existing Windows profile, deterministic failure/cancellation, and comparable
+  managed/first-preparation/repeat-preparation evidence. Reconcile source, coverage, job allocation
+  and pins before scheduling; reuse managed evidence only if comparable. Record queue, provisioning,
+  preparation, execution, publication, resource observations and maintenance separately. No automatic
+  full runs, PR reopening or indefinite correction/retry cycles. Review any expansion before queuing.
+- [ ] **6.5.5 Adopt-or-stop disposition:** decide from actual timing, reliability, maintenance and
+  shared-host exposure whether further qualification is worth pursuing. Retain the managed fallback;
+  if stopping, disable/unregister only the pilot and preserve reusable tools and evidence. If continuing,
+  specify the next bounded obligations and operational review rather than assuming ordinary adoption.
+  Complete snapshot cleanup/disposition independently of the backend choice.
+- [ ] **6.5.6 Final equivalence and policy review:** complete the remaining host/profile/event/policy
+  obligations below on the accepted execution path. A small Windows pilot cannot satisfy full coverage,
+  Linux parity, PR merge-context or policy adoption. Restore paused PRs only for deliberately approved
+  fresh event/merge qualification; preserve old required checks until replacement coverage is accepted.
+
+**Ownership:** [KM agent pilot](ci-self-hosted-agent-pilot.md) contains the concrete preparation,
+registration, bounded-screen and rollback detail. Existing [host-equivalence evidence](ci-testing-host-equivalence.md)
+and [acquisition decision record](ci-python-acquisition-design.md#scoped-retirement-after-the-bounded-screen)
+retain prior measurements and retirement reasoning. The six-job allowance covers only the initial pilot;
+broader final equivalence needs its own reviewed allocation. Shared runtime installation is not a new
+dependency source of truth: repository pins, declarations, locks, catalogs and runners remain authoritative.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
