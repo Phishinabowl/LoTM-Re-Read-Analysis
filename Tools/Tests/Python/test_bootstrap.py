@@ -868,6 +868,38 @@ def test_candidate_cli_rejects_local_execution_before_opening_candidate(tmp_path
         module.main()
 
 
+def test_manual_cache_pilot_preserves_transport_and_failure_boundaries():
+    import yaml
+
+    workflow = yaml.safe_load((ROOT / ".azuredevops/ci-runtime-cache.yml").read_text(encoding="utf-8"))
+    assert workflow["trigger"] == workflow["pr"] == "none" and "schedules" not in workflow
+    job = workflow["jobs"][0]
+    assert job["timeoutInMinutes"] == 25 and job["cancelTimeoutInMinutes"] == 2
+    assert job["strategy"]["maxParallel"] == 1
+    assert [row["image"] for group in job["strategy"]["matrix"].values() for row in group.values()] == [
+        "windows-2022",
+        "ubuntu-24.04",
+    ]
+    steps = job["steps"]
+    cache_group = next(row for row in steps if "${{ if eq(parameters.strategy, 'cache') }}" in row)
+    cache = cache_group["${{ if eq(parameters.strategy, 'cache') }}"][0]
+    assert cache["task"] == "Cache@2" and "restoreKeys" not in cache["inputs"]
+    assert cache["inputs"]["cacheHitVar"] == "PILOT_CACHE_HIT"
+    assert '"$(PILOT_CACHE_NAMESPACE)"' in cache["inputs"]["key"]
+    native = next(row for row in steps if row.get("task") == "UsePythonVersion@0")
+    assert native["inputs"]["versionSpec"] == "$(PILOT_PYTHON_VERSION)"
+    assert native["condition"] == "and(succeeded(), eq(variables['PILOT_ROUTE'], 'native'))"
+    assert not any(row.get("continueOnError") for row in steps)
+    artifacts = [row for row in steps if row.get("task") == "PublishPipelineArtifact@1"]
+    assert len(artifacts) == 3 and all("always()" in row["condition"] for row in artifacts)
+    assert {row["inputs"]["targetPath"].split("/")[-1] for row in artifacts} == {
+        "ci-runtime-cache-pilot",
+        "ci-runtime-capture",
+        "ci-runtime-restore",
+    }
+    assert not any("ci-runtime-staging" in row["inputs"]["targetPath"] for row in artifacts)
+
+
 @pytest.mark.parametrize(
     "mutation", [None, "marker", "tools", "image", "build", "prefix", "output", "receipt", "source"]
 )

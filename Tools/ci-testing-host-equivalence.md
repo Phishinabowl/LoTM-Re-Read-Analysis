@@ -875,6 +875,30 @@ Pester cases per OS (15.881s Windows/27.754s Linux), zero errors/skips. Ruff/Pow
 five-file annotation policy/all 22 fixtures, 67 doc links and diff checks pass. These are local protocol/
 ownership checks, not warm-cache performance or real fixed-prefix hosted proof.
 
+The maintainer confirms the guarded driver checkpoint at `687aabc` with clean four-ref parity.
+The next manual cache wiring increment prepares a separate unregistered, triggerless YAML definition
+using built-in Cache@2 exact-key transport and repository-owned route/receipt helpers. Native reference,
+cold seeding, occupied-slot native routing, absent-slot restoration and deliberate scratch corruption/
+missing-state paths preserve ordinary CI, pins, policies and paused PRs. Summary/JSON diagnostics
+withhold adoption and actual save claims until post-job service evidence is audited.
+
+The agreed bounded experiment screens native/cold/warm costs before spending further agent minutes.
+The acquisition design proposes a per-OS screen of repeatable net savings >=10 seconds and >=20%,
+with seeding/save recovered within ten warm runs; assumptions and variance must be recorded. At most
+six ordinary samples plus one focused failed-leg correction are planned, with earlier stop on a
+clear loss. No naturally absent-prefix evidence means no adoption. Only a promising safe result
+proceeds to original profile/role handoffs; otherwise retain native setup and retire unused cache
+scaffolding. These are experiment decision criteria, not hosted proof or universal industry rules.
+Use service task/post-job durations, not inflated native candidate-copy or cold seed walls, when
+comparing savings. See the acquisition design for the full bounded sequence and rollback.
+Final wiring verification passes 104 pytest cases per OS (4.96s Windows/7.16s Linux) and 183
+registered Pester cases per OS (17.365s Windows/29.732s Linux), zero errors/skips. It fixes bounded
+optional JSON-reader defaults and verifies synthetic cold/failure/report paths, preserving occupied
+slots only when their plain interpreter/empty completion descriptor is valid. Ruff/formatting,
+annotation policy/22 fixtures, 70 links and diff checks pass. Six no-agent Azure expansions return
+preview ID -1 with expected both/single-OS matrices and cache/native/fault wiring. Nine files await
+review; service registration, actual transport/save/restore and economics remain unqualified.
+
 After patch disposition, qualify role-specific preparation, ADO job consolidation and dependency
 barriers separately. Measure cold/warm setup, actual workload, publication and queue time; compare
 complete local/hosted portfolio identity and failure/cancellation behavior. Restore the same PRs

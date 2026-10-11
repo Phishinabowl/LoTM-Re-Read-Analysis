@@ -2717,6 +2717,34 @@ Final local results: 103/103 focused pytest cases per OS in 5.48s Windows/7.86s 
 registered Pester cases per OS in 15.881s Windows/27.754s Linux, zero errors/skips within the existing
 deadline. Scoped formatting/static policy/22 fixtures, 67 documentation links and diff checks pass.
 
+The maintainer confirms the guarded driver checkpoint at `687aabc`. On 2026-10-10 the manual cache
+wiring pass prepares a separate unregistered native/cache experiment, using built-in Cache@2 transport
+and repository-owned seal/route/receipt decisions. Native acquisition remains the default/rollback;
+existing ordinary pipelines, required checks and paused PRs stay unchanged. Exact-hit corrupt bytes
+cannot fall back around admission; occupied prefixes are preserved and use native selection; actual
+restoration requires a naturally absent exact prefix. In-job save eligibility is not a completed
+post-job cache-save claim. Diagnostic-only artifacts and readable summaries remain available after
+failure, with outer 25-minute job/two-minute cancellation ceilings rather than timing targets.
+
+**Bounded experiment disposition:** screen native reference, cold seed and warm costs first; continue
+to corruption/missing-state/recovery only for a credible candidate. Proposed review criteria require
+repeatable per-OS net savings >=10 seconds and >=20%, cold save/seed break-even within ten warm runs,
+and honest variance/hit-rate assumptions. Limit ordinary qualification to six runs per selected OS
+and one focused failed-leg corrective retry; review any expansion explicitly. Inadequate/inconclusive
+savings, unsafe behavior or no naturally absent-prefix proof means stop, retain native setup and
+retire unused cache scaffolding. Do not compare inflated native candidate-copy/seed costs with warm
+restoration to manufacture savings. A promising safe result alone permits the remaining same-source
+original profile/role handoff and real pipeline-scope qualification before adoption. The acquisition
+design records complete sequencing, evidence obligations, decision ownership and rollback. New edits
+await review/publication; no real cache experiment is run in this wiring checkpoint. Phase 6.5 stays open.
+Local wiring results: 104/104 pytest cases per OS (4.96s Windows/7.16s Linux) and 183/183 registered
+Pester cases per OS (17.365s Windows/29.732s Linux), zero errors/skips. Optional JSON-reader calls
+receive bounded defaults; occupied slots require a plain runtime and valid completion descriptor
+before native delegation. Static policy/22 fixtures, formatting, 70 links and diff checks pass.
+Six Azure YAML-override previews return -1 and allocate no agents, covering native/cache/fault and
+both/single-OS expansion. Nine source/test/evidence files await publication confirmation; next create
+the separate manual service pipeline and run the bounded native/cold/warm screen before any adoption.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during

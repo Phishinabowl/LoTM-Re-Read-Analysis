@@ -170,7 +170,8 @@ function Get-CiPythonRuntimeInventory {
 }
 
 function Read-CiPythonReferenceJson {
-    param([string]$Path, [datetime]$DeadlineUtc, [scriptblock]$Cancelled)
+    param([string]$Path, [datetime]$DeadlineUtc = ([datetime]::UtcNow.AddMinutes(1)),
+        [scriptblock]$Cancelled = { $false })
     Test-CiPythonCacheLease $DeadlineUtc $Cancelled
     $path = Get-CiPythonCachePath ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($Path))) ([IO.Path]::GetFileName($Path))
     $file = Get-Item -LiteralPath $path -Force -ErrorAction Stop

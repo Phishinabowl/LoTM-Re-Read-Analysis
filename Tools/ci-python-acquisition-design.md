@@ -1,11 +1,13 @@
 # Pinned Python Acquisition Proposal
 
-Status: pilot design approved by the maintainer on 2026-10-07; not an adopted acquisition backend.
+Status: pilot design approved on 2026-10-07; guarded driver confirmed at `687aabc`; manual cache
+wiring prepared for review on 2026-10-10. Not an adopted acquisition backend.
 Scope: the CI modernization Phase 6.5
 interpreter acquisition gate. The adopted interpreter remains Python 3.14.8; project environments
 continue using the existing pip 26.2 and dependency locks. Catalogs, profile coverage and runtime
-support boundaries are unchanged. This proposal introduces no secret, agent, machine installation,
-runtime cache, workflow change or hosted run.
+support boundaries are unchanged. The latest source checkpoint adds a disconnected manual YAML
+definition; no new service pipeline, cache, secret, machine installation or hosted execution has
+been created by that checkpoint. Earlier sections retain their dated design/evidence boundaries.
 
 ## Confirmed Current Behavior
 
@@ -1022,9 +1024,112 @@ Linux 27.754s), zero errors/skips within the unchanged 120-second deadline. Scop
 formatting, five-file annotation policy/all 22 fixtures, 67 documentation links and diff checks pass.
 The new protocol/guard/copy evidence adds nine Python and 24 Pester cases to the prior checkpoint.
 
-Eight source/test/evidence files remain uncommitted for review. Next prepare the opt-in manual cache
+The maintainer confirms the eight-file driver checkpoint, published as `687aabc` with four-ref
+parity. Next prepare the opt-in manual cache
 pilot and its occupied-prefix/native-route disposition, exact hit/miss/fault/recovery reporting and
 outer cancellation/timeout/artifact handling before executing a bounded hosted qualification. Do not
 remove image runtimes to force an absent prefix. Real fixed-prefix restoration, warm restore/save
 costs, original role/profile handoffs and legacy scaffold retirement remain open. Keep existing
 checks/defaults and paused PRs unchanged. Phase 6.5 stays open.
+
+## Manual Cache Wiring And Bounded Adopt-Or-Stop Gate
+
+The maintainer explicitly approves finishing a bounded experiment rather than assuming cache
+adoption. Standard supported setup/dependency caching remains the starting point; this installed-
+runtime restoration is a specialized alternative. Its maintenance burden needs a measured benefit.
+The [manual YAML](../.azuredevops/ci-runtime-cache.yml) uses Microsoft's `Cache@2` for transport and
+immutable post-job storage, with no `restoreKeys`. Repository-owned [pilot decisions](CI/PythonRuntimeCachePilot.ps1)
+and [entry point](CI/Invoke-PythonRuntimeCachePilot.ps1) own admission/routing/receipts; YAML does not
+define test-suite membership. The existing ordinary CI and capture/cache-pilot definitions are unchanged.
+
+Manual parameters select `native` reference or `cache`, both OSs or one supported OS, a validated
+experimental namespace and `none`/`corrupt`/`missing-state` fault controls. The default is native.
+Each selected image gets one job, with maxParallel 1, a 25-minute safety ceiling and two-minute
+cancellation allowance. There is no trigger, PR policy, schedule, automatic retry or full portfolio
+execution. These limits are not expected timings. Cache keys quote the validated namespace and
+complete repository seal identity; exact matches are required and source commits remain separately
+recorded. A new namespace provides a deliberate cold sample without deleting any service cache.
+
+On a clean miss, the native task selects/acquires the exact interpreter and the existing candidate
+driver proves immutable normalized bytes plus base/fresh locked-environment probes. A full external
+seal then gates copying only the qualified payload into staging for post-job cache saving. Cache@2
+may create an empty miss owner; only that already-verified empty repository scratch directory is
+removed before fresh copying. No installed runtime is removed by these helpers. The upstream native
+task retains its previously documented ephemeral-agent installer behavior on an actual download.
+
+On an exact hit, full staged bytes/modes are verified before slot routing. An absent exact prefix
+uses the guarded restoration driver. An occupied prefix routes to native selection, preserving the
+host owner; this is not restoration proof. Delegation requires a plain native directory, regular
+interpreter and regular empty completion marker. Incomplete/unsafe occupied slots are blocked rather
+than allowing the native installer to overwrite them. A corrupt hit still fails even if a native slot is present:
+occupation is not a bypass around restored-byte verification. An absent target with a stale native
+completion marker or an existing restoration lease is blocked. No image installation is removed to
+manufacture a missing interpreter. Faults require an actual exact hit; they corrupt only already-
+verified scratch bytes or remove only the freshly owned pilot state receipt. Failed/cancelled jobs
+must not save a payload, silently choose another version or admit ordinary execution handoffs.
+
+Pilot/native/restored diagnostic folders are published on success or failure; the binary staging and
+candidate trees are never pipeline artifacts. A readable per-image Markdown summary labels route,
+cache outcome, incomplete/failed evidence and measured components. In-job receipts distinguish save
+eligibility from actual saving, which runs later. Server task logs/timeline must independently confirm
+Cache@2 restore/post-job save outcomes and costs, native setup, cancellation, job/queue time and image
+version. A transport/setup failure before controller admission remains a failed/incomplete summary;
+publication cannot erase an execution failure.
+
+Timing rules prevent a misleading win: recorded restore/native envelopes include between-step
+overhead and are not substituted for service task durations. Staging admission, cold seed copy and
+qualification/preparation are separately recorded. Native candidate normalization/copy exists to
+qualify and seed this experiment; ordinary native CI does not pay that cost. Do not compare inflated
+cold reference/seed job walls with warm restoration and label the difference acquisition savings.
+The conservative screen compares native task plus matched base/bootstrap/environment child costs
+against the complete warm cache planning/transport/routing/restoration/qualification path, including
+extra verification and post-job overhead. Audit common work, publication/queue costs and cold save
+cost separately. Any ambiguity or run-to-run variation larger than the saving is inconclusive.
+
+**Proposed decision screen for this review:** require repeatable net savings of at least 10 seconds
+and 20% for the relevant absent-interpreter setup case, with cold seeding/save overhead recovered
+within ten qualifying warm runs. Record the break-even assumptions and do not infer hit rates from
+a deliberately warmed pilot. This is a deliberately conservative experiment screen, not a universal
+industry threshold or a relaxation of the existing CI budgets. Decisions are per OS; a Windows win
+does not justify Linux adoption. Occupied-slot samples must not be counted as owned-restoration wins.
+
+**Bounded sequence:** at most six ordinary qualification runs per selected OS: native reference,
+cold seed, warm screening, corrupt-hit refusal, missing-state refusal and green recovery. Screen
+after the first three. Stop before further experiments if the cache clearly loses or cannot show a
+credible benefit. Recovery supplies a second clean warm sample only for a promising candidate.
+Allow at most one focused corrective retry of a failed leg; further investigation requires explicit
+scope review rather than an unbounded redesign. If naturally scheduled agents never provide an
+absent exact prefix within this sequence, restoration remains unproved and the backend stays
+unadopted. Do not weaken seals, change distributions or provision new infrastructure to rescue it.
+
+**Decision:** stop on inadequate/inconclusive benefit or unsafe/unqualified behavior, keep native
+setup, retain evidence and retire unused production scaffolding through a scoped follow-up. A
+promising safe result permits the already-planned same-source infrastructure/profile and planning/
+worker/cohort/collector handoff qualification before adoption. Cache scopes are pipeline/branch-
+specific: a warm manual-pilot cache does not prove a warm ordinary pipeline. Prime/measure its real
+scope during conditional integration. Supported setup remains explicit rollback. No required check,
+policy or PR state changes are authorized merely by a green pilot.
+
+Local synthetic regressions and no-agent service previews verify wiring, not real cache transport,
+restoration, cache-save fidelity or ROI. Those hosted acceptance gates remain open. New source and
+evidence edits are uncommitted for review; no service pipeline or agent run has been created.
+
+**Wiring verification (2026-10-10):** 104 focused pytest cases pass on each OS (Windows 4.96s; Linux
+7.16s), and 183 registered Pester cases pass on each OS (Windows 17.365s; Linux 29.732s), zero
+errors/skips within the existing 120-second deadline. Seven added Pester cases cover routing/state
+and synthetic qualified-cold/native-failure/missing-state/corruption/report orchestration; one Python
+case checks thin YAML transport/failure/artifact boundaries. No synthetic interpreter is executed.
+Local testing exposes and fixes omitted JSON-reader deadline/cancellation defaults: no-argument
+reads now receive a bounded one-minute lease and no-cancellation callback, preserving explicit
+caller budgets. This also repairs those calls in the confirmed, not-yet-hosted restoration driver.
+A synthetic native-launch mock is corrected to use its fixture source rather than a caller-scope
+staging variable. Scoped Ruff/PowerShell formatting, five-file annotation policy/all 22 fixtures,
+70 documentation links and diff checks pass.
+
+Six final Azure preview expansions succeed with `previewRun=true`/`yamlOverride`, each returning
+preview ID -1: native/both, cache/both, both fault modes, cache/Windows-only and cache/Linux-only.
+Expanded matrices have the expected 2/1 image allocations; native omits Cache@2 and cache modes
+retain one exact-key transport task with no broader restore fallback. These previews reuse the
+existing pipeline solely for compilation and do not create a new service pipeline or allocate an
+agent. They validate uncommitted YAML expansion, not execution of its unpublished helper files.
+The nine-file increment awaits review/publication and subsequent authorized bounded live qualification.

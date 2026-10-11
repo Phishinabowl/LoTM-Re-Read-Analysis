@@ -1,6 +1,7 @@
 BeforeAll {
     $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
     . (Join-Path $repoRoot 'Tools/CI/PythonRuntimeCache.ps1')
+    . (Join-Path $repoRoot 'Tools/CI/PythonRuntimeCachePilot.ps1')
     $pins = Get-Content -LiteralPath (Join-Path $repoRoot 'Tools/CI/Data/runtime-versions.json') -Raw |
         ConvertFrom-Json -AsHashtable
 }
@@ -847,6 +848,173 @@ Describe 'Mode-aware external seals and nonexecuting staged cache admission' -Ta
         { Copy-CiPythonSealedRuntime $plan $stage $TestDrive $target -Restoration } | Should -Throw '*hosted*'
         Test-Path $target | Should -BeFalse
         Test-Path ($target + '.copy.json') | Should -BeFalse
+    }
+
+    It 'chooses clean-miss native, exact-hit restoration and occupied-slot native routes' {
+        $tools = Join-Path $TestDrive 'pilot-route-tools'
+        $null = [IO.Directory]::CreateDirectory((Join-Path $tools 'Python'))
+        $target = Join-Path $tools 'Python/3.14.8/x64'
+        $plan.identity.prefix = $target
+        Mock Get-CiPythonSealedCachePlan { $plan }
+        $missing = Join-Path $TestDrive 'pilot-cache-miss'
+        (Get-CiPythonRuntimePilotRoute $plan $missing false $tools).reason | Should -BeExactly 'cache-miss'
+        (Get-CiPythonRuntimePilotRoute $plan $stage true $tools).reason | Should -BeExactly 'sealed-hit-absent-slot'
+        Test-Path $target | Should -BeFalse
+        $null = [IO.Directory]::CreateDirectory($target)
+        [IO.File]::WriteAllText((Join-Path $target 'host.txt'), 'host-owned')
+        $null = [IO.Directory]::CreateDirectory((Join-Path $target 'bin'))
+        [IO.File]::WriteAllText((Join-Path $target $exe), 'native fixture only')
+        [IO.File]::WriteAllText(($target + '.complete'), '')
+        $decision = Get-CiPythonRuntimePilotRoute $plan $stage true $tools
+        $decision.route | Should -BeExactly 'native'
+        $decision.reason | Should -BeExactly 'native-slot-present'
+        $decision.staged_integrity_verified | Should -BeTrue
+        [IO.File]::ReadAllText((Join-Path $target 'host.txt')) | Should -BeExactly 'host-owned'
+        # Occupation is not a fallback around corrupted cached bytes.
+        [IO.File]::WriteAllText((Join-Path $stage $exe), 'corrupt')
+        { Get-CiPythonRuntimePilotRoute $plan $stage true $tools } | Should -Throw '*reference*'
+    }
+
+    It 'refuses inexact hits, tools-root drift, stale markers and fault probes on misses' {
+        $tools = Join-Path $TestDrive 'pilot-refusal-tools'
+        $null = [IO.Directory]::CreateDirectory((Join-Path $tools 'Python/3.14.8'))
+        $target = Join-Path $tools 'Python/3.14.8/x64'
+        $plan.identity.prefix = $target
+        Mock Get-CiPythonSealedCachePlan { $plan }
+        { Get-CiPythonRuntimePilotRoute $plan $stage inexact $tools } | Should -Throw
+        { Get-CiPythonRuntimePilotRoute $plan $stage true $TestDrive } | Should -Throw '*tools root*'
+        { Get-CiPythonRuntimePilotRoute $plan $stage false $tools -Fault corrupt } | Should -Throw '*exact cache hit*'
+        [IO.File]::WriteAllText(($target + '.complete'), 'stale')
+        { Get-CiPythonRuntimePilotRoute $plan $stage true $tools } | Should -Throw '*stale completion*'
+        Test-Path $target | Should -BeFalse
+        $null = [IO.Directory]::CreateDirectory($target)
+        { Get-CiPythonRuntimePilotRoute $plan $stage true $tools } | Should -Throw '*incomplete or unsafe*'
+        [IO.File]::ReadAllText(($target + '.complete')) | Should -BeExactly 'stale'
+    }
+
+    It 'binds pilot receipts to source, key, namespace, strategy and actual build' {
+        $path = Join-Path $TestDrive 'pilot-state.json'
+        $state = @{ contract = 'ci-python-runtime-cache-pilot'
+            schema_version = 1
+            executed_commit = $plan.executed_commit
+            cache_key = $plan.cache_key
+            strategy = 'cache'
+            cache_namespace = 'fixture-r1'
+            build_id = $env:BUILD_BUILDID
+        }
+        $state | ConvertTo-Json | Set-Content $path
+        (Read-CiPythonRuntimePilotState $path $plan cache fixture-r1).strategy | Should -BeExactly 'cache'
+        foreach ($field in @('executed_commit', 'cache_key', 'strategy', 'cache_namespace', 'build_id')) {
+            $changed = $state.Clone()
+            $changed[$field] = 'unexpected'
+            $changed | ConvertTo-Json | Set-Content $path
+            { Read-CiPythonRuntimePilotState $path $plan cache fixture-r1 } | Should -Throw '*receipt differs*'
+        }
+        [IO.File]::Delete($path)
+        { Read-CiPythonRuntimePilotState $path $plan cache fixture-r1 } | Should -Throw
+    }
+
+    It 'seeds only a qualified cold pilot and retains failures for <outcome>' -ForEach @(
+        @{ outcome = 'success' }, @{ outcome = 'native-failed' }, @{ outcome = 'missing-state' }, @{ outcome = 'corrupt' }) {
+        $pilotRepo = Join-Path $TestDrive "pilot-repo-$outcome"
+        $tools = Join-Path $TestDrive "pilot-tools-$outcome"
+        $fixtureSource = $stage
+        $null = [IO.Directory]::CreateDirectory($pilotRepo)
+        $null = [IO.Directory]::CreateDirectory((Join-Path $tools 'Python'))
+        $plan.identity.prefix = Join-Path $tools 'Python/3.14.8/x64'
+        Mock Get-CiPythonSealedCachePlan { $plan }
+        Mock Get-CiPythonHostedRestorationContext { $context }
+        Mock Get-CiPythonRuntimePilotRepository { $pilotRepo }
+        Mock Invoke-CiPythonRuntimePilotNativeQualification {
+            if ($outcome -eq 'native-failed') {
+                throw 'Injected native acquisition failure'
+            }
+            $candidateParent = Join-Path $pilotRepo '.tmp/ci-runtime-candidates'
+            $null = [IO.Directory]::CreateDirectory($candidateParent)
+            $null = New-CiPythonSealedPrivateCopy $plan $fixtureSource $candidateParent (Join-Path $candidateParent 'runtime')
+            $captureOutput = Join-Path $pilotRepo '.tmp/ci-runtime-capture'
+            $null = [IO.Directory]::CreateDirectory($captureOutput)
+            @{ contract = 'ci-python-candidate-qualification'
+                schema_version = 1
+                executed_commit = $plan.executed_commit
+                status = 'qualification-passed'
+                exit_code = 0
+                payload_unchanged = $true
+                runtime_probe_verified = $true
+                environment_verified = $true
+                trusted_seal = $false
+                provider_build_verified = $false
+                restoration_verified = $false
+                handoff_admitted = $false
+                saved = $false
+                processes = @(
+                    @{ status = 'exited'
+                        child_exit_code = 0
+                        cleanup = @{ verified = $true }
+                    }
+                    @{ status = 'exited'
+                        child_exit_code = 0
+                        cleanup = @{ verified = $true }
+                    }
+                    @{ status = 'exited'
+                        child_exit_code = 0
+                        cleanup = @{ verified = $true }
+                    })
+            } |
+                ConvertTo-Json -Depth 6 | Set-Content (Join-Path $captureOutput 'candidate-qualification.json')
+        }
+        $previous = @{ AGENT_TOOLSDIRECTORY = $env:AGENT_TOOLSDIRECTORY
+            PILOT_CACHE_HIT = $env:PILOT_CACHE_HIT
+            BUILD_BUILDID = $env:BUILD_BUILDID
+            AGENT_JOBSTATUS = $env:AGENT_JOBSTATUS
+        }
+        try {
+            $env:AGENT_TOOLSDIRECTORY = $tools
+            $env:BUILD_BUILDID = '75'
+            $env:PILOT_CACHE_HIT = 'false'
+            $env:AGENT_JOBSTATUS = 'Succeeded'
+            Invoke-CiPythonRuntimeCachePilot prepare cache fixture-r1
+            $pilotStage = Join-Path $pilotRepo '.tmp/ci-runtime-staging'
+            if ($outcome -in 'corrupt', 'missing-state') {
+                $null = New-CiPythonSealedPrivateCopy $plan $stage $pilotRepo $pilotStage
+                $env:PILOT_CACHE_HIT = 'true'
+                { Invoke-CiPythonRuntimeCachePilot route cache fixture-r1 -Fault $outcome } | Should -Throw
+            }
+            else {
+                Invoke-CiPythonRuntimeCachePilot route cache fixture-r1
+                if ($outcome -eq 'success') {
+                    Invoke-CiPythonRuntimeCachePilot complete cache fixture-r1
+                    $state = Get-Content (Join-Path $pilotRepo '.tmp/ci-runtime-cache-pilot/pilot.json') -Raw | ConvertFrom-Json
+                    $state.status | Should -BeExactly 'pilot-qualified'
+                    $state.cache_save_eligible | Should -BeTrue
+                    $state.cache_save_verified | Should -BeFalse
+                    $state.restoration_exercised | Should -BeFalse
+                    $state.handoff_admitted | Should -BeFalse
+                    (Get-CiPythonRuntimeInventory $pilotStage -SealModes).sha256 | Should -BeExactly $inventory.sha256
+                }
+                else {
+                    { Invoke-CiPythonRuntimeCachePilot complete cache fixture-r1 } | Should -Throw '*Injected native*'
+                }
+            }
+            $failurePath = Join-Path $pilotRepo '.tmp/ci-runtime-cache-pilot/failure.json'
+            if ($outcome -ne 'success') {
+                (Get-Content $failurePath -Raw | ConvertFrom-Json).cache_save_eligible | Should -BeFalse
+                $env:AGENT_JOBSTATUS = 'Failed'
+            }
+            Invoke-CiPythonRuntimeCachePilot report cache fixture-r1
+            $summary = Get-Content (Join-Path $pilotRepo ".tmp/ci-runtime-cache-pilot/python-cache-$image.md") -Raw
+            $summary | Should -Match 'Adoption: undecided'
+            $summary | Should -Match 'post-job save outcome/time'
+            if ($outcome -ne 'success') {
+                $summary | Should -Match 'Python cache pilot: failed'
+            }
+            Test-Path $plan.identity.prefix | Should -BeFalse
+        }
+        finally {
+            foreach ($name in $previous.Keys) {
+                [Environment]::SetEnvironmentVariable($name, $previous[$name], 'Process')
+            }
+        }
     }
 
     It 'requires captured restoration context with <mutation> refusal' -ForEach @(
