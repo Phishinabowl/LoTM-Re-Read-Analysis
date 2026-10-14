@@ -21,7 +21,7 @@ variables:
 jobs:
   - job: ServicePreparation
     displayName: KM CI - ${{ parameters.placement }} ${{ parameters.mode }} qualification
-    condition: and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/architecture/ci-testing-modernization'), or(eq('${{ parameters.placement }}', 'lab'), eq('${{ parameters.mode }}', 'workload')))
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/architecture/ci-testing-modernization'), or(eq('${{ parameters.placement }}', 'lab'), eq('${{ parameters.mode }}', 'workload')))
     timeoutInMinutes: 25
     cancelTimeoutInMinutes: 2
     pool:
