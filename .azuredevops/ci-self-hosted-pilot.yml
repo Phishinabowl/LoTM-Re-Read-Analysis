@@ -104,7 +104,7 @@ jobs:
             $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
             if ($identity.Name.Split('\')[-1] -ne 'svc_km_ci' -or ([Security.Principal.WindowsPrincipal]::new($identity)).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { throw 'Expected non-admin CI service identity.' }
             $python = 'C:\DevTools\Python\3.14.8\python.exe'
-          } else { $python = (Get-Command python -CommandType Application).Source }
+          } else { $python = (Get-Command python -CommandType Application | Select-Object -First 1).Source }
           $pwsh = & $python -I -c "import sys;sys.path.insert(0,'Tools/CI');import host_cache;print(host_cache.runtime())"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $report = '.tmp/km-pilot-setup/' + $env:BUILD_BUILDID + '/bootstrap.json'
