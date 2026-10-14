@@ -33,7 +33,7 @@ Compare setup cost, required feedback time, execution minutes, reliability and m
 the existing Microsoft-hosted path. Agent placement must preserve the repository's catalogs,
 fixtures, process isolation, deadlines, exit behavior and admitted reports.
 
-The maintainer prefers host reuse. The inspected Windows Server 2019 guest has four vCPUs,
+The bounded pilot uses the existing shared development VM. The inspected Windows Server 2019 guest has four vCPUs,
 16 GiB RAM and approximately 57 GiB free system-disk space. These are initial observations,
 not a workload benchmark or a reason to increase resources before measurement. Existing
 application services remain running despite inactive upstream lab use. Their credentials,
@@ -82,8 +82,8 @@ ignored inspection evidence, not this shared document.
 - Existing administrative SSH access is functional and host identity is verified. Reuse it
   for approved preparation; do not create another SSH key or duplicate connection profile.
 - No CI-specific local account, agent service or candidate workspace was found during inspection.
-  The maintainer requests a domain service identity. Propose one dedicated non-admin domain
-  account, `svc_km_ci`, for this agent. The maintainer checked the directory, created the account
+  The pilot uses the dedicated non-admin domain service account, `svc_km_ci`.
+  The maintainer checked the directory, created the account
   in the selected service-account OU, and verified it is enabled, has password expiration enabled,
   and belongs only to Domain Users. The updated pilot host resolves its SID. Domain membership
   does not imply a need for domain resource permissions. VM reversion does not remove this account.

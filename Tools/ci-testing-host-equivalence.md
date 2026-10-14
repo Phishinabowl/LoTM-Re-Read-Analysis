@@ -939,3 +939,8 @@ bootstrap/dependency caching and shared CI contracts are retained. Historical ev
 is preserved in the [acquisition decision record](ci-python-acquisition-design.md#scoped-retirement-after-the-bounded-screen).
 Phase 6.5 stays open. Pause further optimization implementation for the requested
 maintainer discussion of objectives, supported approaches and measured bottlenecks.
+
+**Supersession note (2026-10-11):** The historical implementation pause above is superseded by the
+[current optimization direction and bounded KM pilot](ci-testing-modernization-plan.md#current-optimization-direction-and-bounded-km-pilot-2026-10-11).
+The modernization plan owns subsequent sequencing and acceptance. Phase 6.5 remains open;
+this note does not alter the retained cache evidence or imply backend adoption.

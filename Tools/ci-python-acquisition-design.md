@@ -10,6 +10,11 @@ support boundaries are unchanged. Earlier sections are dated historical design/e
 live implementation instructions. Historical source links point to the c218be9 checkpoint.
 See the final screen and retirement sections for the current disposition.
 
+**Supersession note (2026-10-11):** The implementation pause recorded in the retirement sections
+is historical. The [current optimization direction and bounded KM pilot](ci-testing-modernization-plan.md#current-optimization-direction-and-bounded-km-pilot-2026-10-11)
+supersedes that pause and owns subsequent sequencing and acceptance. The cache retirement decision,
+measurements and evidence limits remain unchanged; Phase 6.5 and broader qualification remain open.
+
 ## Confirmed Current Behavior
 
 Azure reference run 68 spends 45.693s, 44.163s and 44.283s in its three `UsePythonVersion@0` tasks.

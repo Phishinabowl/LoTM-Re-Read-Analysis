@@ -100,8 +100,8 @@ The accepted 5.7 results and timing disposition remain intact; local WSL evidenc
 for actual hosted measurements.
 
 **Current checkpoint (2026-10-11; supersedes historical progress statements above):** Phase 6.5
-is in progress. The unused installed-runtime cache experiment has been retired; the maintainer
-has selected a simpler, bounded self-hosted capacity trial before further backend adoption.
+is in progress. The unused installed-runtime cache experiment has been retired.
+A bounded self-hosted capacity trial is selected before further backend adoption.
 Host recovery/account/folder/runtime preparation is complete to the limits recorded below.
 Agent registration, online state, non-admin service-token inspection and reconnect are now verified;
 job-level runtime/dependency execution now passes the one-job manual smoke. The maintainer confirmed
@@ -2781,8 +2781,8 @@ and both manual YAML entry points are removed; Azure definitions 4/5 are disable
 Ordinary bootstrap/dependency caching and shared CI contracts remain. The retained checks pass 240
 Python cases and 5 Pester cases per OS. See the
 [retirement decision record](ci-python-acquisition-design.md#scoped-retirement-after-the-bounded-screen).
-Phase 6.5 stays open. The requested maintainer discussion has since taken place; the current
-direction and bounded next checkpoints below replace the earlier implementation pause.
+Phase 6.5 remains open. The current optimization direction and bounded checkpoints below
+supersede the earlier implementation pause.
 
 #### Current Optimization Direction And Bounded KM Pilot (2026-10-11)
 
@@ -2799,7 +2799,7 @@ Editor validation can reuse canonical contracts later, but does not replace repo
 or become a new deliverable of this pilot. Existing full/native goals and accepted timing exceptions
 remain intact; no speedup or phase closure is inferred from machine setup.
 
-The read-only capacity discussion compared paid hosted concurrency with lab self-hosting. The inspected
+The capacity assessment compared paid hosted concurrency with lab self-hosting. The inspected
 organization has one free hosted slot and one free self-hosted slot; additional physical agents alone
 do not add licensed concurrency. Existing serialized matrices also need separately qualified routing
 changes to benefit from extra slots. Select the existing shared Windows development VM for the first
