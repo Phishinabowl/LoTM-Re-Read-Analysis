@@ -731,12 +731,21 @@ def test_atomic_reports_reject_foreign_overwrites_and_hardlinks(tmp_path):
 
 def test_linked_report_directory_is_rejected(tmp_path):
     (tmp_path / "foreign").mkdir()
-    try:
+    if os.name == "nt":
+        result = subprocess.run(
+            ["cmd.exe", "/d", "/c", "mklink", "/J", str(tmp_path / "linked"), str(tmp_path / "foreign")],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert (tmp_path / "linked").is_junction()
+    else:
         (tmp_path / "linked").symlink_to(tmp_path / "foreign", target_is_directory=True)
-    except OSError:
-        pytest.skip("Symlink creation unavailable; junction proof remains Windows integration")
     with pytest.raises(ValueError):
         reports.atomic_bytes(tmp_path, "linked/report.json", b"changed")
+    assert not (tmp_path / "foreign" / "report.json").exists()
 
 
 def test_projection_failure_never_admits_completion_and_retains_prior_evidence(tmp_path, monkeypatch):
