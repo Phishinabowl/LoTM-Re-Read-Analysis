@@ -25,6 +25,12 @@ change required checks, reopen PRs or activate content selection.
 
 ## Objective And Boundary
 
+The [deferred shared CI adoption handoff](ci-testing-modernization-plan.md#deferred-shared-ci-platform-adoption-handoff)
+is the restart entry for future platform/agent work from the separate KM chat.
+Current direction preserves this KM installation/account and defers actual
+adoption. The handoff neither accepts pending pilot qualification nor changes the
+procedures, pins, manual-run boundaries or existing recovery below.
+
 Evaluate one Windows self-hosted Azure Pipelines agent on an existing shared development VM
 for the reusable knowledge-management (KM) platform. LoTM is its first consumer and proving
 ground. New pilot infrastructure names use KM; existing repository paths and historical names

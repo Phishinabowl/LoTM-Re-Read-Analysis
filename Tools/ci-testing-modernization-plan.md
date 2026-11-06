@@ -117,6 +117,11 @@ Merge only after the modernization acceptance gates pass; resume platform work t
 
 ## Purpose And Placement
 
+For later shared pipeline/agent adoption, start with the
+[deferred platform handoff](#deferred-shared-ci-platform-adoption-handoff).
+That documentation-only handoff does not close modernization acceptance or
+activate a new execution path.
+
 Modernize repository-owned testing and CI before Platform Phase 4.2 adds more field and page-schema
 contracts. The interlude follows the existing Phase 4.1 discovery work without claiming its pending
 maintainer review is complete. CI closure and Phase 4.1 review are independent prerequisites for
@@ -3119,6 +3124,75 @@ do not demonstrate lower complete native/sequential costs.
 
 **Rollback:** Revert focused adoption commits through normal review and restore the retained execution
 path. Do not rewrite shared history, force synchronization, or reset canonical content.
+
+## Deferred Shared CI Platform Adoption Handoff
+
+Recorded 2026-11-06 for cross-project coordination Phase 0.4. This section is the
+authoritative restart entry for a later KM project chat; the linked contracts and
+phase records remain authoritative for detailed behavior and acceptance. Actual
+shared-template/new-agent adoption is deferred while KM's existing rework and
+qualification decisions remain open. Do not implement from this handoff alone.
+
+### Preserved Baseline And Pending Acceptance
+
+The inspected checkout is C:\Users\ptseb\Documents\LoTM Analysis on
+architecture/ci-testing-modernization. Existing uncommitted edits in this plan
+and [agent pilot](ci-self-hosted-agent-pilot.md) record the October 14 Phase 6.5.4
+live qualification screen, including workload/failure/cancellation evidence.
+They were already pending when this handoff began and are preserved without
+acceptance, discard or publication by this increment. Their pending status and
+Phase 6.5.5's adopt-or-stop decision must be refreshed when KM work resumes.
+Do not equate available pilot evidence with ordinary-backend/full-profile,
+content/event, policy or modernization-integration acceptance.
+
+Retain KM-CI-Pilot, KM-CI-01 and svc_km_ci, the existing installation/profile/caches,
+pipeline routing, exact-agent demands and identity assertions. The restricted
+manual pilot and ordinary pipelines have different purposes; do not migrate or
+enable either automatically. Preserve current runtime/dependency pins in
+[runtime versions](CI/Data/runtime-versions.json) and their owning acquisition
+contracts rather than substituting another project's versions.
+
+### External Direction And Ownership
+
+The [ERS-hosted coordination plan](../../Dreamtech/ERS%20Web%20Lab/docs/Shared-CI-Transition-Coordination-Plan.md)
+owns repo-by-repo documentation and future adoption order. Its Phase 0.4 is this
+handoff only. JIT's [U30](../../Dreamtech/JIT%20PMS/docs/upgrade-and-migration-register.md#shared-ci-foundations-and-deferred-capacity)
+and [shared infrastructure guide](../../Dreamtech/JIT%20PMS/docs/operations/shared-ci-identity-and-agent-transition.md)
+own proposed KDS/gMSA readiness and a separate CI agent/pool alongside the KM
+installation on Dream-Dev. Preserve the old KM setup; no in-place migration is
+required for Toolkit or ERS-Web to progress.
+
+At this handoff, new CI/worker gMSAs, LAB-CI-Windows and DREAM-DEV-CI01 are
+proposals, not provisioned/qualified resources. Toolkit and ERS-Web are the first
+planned template consumers. A future platform repository owns versioned adapters,
+execution profiles and supporting-tool acquisition; its name, release mechanism,
+access and exact compatible version remain unresolved. Follow the owning records
+for later verified changes rather than treating these dated statements as live state.
+
+KM retains its catalogs, source/canonical guards, selection, repository backends,
+process ownership, deadlines, report admission and coverage contracts. A platform
+wrapper must accommodate these existing entry points; a generic pytest invocation
+is not an equivalent replacement. Initial adapters for other projects do not
+qualify KM's mixed Python/PowerShell workload or cross-OS behavior.
+
+### Restart Checklist For The KM Project Chat
+
+- [ ] Read this handoff, the current phase/status records, [contracts](ci-testing-contracts.md), [coverage ledger](ci-testing-coverage-ledger.md), [process ownership](CI/process-ownership.md), [reporting](CI/execution-reporting.md) and agent pilot. Resolve pending 6.5.4 review and 6.5.5 disposition through their normal gates; do not silently mark them complete.
+- [ ] Inspect current branch/worktree, published tips and any new user edits. Refresh actual agent/account/routing, template releases, access and infrastructure readiness through scoped reads; this handoff grants no new credentials or live execution authority.
+- [ ] Review the coordination/JIT/platform records and select an actual supported template version. Acquire supporting scripts at the reviewed revision explicitly; external YAML inclusion alone is not script checkout. Record resolved versions and minimum cross-project permissions.
+- [ ] Propose a bounded KM-specific integration and recovery plan. Preserve standalone backends, current pins, catalogs, case identities, source guards, Python/PS7 and Windows/Linux support, admitted evidence and controlled failure/cleanup semantics.
+- [ ] Obtain review before implementation, policy/routing changes or live qualification. Do not resume retired cache experiments or add infrastructure solely to satisfy a generic adapter.
+- [ ] Verify same-source required coverage and report admission, real failure with subsequent passing controls, cancellation/descendant cleanup, timeout/setup/missing-report behavior and independent artifact verification for the affected profiles. Old pilot results or other consumers' green builds are not substitute evidence.
+- [ ] Establish owned dependency/cache/profile behavior under the selected identity, distinguishing cold acquisition from warm reuse. Compare queue/setup/execution/publication costs for equivalent workloads; preserve the original screen's lack of a demonstrated lab speedup.
+- [ ] Preserve prior source/routing and recovery, accept KM separately and review any PR/policy activation explicitly. Record actual source/template/identity/run evidence and update this handoff's status through the owning project workflow.
+
+### Scope Of This Documentation Increment
+
+Only this handoff and discoverability pointers are added in Phase 0.4. Existing
+qualification edits and historical evidence remain distinct. No source, YAML,
+catalog, dependency pin, service, account, credential, pool, policy, workload run
+or external resource changes. Documentation publication requires confirmation;
+actual KM adoption and cross-project Phase 0.5 closure need separate progression.
 
 ## Remaining Setup And Review Details
 

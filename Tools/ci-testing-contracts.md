@@ -46,6 +46,12 @@ This contract specifies an additional repository-owned orchestration boundary.
 
 ## 1. Ownership And Authoritative Locations
 
+The [deferred platform adoption handoff](ci-testing-modernization-plan.md#deferred-shared-ci-platform-adoption-handoff)
+records future integration prerequisites and restart instructions. It does not
+supersede these KM-owned contracts, close current gates or introduce an external
+template dependency. Actual adoption must preserve existing backends and qualify
+the affected execution/reporting behavior independently.
+
 | Location | Authority |
 | --- | --- |
 | `Tools/ci-testing-modernization-plan.md` | Phase scope, review gates and closure pointers. |
