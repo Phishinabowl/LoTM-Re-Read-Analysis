@@ -3154,7 +3154,7 @@ contracts rather than substituting another project's versions.
 
 ### External Direction And Ownership
 
-The [ERS-hosted coordination plan](../../Dreamtech/ERS%20Web%20Lab/docs/Shared-CI-Transition-Coordination-Plan.md)
+The [JIT-hosted coordination plan](../../Dreamtech/JIT%20PMS/docs/plans/developer-platform/shared-ci-transition-coordination-plan.md)
 owns repo-by-repo documentation and future adoption order. Its Phase 0.4 is this
 handoff only. JIT's [U30](../../Dreamtech/JIT%20PMS/docs/upgrade-and-migration-register.md#shared-ci-foundations-and-deferred-capacity)
 and [shared infrastructure guide](../../Dreamtech/JIT%20PMS/docs/operations/shared-ci-identity-and-agent-transition.md)
